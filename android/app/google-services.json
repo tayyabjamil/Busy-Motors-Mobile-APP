@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "460048555297",
+    "project_id": "scrapcar-bf8b0",
+    "storage_bucket": "scrapcar-bf8b0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460048555297:android:be53eccb491d4634943260",
+        "android_client_info": {
+          "package_name": "com.scrap4yourmobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0ojINNxV2pZXz4HWhyKqWdVbm1amfbTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

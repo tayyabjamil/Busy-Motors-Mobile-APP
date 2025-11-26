@@ -1,0 +1,245 @@
+import React, {useEffect} from 'react';
+import {Image, Linking, Platform} from 'react-native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+import Login from './Screens/Login/login';
+import Register from './Screens/Register/register';
+import Profile from './Screens/Profile/profile';
+import Notifications from './Screens/Notifications/notifications';
+import MapListings from './Screens/MapListings/mapListings';
+import CarListings from './Screens/carListings/carListings';
+import CarDeatils from './Screens/CarDetails/carDeatils';
+import Dashboard from './Screens/Dashboard/dashboard';
+import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
+import {useDispatch, useSelector} from 'react-redux';
+import Savage from './Screens/Savage/Savage';
+import {axiosHeader} from './Services/apiHeader';
+import {fetchUserRequest} from './redux/slices/userDetail';
+import {checkSubscriptionRequest} from './redux/slices/subcriptionsSlice';
+import {setActiveSubscriptions} from './redux/slices/subcriptionsSlice';
+import Purchases from 'react-native-purchases';
+import DeviceInfo from 'react-native-device-info';
+import {logout} from './redux/slices/authSlice';
+import forgotPassword from './Screens/ForgotPassword/forgotPassword';
+import getOTP from './Screens/GetOTP/getOTP';
+import resetPassword from './Screens/ResetPassword/resetPassword';
+import quoteMessages from './Screens/QuoteMessage/quoteMessages';
+import {getMessaging} from '@react-native-firebase/messaging';
+import {DeepLinkingRoute} from './Components/DeepLinkingRoute';
+import Details from './Screens/CarDetails/carDeatils';
+import {navigationRef} from './navigationRef';
+import Splash from './Screens/Splash/splash';
+import Colors from './Helper/Colors';
+
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+/* Load Images from Assets */
+const icons = {
+  CarListings: require('./assets/home.png'),
+  MapListings: require('./assets/placeholder.png'),
+  Dashboard: require('./assets/dashboard.png'),
+  Profile: require('./assets/user.png'),
+};
+
+/* Auth Stack */
+const AuthStack = () => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="Register" component={Register} />
+    <Stack.Screen name="forgotPassword" component={forgotPassword} />
+    <Stack.Screen name="getOTP" component={getOTP} />
+    <Stack.Screen name="resetPassword" component={resetPassword} />
+  </Stack.Navigator>
+);
+
+/* Main Tabs */
+const MainTabs = () => (
+  <Tab.Navigator
+    screenOptions={({route}) => ({
+      headerShown: false,
+      tabBarIcon: ({focused}) => {
+        // Get the respective image based on route name
+        const icon = icons[route.name];
+        return (
+          <Image
+            source={icon}
+            style={{
+              width: 20,
+              height: 20,
+              tintColor: focused ? Colors.primary : Colors.gray,
+            }}
+            resizeMode="contain"
+          />
+        );
+      },
+      tabBarActiveTintColor: Colors.primary,
+      tabBarInactiveTintColor: Colors.gray,
+    })}>
+    <Tab.Screen name="CarListings" component={CarListings} />
+    <Tab.Screen name="MapListings" component={MapListings} />
+    <Tab.Screen name="Dashboard" component={Dashboard} />
+    <Tab.Screen name="Profile" component={Profile} />
+  </Tab.Navigator>
+);
+
+/* Main Stack */
+const MainStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="CarDeatils" component={Details} />
+      <Stack.Screen name="Subscriptions" component={SubscriptionScreen} />
+      <Stack.Screen name="Savage" component={Savage} />
+      <Stack.Screen name="Notifications" component={Notifications} />
+      <Stack.Screen name="QuoteMessages" component={quoteMessages} />
+    </Stack.Navigator>
+  );
+};
+
+/* App Navigation */
+const AppNavigation = () => {
+  const authState = useSelector((state) => state.auth);
+
+  const {token} = authState;
+  console.log(token);
+  // const token = useSelector(state => state.auth.token);
+  const dispatch = useDispatch();
+  const {userData} = useSelector(state => state?.user);
+  
+  // Function to check RevenueCat subscriptions
+  const checkRevenueCatSubscriptions = async () => {
+    try {
+      console.log('🔍 Checking RevenueCat subscriptions on login...');
+      const customerInfo = await Purchases.getCustomerInfo();
+      const activeSubs = customerInfo.activeSubscriptions || [];
+      dispatch(setActiveSubscriptions(activeSubs));
+      console.log('✅ RevenueCat subscriptions found on login:', activeSubs);
+    } catch (error) {
+      console.log('❌ Error checking RevenueCat subscriptions on login:', error);
+    }
+  };
+
+  // Check device ID and active devices
+  // useEffect(() => {
+  //   const checkActiveDevice = async () => {
+  //     try {
+  //       // Get current device ID based on platform
+  //       const currentDeviceId =
+  //         Platform.OS === 'android'
+  //           ? await DeviceInfo.getAndroidId()
+  //           : await DeviceInfo.getUniqueId();
+  //       if (userData?.active_devices && currentDeviceId) {
+  //         // Check if current device ID exists in active devices
+  //         const isDeviceActive =
+  //           userData.active_devices.includes(currentDeviceId);
+
+  //         // If device is not in active devices, logout user
+  //         if (!isDeviceActive) {
+  //           console.log('Device not authorized, logging out...');
+
+  //           dispatch(logout());
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error('Device check error:', error);
+  //     }
+  //   };
+
+  //   if (userData && token) {
+  //     checkActiveDevice();
+  //   }
+  // }, [userData, token]);
+
+  // Existing useEffect for subscription check
+  useEffect(() => {
+    if (token) {
+      axiosHeader(token);
+      dispatch(fetchUserRequest(token));
+      if (userData?.email) {
+        dispatch(checkSubscriptionRequest({email: userData.email}));
+        // Also check RevenueCat subscriptions
+        checkRevenueCatSubscriptions();
+      }
+    }
+  }, [token]);
+
+  // const linking = {
+  //   prefixes: ['carscrape://'],
+  //   config: {
+  //     screens: {
+  //       MainStack: {
+  //         screens: {
+  //           CarDeatils: {
+  //             path: 'CarDeatils/:carId',
+  //             parse: {
+  //               carId: id => id,
+  //             },
+  //           },
+  //           MainTabs: {
+  //             screens: {
+  //               CarListings: 'carListings',
+  //               MapListings: 'mapListings',
+  //               Dashboard: 'dashboard',
+  //               Profile: 'profile',
+  //             },
+  //           },
+  //         },
+  //       },
+  //       Notifications: 'notifications',
+  //       Login: 'login',
+  //     },
+  //   },
+  //   async getInitialURL() {
+  //     const url = await Linking.getInitialURL();
+  //     if (typeof url === 'string') {
+  //       console.log('Initial URL:', url);
+  //       return url;
+  //     }
+  //     return null;
+  //   },
+
+  //   subscribe(listener) {
+  //     const onReceiveURL = ({url}) => {
+  //       console.log('URL received:', url);
+  //       listener(url);
+  //     };
+
+  //     const linkingSubscription = Linking.addEventListener('url', onReceiveURL);
+
+  //     const unsubscribe = getMessaging().onNotificationOpenedApp(
+  //       remoteMessage => {
+  //         console.log('Notification clicked:', remoteMessage);
+  //         const url = DeepLinkingRoute(remoteMessage);
+  //         if (url === 'blockaccount') {
+  //           console.log('Logout user');
+  //           dispatch(logout());
+  //         } else if (typeof url === 'string') {
+  //           console.log('Opening URL:', url);
+  //           listener(url);
+  //         }
+  //       },
+  //     );
+
+  //     return () => {
+  //       linkingSubscription.remove();
+  //       unsubscribe();
+  //     };
+  //   },
+  // };
+
+  return (
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator
+        screenOptions={{headerShown: false}}
+        initialRouteName="Splash">
+        <Stack.Screen name="Splash" component={Splash} />
+        <Stack.Screen name="MainStack" component={MainStack} />
+        <Stack.Screen name="AuthStack" component={AuthStack} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default AppNavigation;
