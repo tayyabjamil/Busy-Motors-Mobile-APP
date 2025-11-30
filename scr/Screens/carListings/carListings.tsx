@@ -12,6 +12,8 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Alert,
+  TextInput,
+  ScrollView,
 } from 'react-native';
 import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
@@ -53,6 +55,11 @@ const Listings = () => {
   });
   const [distance, setDistance] = useState(null); // Start with null (no filtering)
   const [activeDistanceFilter, setActiveDistanceFilter] = useState(null); // Tracks if user is fil
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [selectedFuelTypes, setSelectedFuelTypes] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const locationOptions = [
     '5 miles',
     '10 miles',
@@ -60,6 +67,85 @@ const Listings = () => {
     '25 miles',
     '50 miles',
   ];
+
+  // Helper function to convert to camel case (first letter uppercase, rest lowercase)
+  const toCamelCase = (str: string): string => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  // Get unique fuel types and colors from car listings (case-insensitive, displayed in camel case)
+  const fuelTypeMap = new Map<string, string>();
+  carListings?.forEach((item: any) => {
+    if (item?.fuelType) {
+      const lowerKey = item.fuelType.toLowerCase();
+      if (!fuelTypeMap.has(lowerKey)) {
+        fuelTypeMap.set(lowerKey, toCamelCase(item.fuelType));
+      }
+    }
+  });
+  const uniqueFuelTypes = Array.from(fuelTypeMap.values()).sort() as string[];
+
+  const colorMap = new Map<string, string>();
+  carListings?.forEach((item: any) => {
+    if (item?.color) {
+      const lowerKey = item.color.toLowerCase();
+      if (!colorMap.has(lowerKey)) {
+        colorMap.set(lowerKey, toCamelCase(item.color));
+      }
+    }
+  });
+  const uniqueColors = Array.from(colorMap.values()).sort() as string[];
+
+  // All available brands with their display names and image mappings
+  const allAvailableBrands = [
+    { name: 'Aston Martin', key: 'astonmartin' },
+    { name: 'BAIC', key: 'baic' },
+    { name: 'Bugatti', key: 'bugatti' },
+    { name: 'Chevrolet', key: 'chevrolet' },
+    { name: 'Citroen', key: 'citroen' },
+    { name: 'Dacia', key: 'dacia' },
+    { name: 'Daihatsu', key: 'daihatsu' },
+    { name: 'Dodge', key: 'dodge' },
+    { name: 'Dongfeng', key: 'dongfeng' },
+    { name: 'Ford', key: 'ford' },
+    { name: 'Honda', key: 'honda' },
+    { name: 'Hyundai', key: 'hyundai' },
+    { name: 'Kia', key: 'kia' },
+    { name: 'Lamborghini', key: 'lamborghini' },
+    { name: 'Lotus', key: 'lotus' },
+    { name: 'Mazda', key: 'mazda' },
+    { name: 'McLaren', key: 'mclaren' },
+    { name: 'Mercedes-Benz', key: 'mercedes-benz' },
+    { name: 'MG', key: 'mg' },
+    { name: 'Mini', key: 'mini' },
+    { name: 'Nissan', key: 'nissan' },
+    { name: 'Opel', key: 'opel' },
+    { name: 'Proton', key: 'proton' },
+    { name: 'Rolls-Royce', key: 'rollsroyce' },
+    { name: 'SAIC', key: 'saic' },
+    { name: 'Skoda', key: 'skoda' },
+    { name: 'Suzuki', key: 'suzuki' },
+    { name: 'Tesla', key: 'tesla' },
+    { name: 'Vauxhall', key: 'vauxhall' },
+    { name: 'Volkswagen', key: 'volkswagen' },
+    { name: 'Volvo', key: 'volvo' },
+    { name: 'XPeng', key: 'xpeng' },
+  ];
+
+  // Get unique brands from car listings to show which ones are available
+  const brandMap = new Map<string, string>();
+  carListings?.forEach((item: any) => {
+    if (item?.make) {
+      const lowerKey = item.make.toLowerCase();
+      if (!brandMap.has(lowerKey)) {
+        brandMap.set(lowerKey, toCamelCase(item.make));
+      }
+    }
+  });
+
+  // Use all available brands for the filter
+  const uniqueBrands = allAvailableBrands.map(brand => brand.name).sort() as string[];
 
   // useEffect(() => {
   //   if (isFocused) {
@@ -231,7 +317,75 @@ const Listings = () => {
       distanceMatch = distanceInMiles <= distance;
     }
 
-    return filterMatch && distanceMatch;
+    // 3. Apply search filter (real-time local search)
+    let searchMatch = true;
+    if (searchQuery && searchQuery.trim().length > 0) {
+      const query = searchQuery.toLowerCase().trim();
+      const searchableFields = [
+        item?.make || '',
+        item?.model || '',
+        item?.registrationNumber || '',
+        item?.color || '',
+        item?.fuelType || '',
+        item?.yearOfManufacture?.toString() || '',
+        item?.postcode || '',
+      ];
+      
+      // Check if any field contains the search query
+      searchMatch = searchableFields.some(field => 
+        field.toLowerCase().includes(query)
+      );
+    }
+
+    // 4. Apply fuel type filter (case-insensitive)
+    let fuelTypeMatch = true;
+    if (selectedFuelTypes.length > 0) {
+      const itemFuelType = item?.fuelType?.toLowerCase() || '';
+      fuelTypeMatch = selectedFuelTypes.some(
+        selected => selected.toLowerCase() === itemFuelType,
+      );
+    }
+
+    // 5. Apply color filter (case-insensitive)
+    let colorMatch = true;
+    if (selectedColors.length > 0) {
+      const itemColor = item?.color?.toLowerCase() || '';
+      colorMatch = selectedColors.some(
+        selected => selected.toLowerCase() === itemColor,
+      );
+    }
+
+    // 6. Apply brand filter (case-insensitive with variations)
+    let brandMatch = true;
+    if (selectedBrands.length > 0) {
+      const itemBrand = item?.make?.toLowerCase() || '';
+      brandMatch = selectedBrands.some(selected => {
+        const selectedLower = selected.toLowerCase();
+        const itemBrandLower = itemBrand;
+        
+        // Direct match
+        if (selectedLower === itemBrandLower) return true;
+        
+        // Check for variations (e.g., "Mercedes-Benz" vs "Mercedes" vs "MercedesBenz")
+        const brandInfo = allAvailableBrands.find(b => b.name.toLowerCase() === selectedLower);
+        if (brandInfo) {
+          // Check if item brand matches any variation of the selected brand
+          const variations = [
+            brandInfo.name.toLowerCase(),
+            brandInfo.key.toLowerCase(),
+            brandInfo.name.toLowerCase().replace(/-/g, ' '),
+            brandInfo.name.toLowerCase().replace(/-/g, ''),
+            brandInfo.name.toLowerCase().replace(/ /g, '-'),
+            brandInfo.name.toLowerCase().replace(/ /g, ''),
+          ];
+          return variations.some(v => v === itemBrandLower);
+        }
+        
+        return false;
+      });
+    }
+
+    return filterMatch && distanceMatch && searchMatch && fuelTypeMatch && colorMatch && brandMatch;
   });
   const noDataFound = filteredData?.length === 0;
   const sortedData = filteredData?.sort((a, b) => {
@@ -262,6 +416,56 @@ const Listings = () => {
   const handleCarDetailsNavigation = (car: any) => {
     dispatch(updateViewCountRequest({carId: car._id, token}));
     navigation.navigate('CarDeatils', {car});
+  };
+
+  // Function to get brand image icon
+  const getBrandImage = (brandName: string) => {
+    if (!brandName) return null;
+    
+    // Find the brand in allAvailableBrands
+    const brand = allAvailableBrands.find(
+      b => b.name.toLowerCase() === brandName.toLowerCase()
+    );
+    
+    if (!brand) return null;
+    
+    // Map brand keys to image files
+    const brandImageMap: {[key: string]: any} = {
+      'astonmartin': require('../../assets/cars/astonmartin.png'),
+      'baic': require('../../assets/cars/baic.png'),
+      'bugatti': require('../../assets/cars/bugatti.png'),
+      'chevrolet': require('../../assets/cars/chevrolet.png'),
+      'citroen': require('../../assets/cars/citroen.png'),
+      'dacia': require('../../assets/cars/dacia.png'),
+      'daihatsu': require('../../assets/cars/daihatsu.png'),
+      'dodge': require('../../assets/cars/dodge.png'),
+      'dongfeng': require('../../assets/cars/dongfeng.png'),
+      'ford': require('../../assets/cars/ford.png'),
+      'honda': require('../../assets/cars/honda.png'),
+      'hyundai': require('../../assets/cars/hyundai.png'),
+      'kia': require('../../assets/cars/kia.png'),
+      'lamborghini': require('../../assets/cars/lamborghini.png'),
+      'lotus': require('../../assets/cars/lotus.png'),
+      'mazda': require('../../assets/cars/mazda.png'),
+      'mclaren': require('../../assets/cars/mclaren.png'),
+      'mercedes-benz': require('../../assets/cars/mercedes-benz.png'),
+      'mg': require('../../assets/cars/mg.png'),
+      'mini': require('../../assets/cars/mini.png'),
+      'nissan': require('../../assets/cars/nissan.png'),
+      'opel': require('../../assets/cars/opel.png'),
+      'proton': require('../../assets/cars/proton.png'),
+      'rollsroyce': require('../../assets/cars/rollsroyce.png'),
+      'saic': require('../../assets/cars/saic.png'),
+      'skoda': require('../../assets/cars/skoda.png'),
+      'suzuki': require('../../assets/cars/suzuki.png'),
+      'tesla': require('../../assets/cars/tesla.png'),
+      'vauxhall': require('../../assets/cars/vauxhall.png'),
+      'volkswagen': require('../../assets/cars/volkswagen.png'),
+      'volvo': require('../../assets/cars/volvo.png'),
+      'xpeng': require('../../assets/cars/xpeng.png'),
+    };
+    
+    return brandImageMap[brand.key] || null;
   };
 
   // Function to get car image - checks local assets first, then API image
@@ -504,40 +708,31 @@ const Listings = () => {
     <SafeAreaView style={styles.container}>
       <Banner navigation={navigation} />
 
-      {/* <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
           <Image
-            source={require('../../assets/location.png')}
-            style={styles.locationIcon}
+            source={require('../../assets/search.png')}
+            style={styles.searchIcon}
           />
-        </TouchableOpacity> */}
-      {/* </View> */}
-      <View style={styles.locationContainer}>
-        <View style={styles.sliderContainer} pointerEvents="box-none">
-          <Text style={styles.distanceText}>
-            {Math.min(kilometersToMiles(distance || 10), 100).toFixed(0)} miles
-          </Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={1}
-            maximumValue={1000}
-            step={1}
-            value={distance || 10}
-            onValueChange={handleSliderChange}
-            onSlidingComplete={handleSliderComplete}
-            minimumTrackTintColor={Colors.primary}
-            maximumTrackTintColor="gray"
-            thumbTintColor={Colors.primary}
-            // onSlidingComplete={handleSliderComplete}
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search cars..."
+            placeholderTextColor={Colors.gray}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
         </View>
-
-        <TouchableOpacity onPress={() => setIsLocationModalVisible(true)}>
+        <TouchableOpacity
+          style={styles.filterIconButton}
+          onPress={() => setIsFilterModalVisible(true)}>
           <Image
-            source={require('../../assets/location.png')}
-            style={styles.locationIcon}
+            source={require('../../assets/dashboard.png')}
+            style={styles.filterIcon}
           />
         </TouchableOpacity>
       </View>
+
 
       <Modal
         transparent={true}
@@ -576,26 +771,234 @@ const Listings = () => {
         </TouchableOpacity>
       </Modal>
 
-      <View style={styles.filterContainer}>
-        {['Scrap', 'Salvage', 'Saved'].map(filter => (
-          <TouchableOpacity
-            key={filter}
-            style={[
-              styles.filterButton,
-              activeFilters.includes(filter) && styles.filterButtonActive,
-            ]}
-            activeOpacity={0.7}
-            onPress={() => handleFilterPress(filter)}>
-            <Text
-              style={[
-                styles.filterText,
-                activeFilters.includes(filter) && styles.filterTextActive,
-              ]}>
-              {filter}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {/* Filter Bottom Sheet Modal */}
+      <Modal
+        visible={isFilterModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsFilterModalVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setIsFilterModalVisible(false)}>
+          <View style={styles.filterModalOverlay}>
+            <View 
+              style={styles.filterModalContent}
+              onStartShouldSetResponder={() => true}
+              onMoveShouldSetResponder={() => false}>
+                {/* Header */}
+                <View style={styles.filterModalHeader}>
+                  <Text style={styles.filterModalTitle}>Filters</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setActiveFilters(['Scrap', 'Salvage']);
+                      setSelectedFuelTypes([]);
+                      setSelectedColors([]);
+                      setSelectedBrands([]);
+                      setDistance(null);
+                      setActiveDistanceFilter(null);
+                    }}>
+                    <Text style={styles.resetButtonText}>RESET</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView
+                  style={styles.filterScrollView}
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled={true}
+                  bounces={false}>
+              {/* Scrap/Salvage Filter */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Type</Text>
+                <View style={styles.filterOptionsRow}>
+                  {['Scrap', 'Salvage'].map(filter => (
+                    <TouchableOpacity
+                      key={filter}
+                      style={[
+                        styles.filterOptionButton,
+                        activeFilters.includes(filter) &&
+                          styles.filterOptionButtonActive,
+                      ]}
+                      onPress={() => handleFilterPress(filter)}>
+                      <Text
+                        style={[
+                          styles.filterOptionText,
+                          activeFilters.includes(filter) &&
+                            styles.filterOptionTextActive,
+                        ]}>
+                        {filter}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Mileage/Distance Filter */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Mileage</Text>
+                <View style={styles.filterSliderContainer}>
+                  <Text style={styles.filterSliderLabel}>
+                    {Math.min(kilometersToMiles(distance || 10), 100).toFixed(0)}{' '}
+                    miles
+                  </Text>
+                  <Slider
+                    style={styles.filterSlider}
+                    minimumValue={1}
+                    maximumValue={1000}
+                    step={1}
+                    value={distance || 10}
+                    onValueChange={handleSliderChange}
+                    onSlidingComplete={handleSliderComplete}
+                    minimumTrackTintColor={Colors.primary}
+                    maximumTrackTintColor="gray"
+                    thumbTintColor={Colors.primary}
+                  />
+                </View>
+              </View>
+
+              {/* Fuel Type Filter */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Fuel Type</Text>
+                <View style={styles.filterOptionsRow}>
+                  {uniqueFuelTypes.map(fuelType => (
+                    <TouchableOpacity
+                      key={fuelType}
+                      style={[
+                        styles.filterOptionButton,
+                        selectedFuelTypes.includes(fuelType) &&
+                          styles.filterOptionButtonActive,
+                      ]}
+                      onPress={() => {
+                        if (selectedFuelTypes.includes(fuelType)) {
+                          setSelectedFuelTypes(
+                            selectedFuelTypes.filter(f => f !== fuelType),
+                          );
+                        } else {
+                          setSelectedFuelTypes([...selectedFuelTypes, fuelType]);
+                        }
+                      }}>
+                      <Text
+                        style={[
+                          styles.filterOptionText,
+                          selectedFuelTypes.includes(fuelType) &&
+                            styles.filterOptionTextActive,
+                        ]}>
+                        {fuelType}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Color Filter */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Choose Colour</Text>
+                <View style={styles.filterOptionsRow}>
+                  {uniqueColors.map(color => (
+                    <TouchableOpacity
+                      key={color}
+                      style={[
+                        styles.filterOptionButton,
+                        selectedColors.includes(color) &&
+                          styles.filterOptionButtonActive,
+                      ]}
+                      onPress={() => {
+                        if (selectedColors.includes(color)) {
+                          setSelectedColors(
+                            selectedColors.filter(c => c !== color),
+                          );
+                        } else {
+                          setSelectedColors([...selectedColors, color]);
+                        }
+                      }}>
+                      <Text
+                        style={[
+                          styles.filterOptionText,
+                          selectedColors.includes(color) &&
+                            styles.filterOptionTextActive,
+                        ]}>
+                        {color}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Brand Filter */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Brands</Text>
+                <View style={styles.filterOptionsRow}>
+                  {uniqueBrands.map(brand => {
+                    const brandImage = getBrandImage(brand);
+                    return (
+                      <TouchableOpacity
+                        key={brand}
+                        style={[
+                          styles.filterOptionButton,
+                          styles.brandFilterButton,
+                          selectedBrands.some(
+                            selected => selected.toLowerCase() === brand.toLowerCase(),
+                          ) && styles.filterOptionButtonActive,
+                        ]}
+                        onPress={() => {
+                          if (
+                            selectedBrands.some(
+                              selected => selected.toLowerCase() === brand.toLowerCase(),
+                            )
+                          ) {
+                            setSelectedBrands(
+                              selectedBrands.filter(
+                                b => b.toLowerCase() !== brand.toLowerCase(),
+                              ),
+                            );
+                          } else {
+                            setSelectedBrands([...selectedBrands, brand]);
+                          }
+                        }}>
+                        {brandImage && (
+                          <Image
+                            source={brandImage}
+                            style={styles.brandIcon}
+                            resizeMode="contain"
+                          />
+                        )}
+                        <Text
+                          style={[
+                            styles.filterOptionText,
+                            selectedBrands.some(
+                              selected => selected.toLowerCase() === brand.toLowerCase(),
+                            ) && styles.filterOptionTextActive,
+                          ]}>
+                          {brand}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+                </ScrollView>
+
+                {/* Action Buttons */}
+                <View style={styles.filterActionButtons}>
+                  <TouchableOpacity
+                    style={styles.resetFiltersButton}
+                    onPress={() => {
+                      setActiveFilters(['Scrap', 'Salvage']);
+                      setSelectedFuelTypes([]);
+                      setSelectedColors([]);
+                      setSelectedBrands([]);
+                      setDistance(null);
+                      setActiveDistanceFilter(null);
+                    }}>
+                    <Text style={styles.resetFiltersButtonText}>Reset Filters</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.applyFilterButton}
+                    onPress={() => setIsFilterModalVisible(false)}>
+                    <Text style={styles.applyFilterButtonText}>Filter</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       {/* Show error message if no carListings is found */}
       {noDataFound ? (
@@ -633,6 +1036,82 @@ const styles = StyleSheet.create({
         marginBottom: 0,
       },
     }),
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: hp(2),
+    marginBottom: hp(1),
+    gap: wp(3),
+  },
+  searchBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    paddingHorizontal: wp(4),
+    height: 55,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  searchIcon: {
+    width: wp(5),
+    height: wp(5),
+    resizeMode: 'contain',
+    marginRight: wp(2),
+    tintColor: Colors.gray,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    padding: 0,
+  },
+  filterIconButton: {
+    width: 55,
+    height: 55,
+    backgroundColor: Colors.black,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: Colors.black,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  filterIcon: {
+    width: wp(6),
+    height: wp(6),
+    resizeMode: 'contain',
+    tintColor: Colors.white,
   },
 
   loadingContainer: {
@@ -896,6 +1375,132 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(2),
     paddingVertical: wp(1),
     fontFamily: Fonts.bold,
+  },
+  // Filter Modal Styles
+  filterModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  filterModalContent: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: wp(5),
+    borderTopRightRadius: wp(5),
+    maxHeight: hp(80),
+    paddingBottom: Platform.OS === 'ios' ? hp(4) : hp(2),
+  },
+  filterModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: wp(5),
+    paddingTop: hp(2),
+    paddingBottom: hp(1.5),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightGray,
+  },
+  filterModalTitle: {
+    fontSize: wp(6),
+    fontFamily: Fonts.bold,
+    color: Colors.black,
+  },
+  filterScrollView: {
+    maxHeight: hp(60),
+    paddingHorizontal: wp(5),
+  },
+  filterSection: {
+    marginTop: hp(2),
+    marginBottom: hp(1),
+  },
+  filterSectionTitle: {
+    fontSize: wp(4.5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.black,
+    marginBottom: hp(1.5),
+  },
+  filterOptionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: wp(2.5),
+  },
+  filterOptionButton: {
+    paddingHorizontal: wp(5),
+    paddingVertical: hp(1.2),
+    borderRadius: wp(5),
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    marginBottom: hp(1),
+  },
+  brandFilterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(2),
+  },
+  brandIcon: {
+    width: wp(6),
+    height: wp(6),
+  },
+  filterOptionButtonActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterOptionText: {
+    fontSize: wp(3.8),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+  },
+  filterOptionTextActive: {
+    color: Colors.white,
+    fontFamily: Fonts.semiBold,
+  },
+  filterSliderContainer: {
+    marginTop: hp(1),
+  },
+  filterSliderLabel: {
+    fontSize: wp(4),
+    fontFamily: Fonts.semiBold,
+    color: Colors.primary,
+    textAlign: 'center',
+    marginBottom: hp(1),
+  },
+  filterSlider: {
+    width: '100%',
+    height: 15,
+  },
+  filterActionButtons: {
+    flexDirection: 'row',
+    marginHorizontal: wp(5),
+    marginTop: hp(2),
+    gap: wp(3),
+  },
+  resetFiltersButton: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    paddingVertical: hp(2),
+    borderRadius: wp(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resetFiltersButtonText: {
+    fontSize: wp(4.5),
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+  },
+  applyFilterButton: {
+    flex: 1,
+    backgroundColor: Colors.black,
+    paddingVertical: hp(2),
+    borderRadius: wp(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  applyFilterButtonText: {
+    fontSize: wp(4.5),
+    fontFamily: Fonts.bold,
+    color: Colors.white,
   },
 });
 

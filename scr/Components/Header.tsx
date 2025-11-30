@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: hp(2.5),
+    paddingVertical: 10,
   },
   leftSection: {
     flexDirection: 'row',
@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
   shadowRadius: 2,
 },
   iconBack: {
-    width: wp(5),
-    height: wp(5),
+    width: 20,
+    height: 20,
     resizeMode: 'contain',
   },
   titleText: {
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     marginLeft:50,
   },
   textData:{
-    fontSize:25,
+    fontSize:22,
     fontWeight:'600'
   },
   bellIcon: {

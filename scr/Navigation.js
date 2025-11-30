@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {Image, Linking, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -9,7 +10,6 @@ import Profile from './Screens/Profile/profile';
 import Notifications from './Screens/Notifications/notifications';
 import MapListings from './Screens/MapListings/mapListings';
 import CarListings from './Screens/carListings/carListings';
-import CarDeatils from './Screens/CarDetails/carDeatils';
 import Dashboard from './Screens/Dashboard/dashboard';
 import SubscriptionScreen from './Screens/Subscriptions/subscriptions';
 import {useDispatch, useSelector} from 'react-redux';
@@ -231,6 +231,7 @@ const AppNavigation = () => {
   // };
 
   return (
+    <SafeAreaView style={{flex: 1}}> 
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
@@ -240,6 +241,7 @@ const AppNavigation = () => {
         <Stack.Screen name="AuthStack" component={AuthStack} />
       </Stack.Navigator>
     </NavigationContainer>
+          </SafeAreaView>
   );
 };
 

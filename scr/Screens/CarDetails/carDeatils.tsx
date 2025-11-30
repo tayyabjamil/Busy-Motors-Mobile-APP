@@ -14,7 +14,9 @@ import {
   TextInput,
   ActivityIndicator,
   KeyboardAvoidingView,
+  Dimensions,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
@@ -27,22 +29,24 @@ import Toast from 'react-native-simple-toast';
 import {navigationRef} from '../../navigationRef';
 
 const defaultCarImage = require('../../assets/car2.png');
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
-const Details = ({route}) => {
+const Details = ({route}: any) => {
   const dispatch = useDispatch();
   const {car} = route.params;
+  const insets = useSafeAreaInsets();
 
   // Get active subscriptions from RevenueCat (global check)
   const activeSubscriptions = useSelector(
-    state => state?.subscription?.activeSubscriptions || [],
+    (state: any) => state?.subscription?.activeSubscriptions || [],
   );
 
   // Check if user has any active subscriptions
   const hasActiveSubscription = activeSubscriptions.length > 0;
 
-  const {userData} = useSelector(state => state.user);
-  const token = useSelector(state => state.auth?.token);
-  const qoute = useSelector(state => state?.quote);
+  const {userData} = useSelector((state: any) => state.user);
+  const token = useSelector((state: any) => state.auth?.token);
+  const qoute = useSelector((state: any) => state?.quote);
   const [showWebView, setShowWebView] = useState(false);
   const [webViewUrl, setWebViewUrl] = useState('');
   const [message, setMessage] = useState('');
@@ -51,7 +55,22 @@ const Details = ({route}) => {
     messageError: '',
     amountError: '',
   });
-  // const isSubscribed = true; // <--- temporarily hardcoded
+  const [showMessageBottomSheet, setShowMessageBottomSheet] = useState(false);
+  
+  // Dummy data for missing fields
+  const carData = {
+    name: car?.make && car?.model ? `${car.make} ${car.model}` : 'dummy Classic Mustang',
+    price: car?.price || 'dummy $35,000',
+    maxSpeed: car?.maxSpeed || 'dummy 200 M/h',
+    age: car?.age || car?.yearOfManufacture ? `${new Date().getFullYear() - parseInt(car.yearOfManufacture)} years` : 'dummy 4 years',
+    fuel: car?.fuelType || 'dummy Diesel',
+    power: car?.engineCapacity + ' cc' || '',
+    motStatus: car?.motStatus || 'N/A',
+    transmission: car?.transmission || 'dummy Automatic',
+    description: car?.description || 'dummy Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
+  };
+
+  console.log('car', car);
 
   useEffect(() => {
     if (qoute?.success) {
@@ -86,7 +105,7 @@ const Details = ({route}) => {
     }
     // Dispatch action
     dispatch(
-      sendQuoteRequest({
+      (sendQuoteRequest as any)({
         listingId: car?._id,
         userId: userData?.userId,
         amount,
@@ -107,7 +126,7 @@ const Details = ({route}) => {
     Toast.show(`Bid placed: ₹${amount}`, Toast.SHORT);
   };
 
-  const handleCall = phoneNumber => {
+  const handleCall = (phoneNumber: string) => {
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
@@ -115,7 +134,7 @@ const Details = ({route}) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleTextMessage = phoneNumber => {
+  const handleTextMessage = (phoneNumber: string) => {
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
@@ -123,7 +142,7 @@ const Details = ({route}) => {
     Linking.openURL(`sms:${phoneNumber}`);
   };
 
-  const handleWhatsApp = phoneNumber => {
+  const handleWhatsApp = (phoneNumber: string) => {
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
@@ -153,7 +172,11 @@ const Details = ({route}) => {
         },
         {
           text: 'Subscribe Now',
-          onPress: () => navigationRef.navigate('Subscriptions'),
+          onPress: () => {
+            if (navigationRef.isReady()) {
+              (navigationRef as any).navigate('Subscriptions');
+            }
+          },
           style: 'default',
         },
       ],
@@ -161,7 +184,8 @@ const Details = ({route}) => {
     );
   };
 
-  const formatDate = dateString => {
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -170,20 +194,59 @@ const Details = ({route}) => {
     });
   };
 
+  const handleMessageSeller = () => {
+    setShowMessageBottomSheet(true);
+  };
+
+  const handleGetNow = () => {
+    // Handle Get Now action
+    Toast.show('Get Now clicked', Toast.SHORT);
+  };
+
+  const specifications = [
+    {
+      label: 'Max Speed',
+      value: carData.maxSpeed,
+      icon: require('../../assets/speedometer.png'),
+    },
+    {
+      label: 'Mot Status',
+      value: carData?.motStatus || 'N/A',
+      icon: require('../../assets/dashboard.png'),
+    },
+    {
+      label: 'Age',
+      value: carData.age,
+      icon: require('../../assets/timer.png'),
+    },
+    {
+      label: 'Fuel',
+      value: carData.fuel,
+      icon: require('../../assets/Fuel.png'),
+    },
+    {
+      label: 'Engine Capacity',
+      value: carData.power,
+      icon: require('../../assets/dashboard.png'),
+    },
+    {
+      label: 'Postcode',
+      value: car?.postcode
+        ? car.postcode.toString().substring(0, 3).toUpperCase() + '..'
+        : 'N/A',
+      icon: require('../../assets/dashboard.png'),
+    },
+  ];
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}>
+    <View style={styles.mainContainer}>
+      <Header navigation={navigationRef} showNotification={false} {...({textData: 'Car Details'} as any)} />
       <ScrollView
-        style={[
-          styles.container,
-          {paddingTop: Platform.OS === 'ios' ? 20  : 0},
-        ]}>
-        <Header navigation={navigationRef} showNotification={false} textData={'Car Details'} />
-        <View style={styles.detailsContainer}>
-        <View style={styles.carTagContainer}>
-            <Text style={styles.scrapText}>{car?.tag || 'Unknown'}</Text>
-          </View>
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
+        {/* Car Image */}
+        <View style={styles.imageContainer}>
           <Image
             source={
               car?.displayImage && car?.displayImage !== 'N/A'
@@ -191,328 +254,423 @@ const Details = ({route}) => {
                 : defaultCarImage
             }
             style={styles.carImage}
-            resizeMode={'contain'}
+            resizeMode="cover"
           />
-        
-          <Text style={styles.carTitle}>
-            {car?.make || 'Model Not Available'}
-          </Text>
-
-          {[
-            ['Registration :', car?.registrationNumber],
-            ['Year :', car?.yearOfManufacture],
-            ['Postcode :', car?.postcode],
-            ['Colour :', car?.color],
-            ['Model :', car?.model],
-            ['Fuel Type :', car?.fuelType],
-          ].map(([label, value], index) => {
-            // Show only first 3 characters for postcode with ellipsis
-            const displayValue = label === 'Postcode :' 
-              ? (value?.toString() && value.toString().length > 3
-                  ? value.toString().substring(0, 3).toUpperCase() + '...'
-                  : (value?.toString().toUpperCase() || 'N/A'))
-              : (value?.toString().toUpperCase() || 'N/A');
-            
-            return (
-              <View key={index} style={styles.infoRow}>
-                <Text style={styles.label}>{label}</Text>
-                <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
-                  {displayValue}
-                </Text>
-              </View>
-            );
-          })}
-          <View style={styles.motContainer}>
-            <Image
-              source={require('../../assets/Union.png')}
-              style={styles.motImage}
-            />
-            <View style={styles.textContainer}>
-              <View style={styles.rowText}>
-                <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
-                <TouchableOpacity
-                  style={styles.motHistoryButton}
-                  onPress={() => handleMotHistory()}>
-                  <Text style={styles.motHistoryText}>MOT history</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.expiry}>
-                Expiry: {formatDate(car?.date_added)}
-              </Text>
-            </View>
-          </View>
-          <Banner navigation={navigationRef} />
         </View>
 
-        <View style={styles.contactContainer}>
-          <Text style={styles.contactTitle}>Contact Seller Via</Text>
-          <View style={styles.contactIcons}>
-            {[
-              ['Call', require('../../assets/apple.png'), handleCall],
-              [
-                'WhatsApp',
-                require('../../assets/whatsapp.png'),
-                handleWhatsApp,
-              ],
-              ['Text', require('../../assets/messages.png'), handleTextMessage],
-            ].map(([text, icon, action], index) => {
-              const isSold = car?.isSold;
-              const opacityStyle = {opacity: isSold ? 0.3 : 1};
+        {/* Car Name and Price Section */}
+        <View style={styles.titleSection}>
+          <View style={styles.titleRow}>
+            <Text style={styles.carName}>{carData.name}</Text>
+            <TouchableOpacity style={styles.heartButton}>
+              <Image
+                source={require('../../assets/heart.png')}
+                style={styles.heartIcon}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.carPrice}>{carData.price}</Text>
+        </View>
 
-              return (
-                <View key={index}>
+        {/* Specifications Grid */}
+        <View style={styles.specsContainer}>
+          {specifications.map((spec, index) => (
+            <View key={index} style={styles.specCard}>
+              <Image
+                source={spec.icon}
+                style={[
+                  styles.specIcon,
+                  spec.label === 'Fuel' && styles.fuelIcon,
+                ]}
+                tintColor={spec.label === 'Fuel' ? Colors.black : undefined}
+              />
+              <Text style={styles.specLabel}>{spec.label}</Text>
+              <Text style={styles.specValue}>{spec.value}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Car Details Description */}
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.descriptionTitle}>Car details</Text>
+          <Text style={styles.descriptionText}>{carData.description}</Text>
+        </View>
+
+        {/* Bottom Spacing for Buttons */}
+        <View style={styles.bottomSpacing} />
+      </ScrollView>
+
+      {/* Bottom Action Buttons - Fixed at Bottom */}
+      <View
+        style={[
+          styles.bottomButtonsWrapper,
+          {paddingBottom: Math.max(insets.bottom, hp(1))},
+        ]}>
+        <View style={styles.bottomButtonsContainer}>
+          <TouchableOpacity
+            style={styles.messageButton}
+            onPress={handleMessageSeller}
+            activeOpacity={0.8}>
+            <Text style={styles.messageButtonText}>Message seller</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.getNowButton}
+            onPress={handleGetNow}
+            activeOpacity={0.8}>
+            <Text style={styles.getNowButtonText}>Get now</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Message Seller Bottom Sheet */}
+      <Modal
+        visible={showMessageBottomSheet}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowMessageBottomSheet(false)}>
+        <TouchableOpacity
+          style={styles.bottomSheetOverlay}
+          activeOpacity={1}
+          onPress={() => setShowMessageBottomSheet(false)}>
+          <View
+            style={styles.bottomSheetContent}
+            onStartShouldSetResponder={() => true}>
+            <View style={styles.bottomSheetHandle} />
+            <Text style={styles.bottomSheetTitle}>Contact Seller</Text>
+            <Text style={styles.bottomSheetSubtitle}>
+              You can contact the seller using any of the following options:
+            </Text>
+            <View style={styles.contactOptionsContainer}>
+              {[
+                ['Call', require('../../assets/apple.png'), handleCall],
+                [
+                  'WhatsApp',
+                  require('../../assets/whatsapp.png'),
+                  handleWhatsApp,
+                ],
+                ['Text', require('../../assets/messages.png'), handleTextMessage],
+              ].map(([text, icon, action], index) => {
+                const isSold = car?.isSold;
+                const opacityStyle = {opacity: isSold ? 0.3 : 1};
+
+                return (
                   <TouchableOpacity
+                    key={index}
                     style={[
-                      styles.contactButton,
-                      styles[`${text.toLowerCase()}Button`],
+                      styles.bottomSheetContactButton,
                       opacityStyle,
                     ]}
                     onPress={() => {
                       if (!isSold) {
+                        setShowMessageBottomSheet(false);
                         action('+' + car?.phoneNumber);
                       }
                     }}
                     activeOpacity={isSold ? 1 : 0.7}
                     disabled={isSold}>
-                    <Image source={icon} style={[styles.icon, opacityStyle]} />
+                    <Image source={icon} style={styles.bottomSheetIcon} />
+                    <Text style={styles.bottomSheetContactText}>{text}</Text>
                   </TouchableOpacity>
-                  <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-        {/* {!car?.isSold && (
-          <View style={styles.messageBox}>
-            <TextInput
-              placeholder="Write your message..."
-              style={[styles.textArea, {height: hp(15)}]}
-              multiline
-              placeholderTextColor={Colors.gray}
-              numberOfLines={4}
-              textAlignVertical="top"
-              value={message}
-              onChangeText={text => {
-                setMessage(text);
-                setError(prev => ({...prev, messageError: ''}));
-              }}
-            />
-            {error.messageError ? (
-              <Text style={styles.errorText}>{error.messageError}</Text>
-            ) : null}
-
-            <View style={styles.amountRow}>
-              <TextInput
-                style={styles.amountInputCompact}
-                keyboardType="numeric"
-                placeholderTextColor={Colors.gray}
-                placeholder="Enter Amount"
-                value={amount}
-                onChangeText={text => {
-                  setAmount(text);
-                  setError(prev => ({...prev, amountError: ''}));
-                }}
-              />
-
-              <TouchableOpacity
-                style={styles.bidButton}
-                onPress={() => handleSendQoute()}>
-                <Text style={styles.bidButtonText}>Place a Bid latest</Text>
-              </TouchableOpacity>
+                );
+              })}
             </View>
-            {error.amountError ? (
-              <Text style={styles.errorText}>{error.amountError}</Text>
-            ) : null}
           </View>
-        )} */}
-        <Modal
-          visible={showWebView}
-          animationType="slide"
-          onRequestClose={() => setShowWebView(false)}>
-          <SafeAreaView style={styles.webViewContainer}>
-            <View
+        </TouchableOpacity>
+      </Modal>
+
+      {/* MOT History WebView Modal */}
+      <Modal
+        visible={showWebView}
+        animationType="slide"
+        onRequestClose={() => setShowWebView(false)}>
+        <SafeAreaView style={styles.webViewContainer}>
+          <View
+            style={[
+              styles.webViewHeader,
+              Platform.OS === 'ios' && styles.webViewHeaderIOS,
+            ]}>
+            <TouchableOpacity
+              onPress={() => setShowWebView(false)}
               style={[
-                styles.webViewHeader,
-                Platform.OS === 'ios' && styles.webViewHeaderIOS,
+                styles.closeButton,
+                Platform.OS === 'ios' && styles.closeButtonIOS,
               ]}>
-              <TouchableOpacity
-                onPress={() => setShowWebView(false)}
-                style={[
-                  styles.closeButton,
-                  Platform.OS === 'ios' && styles.closeButtonIOS,
-                ]}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-            <WebView
-              source={{uri: webViewUrl}}
-              style={styles.webView}
-              startInLoadingState={true}
-              onError={syntheticEvent => {
-                console.error('WebView error:', syntheticEvent.nativeEvent);
-              }}
-            />
-          </SafeAreaView>
-        </Modal>
-      </ScrollView>
-    </KeyboardAvoidingView>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+          <WebView
+            source={{uri: webViewUrl}}
+            style={styles.webView}
+            startInLoadingState={true}
+            onError={syntheticEvent => {
+              console.error('WebView error:', syntheticEvent.nativeEvent);
+            }}
+          />
+        </SafeAreaView>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
-    padding: wp(5),
-  },
-  detailsContainer: {
     backgroundColor: Colors.white,
-    padding: 20,
-    borderRadius: wp(3),
-    marginBottom: 20,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: hp(10),
+  },
+  imageContainer: {
+    width: '100%',
+    height: hp(30),
+    paddingHorizontal: wp(5),
+    paddingTop: hp(2),
+    paddingBottom: hp(1),
+    backgroundColor: Colors.white,
   },
   carImage: {
-    width: 180,
-    height: 150,
-    alignSelf: 'center',
-  },
-  carTitle: {
-    fontSize: wp(6),
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-    marginBottom:20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  carTagContainer: {
-    backgroundColor: Colors.primary,
-    borderRadius: wp(10),
-    margin: hp(2),
-
-    alignSelf: 'center',
-    position: 'absolute',
-    top: 0,
-    right: 0,
-  },
-  scrapText: {
-    textTransform: 'capitalize',
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-    textAlign: 'center',
-    fontFamily: Fonts.regular,
-    color: Colors.white,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     width: '100%',
-    alignSelf: 'center',
+    height: '100%',
+    borderRadius: wp(4),
+    overflow: 'hidden',
+    backgroundColor: '#f8f8f8',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  titleSection: {
+    paddingHorizontal: wp(5),
+    paddingTop: hp(2),
+    paddingBottom: hp(1),
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: hp(1),
   },
-  label: {
-    fontSize: wp(4),
-    fontFamily: Fonts.regular,
-    color: 'black',
-    width: '35%',
-    textAlign: 'left',
+  carName: {
+    fontSize: wp(6),
+    fontFamily: Fonts.bold,
+    color: Colors.black,
+    flex: 1,
   },
-  value: {
-    fontSize: 14,
-    fontFamily: Fonts.semiBold,
-    color: Colors.gray,
-    width: '65%',
+  heartButton: {
+    padding: wp(1),
   },
-  motContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-    backgroundColor: '#f5f5f5',
-    paddingVertical: hp(1.5),
-    paddingHorizontal: wp(4),
-    borderRadius: wp(3),
-    marginBottom: 20,
-    width: wp(80),
-    marginTop: 10,
-  },
-  motImage: {
+  heartIcon: {
     width: wp(6),
     height: wp(6),
     resizeMode: 'contain',
   },
-  textContainer: {
-    flex: 1,
-    marginLeft: wp(2),
+  carPrice: {
+    fontSize: wp(7),
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    marginTop: hp(0.5),
   },
-  rowText: {
+  specsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: wp(4),
+    paddingTop: hp(2),
     justifyContent: 'space-between',
-    width: '100%',
   },
-  title: {
-    fontSize: wp(3.5),
-    fontFamily: Fonts.semiBold,
-    color: 'black',
-    flex: 1,
+  specCard: {
+    width: (SCREEN_WIDTH - wp(8) - wp(4)) / 3,
+    backgroundColor: '#f8f8f8',
+    borderRadius: wp(3),
+    padding: wp(3),
+    alignItems: 'center',
+    marginBottom: hp(2),
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  viewText: {
-    fontFamily: Fonts.semiBold,
-    fontSize: wp(3.2),
-    color: '#3b4d6c',
-    marginLeft: wp(2),
+  specIcon: {
+    width: wp(8),
+    height: wp(8),
+    resizeMode: 'contain',
+    marginBottom: hp(1),
   },
-  expiry: {
+  fuelIcon: {
+    tintColor: Colors.black,
+  },
+  specLabel: {
     fontSize: wp(3),
     fontFamily: Fonts.regular,
-    color: '#3b4d6c',
+    color: Colors.gray,
+    marginBottom: hp(0.5),
+    textAlign: 'center',
   },
-
-  contactContainer: {
-    backgroundColor: Colors.white,
-    padding: wp(5),
-    borderRadius: wp(3),
-    marginBottom: hp(2),
+  specValue: {
+    fontSize: wp(3.5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.black,
+    textAlign: 'center',
   },
-  contactTitle: {
+  descriptionContainer: {
+    paddingHorizontal: wp(5),
+    paddingTop: hp(2),
+  },
+  descriptionTitle: {
     fontSize: wp(5),
     fontFamily: Fonts.bold,
     color: Colors.black,
-    marginBottom: hp(2),
-    textAlign: 'center',
-    fontWeight: 'bold',
+    marginBottom: hp(1.5),
   },
-  contactIcons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  contactButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  icon: {
-    width: wp(10),
-    height: wp(10),
-    resizeMode: 'contain',
-  },
-  contactText: {
-    marginTop: hp(1),
-    fontSize: wp(3.5),
+  descriptionText: {
+    fontSize: wp(4),
     fontFamily: Fonts.regular,
     color: Colors.gray,
+    lineHeight: hp(2.5),
+  },
+  bottomSpacing: {
+    height: hp(10),
+  },
+  bottomButtonsWrapper: {
+    backgroundColor: Colors.white,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  bottomButtonsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: wp(4),
+    paddingTop: hp(1),
+    paddingBottom: hp(0.8),
+    backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: Colors.lightGray,
+    gap: wp(2.5),
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: -2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
+  messageButton: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    borderRadius: wp(2.5),
+    paddingVertical: hp(1),
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: hp(5),
+  },
+  messageButtonText: {
+    fontSize: wp(3.5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.primary,
+  },
+  getNowButton: {
+    flex: 1,
+    backgroundColor: Colors.primary,
+    borderRadius: wp(2.5),
+    paddingVertical: hp(1),
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: hp(5),
+  },
+  getNowButtonText: {
+    fontSize: wp(3.5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.white,
+  },
+  // Bottom Sheet Styles
+  bottomSheetOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  bottomSheetContent: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: wp(5),
+    borderTopRightRadius: wp(5),
+    paddingTop: hp(2),
+    paddingBottom: Platform.OS === 'ios' ? hp(4) : hp(2),
+    paddingHorizontal: wp(5),
+    maxHeight: hp(50),
+  },
+  bottomSheetHandle: {
+    width: wp(15),
+    height: hp(0.5),
+    backgroundColor: Colors.lightGray,
+    borderRadius: wp(1),
+    alignSelf: 'center',
+    marginBottom: hp(2),
+  },
+  bottomSheetTitle: {
+    fontSize: wp(5.5),
+    fontFamily: Fonts.bold,
+    color: Colors.black,
+    marginBottom: hp(1),
     textAlign: 'center',
   },
-  motHistoryButton: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-    borderRadius: wp(5),
-    marginLeft: wp(2),
+  bottomSheetSubtitle: {
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.gray,
+    marginBottom: hp(3),
+    textAlign: 'center',
+    lineHeight: hp(2.5),
   },
-  motHistoryText: {
-    color: Colors.white,
-    fontSize: wp(3),
+  contactOptionsContainer: {
+    gap: hp(2),
+  },
+  bottomSheetContactButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: wp(3),
+    padding: wp(4),
+    gap: wp(3),
+  },
+  bottomSheetIcon: {
+    width: wp(8),
+    height: wp(8),
+    resizeMode: 'contain',
+  },
+  bottomSheetContactText: {
+    fontSize: wp(4.5),
     fontFamily: Fonts.semiBold,
+    color: Colors.black,
   },
+  // WebView Modal Styles
   webViewContainer: {
     flex: 1,
     backgroundColor: Colors.white,
@@ -540,96 +698,6 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
-  },
-  messageBox: {
-    backgroundColor: Colors.white,
-    padding: 20,
-    borderRadius: wp(3),
-    marginBottom: hp(2),
-  },
-  amountRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: hp(2),
-    justifyContent: 'space-between',
-  },
-
-  amountInputCompact: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    borderRadius: wp(3),
-    padding: wp(3),
-    fontSize: wp(4),
-    fontFamily: Fonts.regular,
-    color: Colors.black,
-    backgroundColor: '#f9f9f9',
-    marginRight: wp(2),
-  },
-
-  bidButton: {
-    borderColor: Colors.lightGray,
-    borderWidth: wp(0.2),
-    paddingVertical: hp(1.5),
-    paddingHorizontal: wp(4),
-    borderRadius: wp(3),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  bidButtonText: {
-    color: Colors.primary,
-    fontSize: wp(3.8),
-    fontFamily: Fonts.bold,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: wp(3.2),
-    marginTop: hp(0.5),
-    marginBottom: hp(1),
-  },
-  messageLabel: {
-    fontSize: wp(4.5),
-    fontFamily: Fonts.semiBold,
-    color: Colors.darkGray,
-    marginBottom: hp(1),
-  },
-
-  textArea: {
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    borderRadius: wp(3),
-    padding: wp(3),
-    fontSize: wp(4),
-    fontFamily: Fonts.regular,
-    color: Colors.black,
-    height: hp(15),
-    backgroundColor: '#f9f9f9',
-  },
-  amountInput: {
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    borderRadius: wp(3),
-    padding: wp(3),
-    fontSize: wp(4),
-    fontFamily: Fonts.regular,
-    color: Colors.black,
-    backgroundColor: '#f9f9f9',
-  },
-
-  sendButton: {
-    marginTop: hp(2),
-    borderWidth: wp(0.2),
-    borderColor: Colors.primary,
-    paddingVertical: hp(1.5),
-    borderRadius: wp(5),
-    alignItems: 'center',
-  },
-
-  sendButtonText: {
-    color: Colors.primary,
-    fontSize: wp(4),
-    fontFamily: Fonts.bold,
   },
 });
 

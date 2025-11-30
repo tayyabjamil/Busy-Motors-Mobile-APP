@@ -34,7 +34,7 @@ export default CustomTabBar;
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',   // float on top
-    top: 760,                // distance from top
+    top: 680,                // distance from top
     left: 0,
     right: 0,
     zIndex: 1000,           // above screen content
@@ -48,10 +48,14 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
     shadowRadius: 8,
+    elevation: 10,
   },
   tabButton: {
     width: 48,
@@ -61,6 +65,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 6,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   activeButton: {
     backgroundColor: Colors.primary,
