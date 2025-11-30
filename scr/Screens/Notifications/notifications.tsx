@@ -118,12 +118,7 @@ const Notifications = () => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Header navigation={navigation} showNotification={false} />
-
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Notifications</Text>
-      </View>
-
+      <Header navigation={navigation} showNotification={false} textData={'Notifications'} />
       {/* Notification List */}
       <FlatList
         data={data}
@@ -142,24 +137,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(5),
-    paddingTop: hp(3),
+    paddingTop: hp(2),
     backgroundColor: '#F5F5F5',
-    // marginTop: 40,
   },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: hp(2),
-  },
-  headerTitle: {
-    fontSize: wp(6),
-    fontWeight: 'bold',
-    color: '#333',
-  },
-
   list: {
     paddingBottom: hp(2),
+    marginTop:10
   },
   notificationCard: {
     flexDirection: 'row',

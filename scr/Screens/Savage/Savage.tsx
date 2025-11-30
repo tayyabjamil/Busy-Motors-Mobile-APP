@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     backgroundColor: '#F5F5F5',
     margin: Platform.OS === 'ios' ? 20 : 5,
+    marginTop:0
   },
   saved:{
     paddingLeft:4,
