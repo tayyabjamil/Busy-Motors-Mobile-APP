@@ -1,5 +1,5 @@
 const Colors = {
-  primary: 'black',
+  primary: '#0129d4',
   gradientStart: '#3A58E8',
   gradientEnd: '#A0C4FF',
   white: '#FFFFFF',

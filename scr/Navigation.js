@@ -31,6 +31,7 @@ import Details from './Screens/CarDetails/carDeatils';
 import {navigationRef} from './navigationRef';
 import Splash from './Screens/Splash/splash';
 import Colors from './Helper/Colors';
+import CustomTabBar from './Components/CustomTabBar';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -57,31 +58,31 @@ const AuthStack = () => (
 /* Main Tabs */
 const MainTabs = () => (
   <Tab.Navigator
-    screenOptions={({route}) => ({
-      headerShown: false,
-      tabBarIcon: ({focused}) => {
-        // Get the respective image based on route name
-        const icon = icons[route.name];
-        return (
-          <Image
-            source={icon}
-            style={{
-              width: 20,
-              height: 20,
-              tintColor: focused ? Colors.primary : Colors.gray,
-            }}
-            resizeMode="contain"
-          />
-        );
-      },
-      tabBarActiveTintColor: Colors.primary,
-      tabBarInactiveTintColor: Colors.gray,
-    })}>
-    <Tab.Screen name="CarListings" component={CarListings} />
-    <Tab.Screen name="MapListings" component={MapListings} />
-    <Tab.Screen name="Dashboard" component={Dashboard} />
-    <Tab.Screen name="Profile" component={Profile} />
-  </Tab.Navigator>
+  tabBar={(props) => <CustomTabBar {...props} />}
+  screenOptions={({ route }) => ({
+    headerShown: false,
+    tabBarStyle: { height: 0 }, // hide default tab bar completely
+    tabBarIcon: ({ focused }) => {
+      const icon = icons[route.name];
+      return (
+        <Image
+          source={icon}
+          style={{
+            width: 20,
+            height: 20,
+            tintColor: focused ? '#fff' : Colors.gray,
+          }}
+          resizeMode="contain"
+        />
+      );
+    },
+  })}
+>
+  <Tab.Screen name="CarListings" component={CarListings} />
+  <Tab.Screen name="MapListings" component={MapListings} />
+  <Tab.Screen name="Dashboard" component={Dashboard} />
+  <Tab.Screen name="Profile" component={Profile} />
+</Tab.Navigator>
 );
 
 /* Main Stack */

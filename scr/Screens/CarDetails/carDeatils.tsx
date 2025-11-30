@@ -179,7 +179,7 @@ const Details = ({route}) => {
           styles.container,
           {paddingTop: Platform.OS === 'ios' ? 20  : 0},
         ]}>
-        <Header navigation={navigationRef} showNotification={false} />
+        <Header navigation={navigationRef} showNotification={false} textData={'Car Details'} />
         <View style={styles.detailsContainer}>
         <View style={styles.carTagContainer}>
             <Text style={styles.scrapText}>{car?.tag || 'Unknown'}</Text>

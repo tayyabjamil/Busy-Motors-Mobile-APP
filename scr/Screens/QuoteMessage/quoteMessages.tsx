@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Image,
-  TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
@@ -14,6 +13,7 @@ import Colors from '../../Helper/Colors';
 import {Fonts} from '../../Helper/Fonts';
 import {useNavigation} from '@react-navigation/native';
 import api from '../../redux/api';
+import Header from '../../Components/Header';
 
 const QuoteMessages = () => {
   const navigation = useNavigation();
@@ -113,25 +113,7 @@ const QuoteMessages = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.4}>
-          <Image
-            source={require('../../assets/left-arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors?.backIconColor}
-          />
-        </TouchableOpacity>
-
-        <View style={styles.titleWrapper}>
-          <Text style={styles.screenTitle}>Agent Quotes</Text>
-        </View>
-
-        <View style={styles.backButton} />
-      </View>
-
+      <Header navigation={navigation} textData={'Agent Quotes'}/>
       <FlatList
         data={quotes}
         renderItem={renderQuoteItem}

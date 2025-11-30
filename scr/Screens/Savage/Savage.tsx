@@ -62,7 +62,8 @@ const Savage = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Header navigation={navigation} />
+      <Header navigation={navigation} textData={'Favorites'}/>
+      <Text style={styles.saved}>Your Saved Favorites</Text>
       {filteredData?.length > 0 ? (
         <FlatList
           data={filteredData}
@@ -89,6 +90,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     backgroundColor: '#F5F5F5',
     margin: Platform.OS === 'ios' ? 20 : 5,
+  },
+  saved:{
+    paddingLeft:4,
+    fontSize:15,
+    fontWeight:'700',
+    paddingTop:8
   },
   noDataContainer: {
     flex: 1,

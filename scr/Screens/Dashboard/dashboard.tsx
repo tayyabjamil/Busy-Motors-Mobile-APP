@@ -16,6 +16,7 @@ import {
 } from 'react-native-responsive-screen';
 import Colors from '../../Helper/Colors';
 import {Fonts} from '../../Helper/Fonts';
+import Header from '../../Components/Header';
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
@@ -25,6 +26,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         contentContainerStyle={styles.scrollContent}>
       <View style={styles.innerContainer}>
         {/* Dashboard Items */}
+        <Header navigation={navigation} textData={'Dashboard'} showNotification={true} />
         <TouchableOpacity style={styles.card}>
           <Image
             source={require('../../assets/pie-chart.png')}
@@ -144,7 +146,6 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     margin: 20,
-
     paddingTop: Platform.OS === 'ios' ? hp('2%') : hp('5%'),
   },
 

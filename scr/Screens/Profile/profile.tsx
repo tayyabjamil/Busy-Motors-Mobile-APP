@@ -229,7 +229,7 @@ const Profile = () => {
           styles.container,
           {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
         ]}>
-        <Header navigation={navigation} showNotification={true} />
+        <Header navigation={navigation} textData={'User Profile'} />
         <View style={styles.profileSection}>
           <View style={styles.profileContainer}>
             <Image
@@ -280,35 +280,44 @@ const Profile = () => {
             <Text style={styles.errorText}>{errors?.lastName}</Text>
           )}
           <Text style={styles.hidingColor}>Email Address</Text>
-
-          <TextInput
-            style={[styles.input, errors?.email && styles.inputError]}
-            placeholder="Email Address"
-            value={email}
-            onChangeText={value => handleInputChange('email', value)}
-            keyboardType="email-address"
-            placeholderTextColor={Colors.gray}
-          />
-          {errors?.email && <Text style={styles.errorText}>{errors?.email}</Text>}
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
+        <View style={[styles.inputWrapper, errors?.email && styles.inputError]}>
+  <Image
+    source={require('../../assets/Email.png')}
+    style={styles.iconBack}
+    tintColor={Colors.backIconColor}
+  />
+  <TextInput
+    style={styles.inputWithIcon}
+    placeholder="Email Address"
+    value={email}
+    onChangeText={value => handleInputChange('email', value)}
+    keyboardType="email-address"
+    placeholderTextColor={Colors.gray}
+  />
+</View>
+      {errors?.email && <Text style={styles.errorText}>{errors?.email}</Text>}
         </View>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => {
-            if (userData?.is_guest) {
-              Toast.show(
-                'Guest accounts cannot be deleted. Please log in to delete your profile.',
-                Toast.LONG,
-              );
-            } else {
-              setDeleteModalVisible(true);
-            }
-          }}>
-          <Text style={styles.deleteButtonText}>Delete Profile</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <Text style={styles.saveButtonText}>Save</Text>
+      </TouchableOpacity>
 
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => {
+          if (userData?.is_guest) {
+            Toast.show(
+              'Guest accounts cannot be deleted. Please log in to delete your profile.',
+              Toast.LONG
+            );
+          } else {
+            setDeleteModalVisible(true);
+          }
+        }}
+      >
+        <Text style={styles.deleteButtonText}>Delete Profile</Text>
+      </TouchableOpacity>
+    </View>
         <Modal
           animationType="fade"
           transparent={true}
@@ -341,12 +350,21 @@ const Profile = () => {
             </View>
           </View>
         </Modal>
-
-        <TouchableOpacity
+         <TouchableOpacity
           style={styles.logout}
           onPress={() => setModalVisible(true)}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
+ <View style={styles.logoutContent}>
+         <Image
+    source={require('../../assets/Logout Cancel Circle Shape.png')}
+    style={styles.iconBack}
+    tintColor={Colors.backIconColor}
+  />
+  <Text style={styles.logoutText}>Logout</Text>
+  </View>
+      </TouchableOpacity>
+       
+          
+    
         {/* Logout Modal */}
         <Modal
           animationType="fade"
@@ -401,8 +419,8 @@ const styles = StyleSheet.create({
     marginTop: hp(3),
   },
   iconBack: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
     resizeMode: 'contain',
   },
 
@@ -439,8 +457,8 @@ const styles = StyleSheet.create({
     borderRadius: 60,
   },
   profileImage: {
-    width: wp(15),
-    height: wp(15),
+    width: wp(18),
+    height: wp(18),
     borderRadius: wp(16),
     resizeMode: 'contain',
   },
@@ -459,17 +477,27 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 20,
   },
+  logoutContent: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 10,
+},
   input: {
-    borderWidth: 1,
+    borderWidth:1,
     borderColor: '#E0E0E0',
-    borderRadius: 8,
+    borderRadius: 100,
     marginBottom: 15,
     backgroundColor: '#FFF',
     fontSize: 16,
     fontFamily: Fonts.regular,
-    color: '#333',
     height: 50,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
+    shadowColor: Colors.black,
+    shadowOpacity: 0.10,
+    shadowRadius: wp(1),
+    shadowOffset: { width: 0, height: hp(0.5) },
+    elevation: 5,
   },
   phoneContainer: {
     flexDirection: 'row',
@@ -497,6 +525,30 @@ const styles = StyleSheet.create({
     height: 50,
     borderColor: '#E0E0E0',
   },
+   inputWrapper: {
+        flexDirection: 'row',
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: '#E0E0E0',
+  borderRadius: 100,
+  backgroundColor: '#FFF',
+  height: 50,
+  paddingHorizontal: 15, // same as first/last name
+  marginBottom: 15,
+  shadowColor: Colors.black,
+  shadowOpacity: 0.1,
+  shadowRadius: wp(1),
+  shadowOffset: { width: 0, height: hp(0.5) },
+  elevation: 5,
+  },
+ inputWithIcon: {
+  flex: 1,
+  fontSize: 16,
+  fontFamily: Fonts.regular,
+  color: Colors.black,
+  paddingLeft:10,
+  height: '100%', // makes it fill wrapper height like first/last name inputs
+},
   inputError: {
     borderColor: 'red',
   },
@@ -507,27 +559,45 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    color: Colors.black,
+    color:'black',
     fontFamily: Fonts.semiBold,
     textAlign: 'center',
+    fontWeight:'bold'
+  },
+   buttonContainer: {
+    flexDirection: 'row',
+    marginBottom: 15,
+   gap:20
   },
   saveButton: {
     backgroundColor: Colors.primary,
-    borderRadius: 8,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+     flex: 1,
+    borderRadius: 25,
+    shadowColor: Colors.black,
+    shadowOpacity: 0.1,
+    shadowRadius: wp(1),
+    shadowOffset: { width: 0, height: hp(0.5) },
+    elevation: 5,
+    paddingHorizontal:8
   },
   logout: {
-    backgroundColor: Colors.white,
-    padding: wp(3),
-    borderRadius: 8,
-    borderWidth: 0.3,
-    marginTop: wp(1),
-    marginBottom: wp(4),
-    alignItems: 'center',
-    height: 50,
-    justifyContent: 'center',
+    marginTop:13,
+  backgroundColor: Colors.white, 
+  height: 50,
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: 25,
+  marginBottom: 20,
+  shadowColor: Colors.black,
+  shadowOpacity: 0.1,
+  shadowRadius: wp(1),
+  shadowOffset: { width: 0, height: hp(0.5) },
+  elevation: 5,
+  borderWidth:1,
+  borderColor: '#E0E0E0',
   },
   disabledButton: {
     backgroundColor: '#ccc',
@@ -535,7 +605,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFF',
     fontSize: 16,
-    padding: wp(3),
+    padding: wp(2),
     fontFamily: Fonts.bold,
   },
 
@@ -617,18 +687,24 @@ const styles = StyleSheet.create({
     color: 'black',
     paddingBottom: hp(1),
     fontFamily: Fonts.semiBold,
+    fontWeight:'600',
+    fontSize:16
   },
   deleteButton: {
     backgroundColor: Colors.white,
-    padding: wp(3),
-    borderRadius: 8,
+    padding: wp(2),
     borderWidth: 1,
-    marginTop: wp(-2),
-    marginBottom: wp(3),
-    borderColor: '#FF3B30',
     alignItems: 'center',
-    height: 50,
     justifyContent: 'center',
+    flex: 1,
+    borderColor:'red',
+    height: 50,
+    borderRadius: 25,
+    shadowColor: Colors.black,
+    shadowOpacity: 0.1,
+    shadowRadius: wp(1),
+    shadowOffset: { width: 0, height: hp(0.5) },
+    elevation: 5,
   },
   deleteButtonText: {
     fontSize: 14,
