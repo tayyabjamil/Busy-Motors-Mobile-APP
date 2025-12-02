@@ -19,7 +19,7 @@ const Banner = ({navigation}: {navigation: any}) => {
   );
   const loading = useSelector((state: any) => state?.subscription?.loading);
   const {userData} = useSelector((state: any) => state.user);
-  
+
   // Get active subscriptions from RevenueCat (global check)
   const activeSubscriptions = useSelector(
     (state: any) => state?.subscription?.activeSubscriptions || [],
@@ -118,8 +118,10 @@ const Banner = ({navigation}: {navigation: any}) => {
   // Get subscription type for display
   const subscriptionType = activeSubscriptionDetails?.type || 'Premium';
 
+  let isSubscriptionActive = hasRevenueCatSubscription || subscription;
+
   return (
-    <View style={styles.bannerContainer}>
+    <View style={isSubscriptionActive ? styles.bannerContainer2 : styles.bannerContainer}>
       {/* Left Section: Text and Price OR Loader */}
       <View style={styles.leftSection}>
         {(loading || revenueCatLoading) ? (
@@ -132,28 +134,29 @@ const Banner = ({navigation}: {navigation: any}) => {
         ) : (
           <>
             <View style={styles.priceContainer}>
-              <Text style={styles.discountedPrice}>
-                {hasRevenueCatSubscription || subscription
-                  ? `${subscriptionType} ${subscriptionName} (${subscriptionPriceString}/${subscriptionInterval})`
+              <Text style={ isSubscriptionActive ? styles.discountedPrice : styles.discountedPrice2}>
+
+                {isSubscriptionActive
+                  ? `Hi, ${userData.first_name} ${userData.last_name}`
                   : 'Start from £50/week'}
               </Text>
-              {!(hasRevenueCatSubscription || subscription) && (
+              {!isSubscriptionActive && (
                 <Text style={styles.originalPrice}>£180/Monthly</Text>
               )}
             </View>
            </>
         )}
       </View>
-
       {/* Right Section: Button always rendered to maintain width */}
-      <TouchableOpacity
+    <TouchableOpacity
         style={styles.getNowButton}
-        onPress={() => navigation.navigate('Subscriptions')}
+        onPress={() => !isSubscriptionActive && navigation.navigate('Subscriptions')}
         disabled={loading || revenueCatLoading}>
         <Text style={styles.getNowText}>
-          {(loading || revenueCatLoading) ? '...' : (hasRevenueCatSubscription || subscription) ? 'Manage' : 'Get Now'}
+          {(loading || revenueCatLoading) ? '...' : isSubscriptionActive ? subscriptionName : 'Get Now'}
         </Text>
       </TouchableOpacity>
+
     </View>
   );
 };
@@ -176,6 +179,16 @@ const styles = StyleSheet.create({
     elevation: 3,
     width: '100%',
   },
+  bannerContainer2: {
+    flexDirection: 'row',
+    borderRadius: wp(3),
+    borderWidth: 0.3,
+    paddingHorizontal: 17,
+    borderColor: Colors.lightGray,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
   loadingWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -196,10 +209,12 @@ const styles = StyleSheet.create({
     color: Colors.black,
     marginRight: wp(2),
   },
-  originalPrice: {
-    fontSize: 12,
-    fontFamily: Fonts.semiBold,
-    color: Colors.gray,
+  discountedPrice2: {
+    fontSize: 16,
+    fontFamily: Fonts.bold,
+    color: Colors.black,
+    marginRight: wp(2),
+    fontWeight: 'bold',
   },
   additionalText: {
     fontFamily: Fonts.regular,

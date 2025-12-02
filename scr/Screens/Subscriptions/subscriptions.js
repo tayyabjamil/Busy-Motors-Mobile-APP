@@ -1,35 +1,26 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  SafeAreaView,
-  Platform,
   useWindowDimensions,
   Image,
-  Modal,
-  Button,
-  KeyboardAvoidingView,
   ScrollView,
   Alert,
   ActivityIndicator,
   Linking,
 } from 'react-native';
-
-import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import {TabView, TabBar} from 'react-native-tab-view';
 import Colors from '../../Helper/Colors';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {Fonts} from '../../Helper/Fonts';
-import SubcriptionsHeader from '../../Components/HomeHeader';
 import Purchases from 'react-native-purchases';
-
 import {useDispatch, useSelector} from 'react-redux';
-import axios from 'axios';
 import {checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions} from '../../redux/slices/subcriptionsSlice';
 import {cancelSubscriptionRequest} from '../../redux/slices/canceleSubcriptionsSlice';
-import {updateSubscriptionRequest} from '../../redux/slices/updateSubcriptionSlice';
+import Header from '../../Components/Header';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
@@ -53,20 +44,11 @@ const SubscriptionScreen = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const {
-    loading: userLoading,
     userData,
-    error: userError,
   } = useSelector((state) => state.user);
-  const {hasSubscription, subscriptions = []} = useSelector(
-    state => state?.subscription?.subscriptionData || {},
-  );
-  const {cancelSuccess, cancelLoading} = useSelector(
+  const {cancelSuccess, updateSuccess} = useSelector(
     state => state?.cancelSubscription,
   );
-  const {updateSuccess, updateLoading, updateSubscriptionData} = useSelector(
-    state => state?.updateSubscription,
-  );
-  // Get active subscriptions from Redux store
   const activeSubscriptions = useSelector(
     state => state?.subscription?.activeSubscriptions || [],
   );
@@ -83,44 +65,6 @@ const SubscriptionScreen = () => {
       dispatch(checkSubscriptionRequest({email: userData.email}));
     }
   }, [userData?.email, cancelSuccess, updateSuccess]);
-
-  // Function to cancel RevenueCat subscription
-  const cancelRevenueCatSubscription = async (subscriptionId) => {
-    try {
-      console.log('🔄 Cancelling RevenueCat subscription:', subscriptionId);
-      
-      // Get customer info to find the subscription
-      const customerInfo = await Purchases.getCustomerInfo();
-      console.log('📊 Customer info before cancellation:', customerInfo);
-      
-      // Note: RevenueCat doesn't provide direct cancellation through SDK
-      // Users need to cancel through App Store/Google Play
-      Alert.alert(
-        'Cancel Subscription',
-        'To cancel your subscription, please go to:\n\n' +
-        'iOS: Settings > Apple ID > Subscriptions\n' +
-        'Android: Google Play Store > Subscriptions\n\n' +
-        'Or contact our support team for assistance.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Refresh active subscriptions after user cancels
-              setTimeout(async () => {
-                await refreshActiveSubscriptions();
-              }, 2000);
-            },
-          },
-        ],
-        {cancelable: false},
-      );
-      
-    } catch (error) {
-      console.log('❌ Error cancelling RevenueCat subscription:', error);
-      Alert.alert('Error', 'Failed to cancel subscription. Please try again.');
-    }
-  };
-
   // Function to refresh active subscriptions
   const refreshActiveSubscriptions = async () => {
     try {
@@ -219,24 +163,8 @@ const SubscriptionScreen = () => {
         return;
       }
 
-      console.log('✅ Package found:', {
-        identifier: selectedPackage.identifier,
-        product: selectedPackage.product.identifier,
-        price: selectedPackage.product.priceString,
-        title: selectedPackage.product.title
-      });
-
-      const purchaseResult = await Purchases.purchasePackage(selectedPackage);
-      console.log('✅ Purchase successful:', purchaseResult);
-
       // Check customer info after purchase
       const customerInfo = await Purchases.getCustomerInfo();
-      console.log('📊 Customer Info after purchase:', {
-        originalAppUserId: customerInfo.originalAppUserId,
-        activeSubscriptions: customerInfo.activeSubscriptions,
-        allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
-        entitlements: customerInfo.entitlements.active
-      });
 
       // Update active subscriptions in Redux store
       dispatch(updateActiveSubscriptions(customerInfo.activeSubscriptions || []));
@@ -292,22 +220,13 @@ const SubscriptionScreen = () => {
         return null;
     }
   };
-
-  const cancelSubscription = async subscriptionId => {
-    if (!token) {
-      Alert.alert('Error', 'Authentication required. Please login again.');
-      return;
-    }
-    dispatch(cancelSubscriptionRequest({subscriptionId, token}));
-  };
-
+  
   return (
-    <SafeAreaView style={styles.container}>
-      <SubcriptionsHeader
+    <View style={styles.container}>
+      <Header
         navigation={navigation}
-        centerContent="Subscriptions"
+        textData="Subscriptions"
       />
-      
       <TabView
         navigationState={{index, routes}}
         renderScene={renderScene}
@@ -369,7 +288,7 @@ const SubscriptionScreen = () => {
 
       {/* Active Subscriptions Display */}
       
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -419,7 +338,13 @@ const SalvageRoute = ({
         </Text>
 
         <View style={styles.tabContainer}>
-          {products.map((pkg, index) => {
+          {products
+            .filter(
+              pkg =>
+                !pkg.product.identifier.toLowerCase().includes('corporate') &&
+                !pkg.product.title.toLowerCase().includes('corporate'),
+            )
+            .map((pkg, index) => {
             const isActive = isSubscriptionActive(pkg.product.identifier);
             console.log(`🎯 SALVAGE - Package ${pkg.product.identifier} active:`, isActive);
             return (
@@ -512,7 +437,13 @@ const ScrapRoute = ({
         </Text>
 
         <View style={styles.tabContainer}>
-          {products.map((pkg, index) => {
+          {products
+            .filter(
+              pkg =>
+                !pkg.product.identifier.toLowerCase().includes('corporate') &&
+                !pkg.product.title.toLowerCase().includes('corporate'),
+            )
+            .map((pkg, index) => {
             const isActive = isSubscriptionActive(pkg.product.identifier);
             return (
               <TouchableOpacity
@@ -692,7 +623,6 @@ const styles = StyleSheet.create({
   },
   tabView: {
     flex: 1,
-    marginTop: hp * 0.02,
   },
   tabBar: {
     backgroundColor: Colors.lightGray,
