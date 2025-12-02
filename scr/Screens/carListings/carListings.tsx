@@ -551,123 +551,117 @@ const Listings = () => {
     );
     return (
       <View style={styles.listingCardContainer}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            if (item.isSold) {
-              Alert.alert('Car Sold', 'This car has already been sold.', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    handleCarDetailsNavigation(item);
-                  },
-                },
-              ]);
-            } else {
-              handleCarDetailsNavigation(item);
-            }
-          }}>
-          <View style={styles.listingCard}>
-            {/* ✅ Move style here */}
-            {/* Heart icon - conditionally shown */}
-            <View style={{flexDirection: 'row',alignItems: 'center'}}>
-            <View style={styles.carTagContainer}>
-                <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
-              </View>
-              {!item.isSold && (
-              <TouchableWithoutFeedback
-                onPress={() => handleToggleFavorite(item, isFavorite)}>
-                  <Image
-                    source={
-                      isFavorite
-                        ? require('../../assets/heart.png')
-                        : require('../../assets/simpleHeart.png')
-                    }
-                    style={styles.heartIcon}
-                  />
-              </TouchableWithoutFeedback>
-            )}
-            </View>
-                     {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
-            {!item.isSold && (
-              <View style={styles.carImageContainer}>
-                <Image
-                  source={getCarImage(item?.make, item?.displayImage)}
-                  resizeMode="contain"
-                  style={styles.carImage}
-                />
-              </View>
-            )}
-            {/* Details container - always visible but with reduced opacity if sold */}
-            <View
-              style={[styles.detailsContainer, item.isSold && {opacity: 0.5}]}>
-          
-              <Text style={styles.carTitle}>
-                {item.make} {item.model} ({item.yearOfManufacture})
-              </Text>
+        <TouchableOpacity
+      onPress={() => {
+        if (item.isSold) {
+          Alert.alert('Car Sold', 'This car has already been sold.', [
+            {
+              text: 'OK',
+              onPress: () => handleCarDetailsNavigation(item),
+            },
+          ]);
+        } else {
+          handleCarDetailsNavigation(item);
+        }
+      }}
+      style={styles.listingCard}
+    >
+        {!item.isSold && (
+          <TouchableOpacity style={styles.heartTagContainer} onPress={() => handleToggleFavorite(item, isFavorite)}>
+            <Image
+              source={isFavorite ? require('../../assets/heart.png') : require('../../assets/simpleHeart.png')}
+              style={styles.heartIcon}
+            />
+          </TouchableOpacity>
+        )}
+      {/* SOLD overlay */}
+      {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
 
-              {[
-                ['Registration :', item.registrationNumber],
-                ['Year :', item.yearOfManufacture],
-                ['Postcode :', item.postcode],
-                ['Colour :', item.color],
-                ['Model :', item.model],
-                ['Fuel Type :', item.fuelType],
-              ].map(([label, value], index) => {
-                // Show only first 3 characters for postcode with ellipsis
-                const displayValue = label === 'Postcode :' 
-                  ? (value?.toString() && value.toString().length > 3
-                      ? value.toString().substring(0, 3).toUpperCase() + '...'
-                      : (value?.toString().toUpperCase() || 'N/A'))
-                  : (value?.toString().toUpperCase() || 'N/A');
-                
-                return (
-                  <View key={index} style={styles.infoRow}>
-                    <Text style={styles.label}>{label}</Text>
-                    <Text
-                      style={styles.value}
-                      numberOfLines={1}
-                      ellipsizeMode="tail">
-                      {displayValue}
-                    </Text>
-                  </View>
-                );
-              })}
+      {/* Car Image */}
+      {!item.isSold && (
+        <View style={styles.carImageContainer}>
+          <Image
+            source={getCarImage(item?.make, item?.displayImage)}
+            resizeMode="contain"
+            style={styles.carImage}
+          />
+        </View>
+      )}
 
-              <View style={styles.footer}>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../../assets/pin.png')}
-                    style={[styles.icon, item.isSold && {opacity: 0.5}]}
-                  />
-                  <Text
-                    style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
-                    {distance}
-                  </Text>
-                </View>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../../assets/timer.png')}
-                    style={[styles.icon, item.isSold && {opacity: 0.5}]}
-                  />
-                  <Text
-                    style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
-                    {timeAgo}
-                  </Text>
-                </View>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../../assets/eye.png')}
-                    style={[styles.icon, item.isSold && {opacity: 0.5}]}
-                  />
-                  <Text
-                    style={[styles.footerText, item.isSold && {opacity: 0.5}]}>
-                    {item?.views?.length}
-                  </Text>
-                </View>
-              </View>
-            </View>
+      {/* Car Details */}
+      <View style={[styles.detailsContainer, item.isSold && { opacity: 0.5 }]}>
+        {/* Car Title */}
+               <View
+          style={styles.titleContainer}>
+        <Text  style={[styles.carTitle, {flexShrink: 1, marginRight: 10}]} numberOfLines={1}>
+          {item.make} {item.model} ({item.yearOfManufacture})
+        </Text>
+         <View
+             style={styles.scrapTag}>
+             <Text style={styles.scrapText}>
+               {item.tag || 'Unknown'}
+             </Text>
+           </View>
+           </View>
+
+        {/* Info Boxes */}
+        <View style={styles.infoBox}>
+          <View style={styles.infoColumn}>
+            <Text style={styles.label}>Registration:</Text>
+            <Text style={styles.value}>{item.registrationNumber || 'N/A'}</Text>
           </View>
-        </TouchableWithoutFeedback>
+          <View style={styles.separator} />
+          <View style={styles.infoColumn}>
+            <Text style={styles.label}>Year:</Text>
+            <Text style={styles.value}>{item.yearOfManufacture || 'N/A'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoBox}>
+          <View style={styles.infoColumn}>
+            <Text style={styles.label}>Fuel Type:</Text>
+            <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
+          </View>
+          <View style={styles.separator} />
+          <View style={styles.infoColumn}>
+            <Text style={styles.label}>Model:</Text>
+            <Text style={styles.value}>{item.model || 'N/A'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoBox}>
+          <View style={styles.infoColumn}>
+            <Text style={styles.label}>Postcode:</Text>
+            <Text style={styles.value}>
+              {item.postcode?.toString().length > 3
+                ? item.postcode.toString().substring(0, 3).toUpperCase() + '...'
+                : item.postcode?.toString().toUpperCase() || 'N/A'}
+            </Text>
+          </View>
+          <View style={styles.separator} />
+          <View style={styles.infoColumn}>
+            <Text style={styles.label}>Colour:</Text>
+            <Text style={styles.value}>{item.color || 'N/A'}</Text>
+          </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <View style={{ alignItems: 'center' }}>
+            <Image source={require('../../assets/pin.png')} style={[styles.icon, item.isSold && { opacity: 0.5 }]} />
+            <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{distance}</Text>
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            <Image source={require('../../assets/timer.png')} style={[styles.icon, item.isSold && { opacity: 0.5 }]} />
+            <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{timeAgo}</Text>
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            <Image source={require('../../assets/eye.png')} style={[styles.icon, item.isSold && { opacity: 0.5 }]} />
+            <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{item?.views?.length}</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
       </View>
     );
   };
@@ -722,15 +716,16 @@ const Listings = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-        </View>
-        <TouchableOpacity
+           <TouchableOpacity
           style={styles.filterIconButton}
           onPress={() => setIsFilterModalVisible(true)}>
           <Image
-            source={require('../../assets/dashboard.png')}
+            source={require('../../assets/Filter_icon.png')}
             style={styles.filterIcon}
           />
         </TouchableOpacity>
+        </View>
+       
       </View>
 
 
@@ -1041,7 +1036,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: hp(2),
-    marginBottom: hp(1),
     gap: wp(3),
   },
   searchBar: {
@@ -1081,17 +1075,10 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     fontFamily: Fonts.regular,
     color: Colors.black,
-    padding: 0,
+    paddingLeft:5,
   },
   filterIconButton: {
-    width: 55,
-    height: 55,
-    backgroundColor: Colors.black,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: Colors.black,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingRight:4,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -1108,10 +1095,10 @@ const styles = StyleSheet.create({
     }),
   },
   filterIcon: {
-    width: wp(6),
-    height: wp(6),
+    width: wp(5),
+    height: wp(5),
     resizeMode: 'contain',
-    tintColor: Colors.white,
+    tintColor: Colors.black
   },
 
   loadingContainer: {
@@ -1196,7 +1183,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: hp(2.5),
-    marginTop: hp(2.5),
+    marginTop: hp(0.2),
   },
   noDataContainer: {
     flex: 1,
@@ -1211,26 +1198,24 @@ const styles = StyleSheet.create({
   },
   //render item
   listingCardContainer: {
-    marginBottom:20,
+    marginBottom:3,
     position: 'relative',
   },
-
-  listingCard: {
+listingCard: {
     backgroundColor: Colors.white,
-    borderRadius: 10,
+    borderRadius: wp(5),
     borderWidth: 0.2,
-    borderColor: Colors.lightGray,
-    paddingTop: hp(3.5),
+    marginTop: hp(2),
+    paddingTop: hp(4),
     paddingHorizontal: wp(3.5),
-    paddingBottom: hp(2),
+    paddingBottom: hp(0.5),
     shadowColor: Colors.black,
-    shadowOpacity: 0.5,
-    shadowRadius: wp(1),
-    shadowOffset: {width: 0, height: hp(0.5)},
-    elevation: 3,
-    overflow: 'hidden',
+    shadowOpacity: 0.15,
+    shadowRadius: wp(2),
+    shadowOffset: { width: 0, height: hp(1) },
+    elevation: 5,
+    borderColor:'white'
   },
-
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1239,62 +1224,84 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   label: {
-    fontSize: 16,
-    fontFamily: Fonts.regular,
-    color: 'black',
-    textAlign: 'left',
-    width: '35%',
+  fontSize: wp(3.5), 
+  color: Colors.darkGray ,
+  fontWeight:'700'
   },
   value: {
-    fontSize: 14,
-    color: Colors.gray,
-    fontFamily: Fonts.semiBold,
-    width: '65%',
+    fontSize: wp(3.5), 
+    color: Colors.darkGray, 
+    fontFamily: Fonts.bold 
   },
   heartIcon: {
-    width: wp(5.5),
-    height: wp(5.5),
+    width: wp(7),
+    height: wp(7),
+  },
+  heartTagContainer: {
+    position: 'absolute',
+    top: hp(3),
+    left: wp(6),
   },
   carImageContainer: {
     position: 'absolute',
-    top: 0,
+    top: 8,
     right: 20,
     zIndex: 1,
     resizeMode: 'contain',
-    paddingTop:20
   },
   carImage: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
   },
   detailsContainer: {
     padding: wp(2.5),
   },
-  carTagContainer: {
-    backgroundColor: Colors.primary,
-    borderRadius: wp(10),
-    marginRight: 10,
+scrapText: {
+     color: 'black', 
+    fontSize: 15,
+    fontWeight:'500'
   },
-  scrapText: {
-    textTransform: 'capitalize',
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-    textAlign: 'center',
-    fontFamily: Fonts.regular,
-    color: Colors.white,
-    fontSize: 14,
-  },
+  scrapTag:{
+      backgroundColor: '#1e1e1b10',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 100,
+      marginTop:30
+    },
+  
   carTitle: {
-    fontSize: wp(4.5),
+     fontSize: wp(4),
     fontFamily: Fonts.bold,
+    fontWeight:'600',
     color: Colors.primary,
     paddingVertical: hp(1),
-    fontWeight: 'bold',
-    marginTop: 20,
+    paddingTop:40
   },
+   titleContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical:3,
+    paddingTop:8
+  },
+  infoBox: {
+    flexDirection: 'row',
+    backgroundColor: '#F7F7F7',
+    padding: wp(3),
+    borderRadius: wp(3),
+    marginBottom: hp(1),
+    alignItems: 'center',
+  },
+  infoColumn: { flex: 1, paddingHorizontal: wp(1) },
   details: {
     fontSize: wp(3.5),
     color: Colors.textGray,
+  },
+    separator: {
+    width: 1,
+    backgroundColor: '#D1D1D1',
+    marginHorizontal: wp(2),
+    height: '100%',
   },
   footer: {
     flexDirection: 'row',

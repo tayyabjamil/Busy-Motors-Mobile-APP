@@ -411,6 +411,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     backgroundColor: Colors.white,
     margin: Platform.OS === 'ios' ? 20 : 5,
+    marginTop:0
   },
   headerTitleStyle: {
     flexDirection: 'row',

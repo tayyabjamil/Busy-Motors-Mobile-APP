@@ -5,8 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  SafeAreaView,
-  Platform,
   Linking,
   ScrollView,
 } from 'react-native';
@@ -20,13 +18,15 @@ import Header from '../../Components/Header';
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}>
       <View style={styles.innerContainer}>
         {/* Dashboard Items */}
+        <View style={styles.headerContainer}>
         <Header navigation={navigation} textData={'Dashboard'} showNotification={true} />
+        </View>
         <TouchableOpacity style={styles.card}>
           <Image
             source={require('../../assets/pie-chart.png')}
@@ -134,7 +134,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         </TouchableOpacity>
       </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -146,9 +146,11 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     margin: 20,
-    paddingTop: Platform.OS === 'ios' ? hp('2%') : hp('5%'),
+    marginTop:0,
   },
-
+  headerContainer:{
+    paddingBottom:10,
+  },
   icon: {
     width: wp('6%'),
     height: hp('2.5%'),
