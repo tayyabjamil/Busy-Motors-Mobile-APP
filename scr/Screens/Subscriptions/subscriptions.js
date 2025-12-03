@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: wp * 0.028,
     fontFamily: Fonts.regular,
-    color: '#0062FF',
+    color: Colors.primary,
     textDecorationLine: 'underline',
   },
   linkSeparator: {

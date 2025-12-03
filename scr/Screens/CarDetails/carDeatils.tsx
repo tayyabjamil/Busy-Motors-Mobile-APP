@@ -240,7 +240,9 @@ const Details = ({route}: any) => {
 
   return (
     <View style={styles.mainContainer}>
+      <View style={styles.headerContainer}>
       <Header navigation={navigationRef} showNotification={false} {...({textData: 'Car Details'} as any)} />
+      </View>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -289,15 +291,6 @@ const Details = ({route}: any) => {
             </View>
           ))}
         </View>
-
-        {/* Car Details Description */}
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionTitle}>Car details</Text>
-          <Text style={styles.descriptionText}>{carData.description}</Text>
-        </View>
-
-        {/* Bottom Spacing for Buttons */}
-        <View style={styles.bottomSpacing} />
       </ScrollView>
 
       {/* Bottom Action Buttons - Fixed at Bottom */}
@@ -417,6 +410,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
   },
+  headerContainer:{
+    paddingHorizontal:13
+  },
   scrollView: {
     flex: 1,
   },
@@ -466,6 +462,7 @@ const styles = StyleSheet.create({
   carName: {
     fontSize: wp(6),
     fontFamily: Fonts.bold,
+    fontWeight:'500',
     color: Colors.black,
     flex: 1,
   },
@@ -473,30 +470,30 @@ const styles = StyleSheet.create({
     padding: wp(1),
   },
   heartIcon: {
-    width: wp(6),
-    height: wp(6),
+    width: wp(7),
+    height: wp(7),
     resizeMode: 'contain',
   },
   carPrice: {
-    fontSize: wp(7),
+    fontSize: wp(5.5),
     fontFamily: Fonts.bold,
     color: Colors.primary,
-    marginTop: hp(0.5),
+ 
   },
   specsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: wp(4),
-    paddingTop: hp(2),
+    paddingTop: hp(1),
     justifyContent: 'space-between',
   },
   specCard: {
-    width: (SCREEN_WIDTH - wp(8) - wp(4)) / 3,
+    width: (SCREEN_WIDTH - wp(6) - wp(8)) / 3,
     backgroundColor: '#f8f8f8',
     borderRadius: wp(3),
-    padding: wp(3),
+    padding: wp(2.5),
     alignItems: 'center',
-    marginBottom: hp(2),
+    marginBottom: hp(1.5),
     borderWidth: 1,
     borderColor: Colors.lightGray,
     shadowColor: '#000',
@@ -509,25 +506,26 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   specIcon: {
-    width: wp(8),
-    height: wp(8),
+    width: wp(5),
+    height: wp(5),
     resizeMode: 'contain',
     marginBottom: hp(1),
+    color:'black'
   },
   fuelIcon: {
     tintColor: Colors.black,
   },
   specLabel: {
-    fontSize: wp(3),
+    fontSize: wp(3.5),
     fontFamily: Fonts.regular,
-    color: Colors.gray,
+    color: Colors.black,
     marginBottom: hp(0.5),
     textAlign: 'center',
   },
   specValue: {
-    fontSize: wp(3.5),
+    fontSize: wp(3),
     fontFamily: Fonts.semiBold,
-    color: Colors.black,
+    color: Colors.gray,
     textAlign: 'center',
   },
   descriptionContainer: {
@@ -546,9 +544,6 @@ const styles = StyleSheet.create({
     color: Colors.gray,
     lineHeight: hp(2.5),
   },
-  bottomSpacing: {
-    height: hp(10),
-  },
   bottomButtonsWrapper: {
     backgroundColor: Colors.white,
     position: 'absolute',
@@ -560,12 +555,12 @@ const styles = StyleSheet.create({
   bottomButtonsContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(4),
-    paddingTop: hp(1),
-    paddingBottom: hp(0.8),
+    paddingTop: hp(1.5),
+    paddingBottom: hp(1.5),
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.lightGray,
-    gap: wp(2.5),
+    gap: wp(3),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -590,10 +585,10 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1),
     alignItems: 'center',
     justifyContent: 'center',
-    height: hp(5),
+    height: hp(6),
   },
   messageButtonText: {
-    fontSize: wp(3.5),
+    fontSize: wp(4),
     fontFamily: Fonts.semiBold,
     color: Colors.primary,
   },
@@ -604,10 +599,10 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1),
     alignItems: 'center',
     justifyContent: 'center',
-    height: hp(5),
+    height: hp(6),
   },
   getNowButtonText: {
-    fontSize: wp(3.5),
+    fontSize: wp(4),
     fontFamily: Fonts.semiBold,
     color: Colors.white,
   },

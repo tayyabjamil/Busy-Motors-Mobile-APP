@@ -1068,7 +1068,7 @@ const styles = StyleSheet.create({
     height: wp(5),
     resizeMode: 'contain',
     marginRight: wp(2),
-    tintColor: Colors.gray,
+    tintColor: Colors.black,
   },
   searchInput: {
     flex: 1,
