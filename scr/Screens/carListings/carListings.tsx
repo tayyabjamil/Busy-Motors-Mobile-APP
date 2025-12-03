@@ -847,127 +847,6 @@ const Listings = () => {
                   />
                 </View>
               </View>
-
-              {/* Fuel Type Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Fuel Type</Text>
-                <View style={styles.filterOptionsRow}>
-                  {uniqueFuelTypes.map(fuelType => (
-                    <TouchableOpacity
-                      key={fuelType}
-                      style={[
-                        styles.filterOptionButton,
-                        selectedFuelTypes.includes(fuelType) &&
-                          styles.filterOptionButtonActive,
-                      ]}
-                      onPress={() => {
-                        if (selectedFuelTypes.includes(fuelType)) {
-                          setSelectedFuelTypes(
-                            selectedFuelTypes.filter(f => f !== fuelType),
-                          );
-                        } else {
-                          setSelectedFuelTypes([...selectedFuelTypes, fuelType]);
-                        }
-                      }}>
-                      <Text
-                        style={[
-                          styles.filterOptionText,
-                          selectedFuelTypes.includes(fuelType) &&
-                            styles.filterOptionTextActive,
-                        ]}>
-                        {fuelType}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Color Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Choose Colour</Text>
-                <View style={styles.filterOptionsRow}>
-                  {uniqueColors.map(color => (
-                    <TouchableOpacity
-                      key={color}
-                      style={[
-                        styles.filterOptionButton,
-                        selectedColors.includes(color) &&
-                          styles.filterOptionButtonActive,
-                      ]}
-                      onPress={() => {
-                        if (selectedColors.includes(color)) {
-                          setSelectedColors(
-                            selectedColors.filter(c => c !== color),
-                          );
-                        } else {
-                          setSelectedColors([...selectedColors, color]);
-                        }
-                      }}>
-                      <Text
-                        style={[
-                          styles.filterOptionText,
-                          selectedColors.includes(color) &&
-                            styles.filterOptionTextActive,
-                        ]}>
-                        {color}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Brand Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Brands</Text>
-                <View style={styles.filterOptionsRow}>
-                  {uniqueBrands.map(brand => {
-                    const brandImage = getBrandImage(brand);
-                    return (
-                      <TouchableOpacity
-                        key={brand}
-                        style={[
-                          styles.filterOptionButton,
-                          styles.brandFilterButton,
-                          selectedBrands.some(
-                            selected => selected.toLowerCase() === brand.toLowerCase(),
-                          ) && styles.filterOptionButtonActive,
-                        ]}
-                        onPress={() => {
-                          if (
-                            selectedBrands.some(
-                              selected => selected.toLowerCase() === brand.toLowerCase(),
-                            )
-                          ) {
-                            setSelectedBrands(
-                              selectedBrands.filter(
-                                b => b.toLowerCase() !== brand.toLowerCase(),
-                              ),
-                            );
-                          } else {
-                            setSelectedBrands([...selectedBrands, brand]);
-                          }
-                        }}>
-                        {brandImage && (
-                          <Image
-                            source={brandImage}
-                            style={styles.brandIcon}
-                            resizeMode="contain"
-                          />
-                        )}
-                        <Text
-                          style={[
-                            styles.filterOptionText,
-                            selectedBrands.some(
-                              selected => selected.toLowerCase() === brand.toLowerCase(),
-                            ) && styles.filterOptionTextActive,
-                          ]}>
-                          {brand}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
                 </ScrollView>
 
                 {/* Action Buttons */}
@@ -1129,14 +1008,6 @@ const styles = StyleSheet.create({
   header: {
     marginVertical: wp(2),
   },
-
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: Platform.OS === 'android' ? wp(-3) : 0,
-    marginTop: hp(2),
-  },
-
   locationIcon: {
     width: wp(7),
     height: wp(7),
@@ -1147,27 +1018,6 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     marginVertical: hp(1.5),
-  },
-  filterButton: {
-    paddingHorizontal:20,
-    paddingVertical:10,
-    marginRight: wp(2),
-    backgroundColor: Colors.white,
-    borderRadius: wp(10),
-    alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: Colors.lightGray,
-  },
-  filterButtonActive: {
-    backgroundColor: Colors.primary,
-  },
-  filterText: {
-    fontFamily: Fonts.regular,
-    color: Colors.textGray,
-    fontSize: wp(3),
-  },
-  filterTextActive: {
-    color: Colors.white,
   },
   resetButton: {
     padding: 10,
@@ -1323,12 +1173,6 @@ scrapText: {
     width: '100%',
     height: 15,
   },
-  distanceText: {
-    fontSize: 14,
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-    textAlign: 'center',
-  },
   //Modal
   modalOverlay: {
     marginRight: hp(7),
@@ -1407,8 +1251,9 @@ scrapText: {
     borderBottomColor: Colors.lightGray,
   },
   filterModalTitle: {
-    fontSize: wp(6),
+    fontSize: wp(7),
     fontFamily: Fonts.bold,
+    fontWeight:'700',
     color: Colors.black,
   },
   filterScrollView: {
@@ -1416,19 +1261,20 @@ scrapText: {
     paddingHorizontal: wp(5),
   },
   filterSection: {
-    marginTop: hp(2),
-    marginBottom: hp(1),
+    marginTop: hp(1.5),
+    marginBottom: hp(1.5),
   },
   filterSectionTitle: {
-    fontSize: wp(4.5),
+    fontSize: wp(5),
     fontFamily: Fonts.semiBold,
+    fontWeight:'600',
     color: Colors.black,
     marginBottom: hp(1.5),
   },
   filterOptionsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: wp(2.5),
+    gap: wp(2),
   },
   filterOptionButton: {
     paddingHorizontal: wp(5),
