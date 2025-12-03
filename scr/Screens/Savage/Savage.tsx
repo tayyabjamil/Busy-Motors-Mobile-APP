@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Platform,
   SafeAreaView,
   StyleSheet,
@@ -63,7 +64,9 @@ const Savage = () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <Header navigation={navigation} textData={'Favorites'}/>
-      <Text style={styles.saved}>Your Saved Favorites</Text>
+       {filteredData?.length > 0 && (
+    <Text style={styles.saved}>Your Saved Favorites</Text>
+  )}
       {filteredData?.length > 0 ? (
         <FlatList
           data={filteredData}
@@ -73,11 +76,23 @@ const Savage = () => {
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item._id}
         />
-      ) : (
-        <View style={styles.noDataContainer}>
-          <Text style={styles.noDataText}>No favorite listings found.</Text>
-        </View>
-      )}
+      ) :  <View style={styles.noDataContainer}>
+    <Image
+      source={{
+        uri: 'https://cdn-icons-png.flaticon.com/512/4076/4076549.png',
+      }}
+      style={styles.noDataImage}
+      resizeMode="contain"
+    />
+
+    <Text style={styles.noDataEmoji}>💔</Text>
+
+    <Text style={styles.noDataTitle}>No Favorites Yet</Text>
+
+    <Text style={styles.noDataSubtitle}>
+      You haven’t saved any cars.Start exploring and tap the heart to favorite!
+    </Text>
+  </View>}
     </SafeAreaView>
   );
 };
@@ -90,7 +105,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     backgroundColor: '#F5F5F5',
     margin: Platform.OS === 'ios' ? 20 : 5,
-    marginTop:0
+    marginTop:0,
+    
   },
   saved:{
     paddingLeft:4,
@@ -98,15 +114,41 @@ const styles = StyleSheet.create({
     fontWeight:'700',
     paddingTop:8
   },
-  noDataContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noDataText: {
-    fontSize: 16,
-    color: Colors.darkGray,
-  },
+noDataContainer: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+  marginTop: 40,
+
+},
+
+noDataImage: {
+  width: 150,
+  height: 150,
+  opacity: 0.8,
+},
+
+noDataEmoji: {
+  fontSize: 40,
+  marginTop: 10,
+},
+
+noDataTitle: {
+  fontSize: 20,
+  fontWeight: '700',
+  marginTop: 10,
+  color: '#333',
+},
+
+noDataSubtitle: {
+  fontSize: 14,
+  textAlign: 'center',
+  marginTop: 6,
+  color: '#777',
+  lineHeight: 20,
+},
+
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

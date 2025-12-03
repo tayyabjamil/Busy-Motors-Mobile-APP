@@ -40,23 +40,6 @@ const Dashboard = ({navigation}: {navigation: any}) => {
             </Text>
           </View>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('QuoteMessages')}>
-          <Image
-            source={require('../../assets/comment.png')}
-            style={[styles.icon, {height: hp('3.0%')}]}
-          />
-
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Messages</Text>
-            <Text style={styles.cardSubtitle}>
-              Contact Support or view messages
-            </Text>
-          </View>
-        </TouchableOpacity>
-
         <TouchableOpacity style={styles.card}>
           <Image
             source={require('../../assets/bell.png')}

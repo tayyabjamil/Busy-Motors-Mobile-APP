@@ -217,31 +217,10 @@ const MapListings = () => {
                 style={styles.carImage}
               />
             </View>
-
-            {/* Features Section */}
-            <View>
-              <View style={styles.footer}>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../../assets/pin.png')}
-                    style={styles.footerIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.footerText}>{distanceCalculate}</Text>
-                </View>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../../assets/timer.png')}
-                    style={styles.footerIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.footerText}>{timeAgo}</Text>
-                </View>
-              </View>
-              <View style={styles.featuresContainer}>
+            <View style={styles.featuresContainer}>
                 <View style={styles.featureCard}>
                   <Image
-                    source={require('../../assets/license_plate.png')}
+                    source={require('../../assets/dashboard.png')}
                     style={styles.registericon}
                     tintColor={'#3A58E891'}
                     resizeMode="contain"
@@ -275,6 +254,27 @@ const MapListings = () => {
                   </Text>
                 </View>
               </View>
+            {/* Features Section */}
+            <View>
+              <View style={styles.footer}>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/pin.png')}
+                    style={styles.footerIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.footerText}>{distanceCalculate}</Text>
+                </View>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/timer.png')}
+                    style={styles.footerIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.footerText}>{timeAgo}</Text>
+                </View>
+              </View>
+              
             </View>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -321,8 +321,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   icon: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     marginVertical: hp(1),
     alignSelf: 'center',
   },
@@ -333,10 +333,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   registericon: {
-    width: 40,
-    height: 40,
+    width: 20,
+    height: 20,
     marginVertical: hp(0.5),
-    marginRight: 10,
+    alignSelf:'center'
   },
   modalContent: {
     backgroundColor: '#FFF',
@@ -354,6 +354,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
+    marginBottom:20
   },
 
   headerTitleStyle: {
@@ -380,16 +381,14 @@ const styles = StyleSheet.create({
   // Features Section
   featuresContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent:'space-evenly',
     margin: hp(2),
-    borderColor: 'grey',
-    borderWidth: 0.5,
-    borderRadius: 10,
+    marginBottom:hp(1)
   },
   featureCard: {
     alignItems: 'center',
-    paddingVertical: wp(4),
-    paddingHorizontal: wp(4),
+    paddingVertical: wp(1.5),
+    paddingHorizontal: wp(2),
     ...(Platform.OS === 'android'
       ? {elevation: 0}
       : {
@@ -398,26 +397,35 @@ const styles = StyleSheet.create({
           shadowOffset: {width: 0, height: 2},
           shadowRadius: 4,
         }),
+    borderWidth:1,
+    borderRadius:5,
+    shadowColor: Colors.black,
+    shadowOpacity: 0.15,
+    shadowRadius: wp(2),
+    shadowOffset: { width: 0, height: hp(1) },
+    elevation: 5,
+    borderColor:'white',
+    backgroundColor:'white'
   },
   featureTitle: {
-    fontSize: 16,
-    fontFamily: Fonts.bold,
-    color: '#333',
+    fontSize: wp(3.8), 
+    color: Colors.darkGray ,
+    fontWeight:'700'
   },
   featureSubText: {
-    fontFamily: Fonts.regular,
-    fontSize: 12,
-    color: '#555',
+    fontSize: wp(3), 
+    color: Colors.darkGray, 
+    fontFamily: Fonts.bold 
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: hp(3),
+   
   },
   footerText: {
     marginTop: wp(2),
     fontFamily: Fonts.regular,
-    fontSize: wp(3),
+    fontSize: wp(3.5),
     color: Colors.black,
   },
   crossContainer: {
