@@ -914,8 +914,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: hp(2),
-    gap: wp(3),
+    marginTop: hp(1),
   },
   searchBar: {
     flex: 1,
@@ -1033,7 +1032,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: hp(2.5),
-    marginTop: hp(0.2),
+    marginTop: hp(0.2)
   },
   noDataContainer: {
     flex: 1,

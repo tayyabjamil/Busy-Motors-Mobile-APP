@@ -30,6 +30,7 @@ import axios from 'axios';
 import {checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions} from '../../redux/slices/subcriptionsSlice';
 import {cancelSubscriptionRequest} from '../../redux/slices/canceleSubcriptionsSlice';
 import {updateSubscriptionRequest} from '../../redux/slices/updateSubcriptionSlice';
+import Header from '../../Components/Header';
 
 const {width: wp, height: hp} = Dimensions.get('window');
 
@@ -303,29 +304,44 @@ const SubscriptionScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <SubcriptionsHeader
-        navigation={navigation}
-        centerContent="Subscriptions"
-      />
-      
+      <Header textData={"Unlock All Features"} />
       <TabView
-        navigationState={{index, routes}}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{width: layout.width}}
-        style={styles.tabView}
-        renderTabBar={props => (
-          <TabBar
-            {...props}
-            indicatorStyle={styles.tabIndicator}
-            style={styles.tabBar}
-            activeColor={Colors.primary}
-            inactiveColor={Colors.gray}
-            pressColor={Colors.primary}
-          />
-        )}
-      />
-      
+  navigationState={{ index, routes }}
+  renderScene={renderScene}
+  onIndexChange={setIndex}
+  initialLayout={{ width: layout.width }}
+  style={styles.tabView}
+  renderTabBar={props => {
+    const activeIndex = props.navigationState.index;
+
+    return (
+      <View style={styles.customTabContainer}>
+        {props.navigationState.routes.map((route, i) => {
+          const isActive = activeIndex === i;
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              onPress={() => props.jumpTo(route.key)}
+              style={[
+                styles.customTab,
+                isActive && styles.activeTab,      // selected tab
+              ]}
+              activeOpacity={0.7}>
+              <Text
+                style={[
+                  styles.customTabLabel,
+                  isActive && styles.activeTabLabel, // selected text
+                ]}>
+                {route.title}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  }}
+/>
       {subscriptionSelected && subscriptionSelected !== '' ? (
         <>
           {selectedActiveSubscription ? (
@@ -407,6 +423,7 @@ const SalvageRoute = ({
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
+        <View style={{backgroundColor:Colors.primary,padding:20}}>
         <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
         <Text style={styles.description}>
           Find salvaged cars at competitive prices.
@@ -417,6 +434,7 @@ const SalvageRoute = ({
         <Text style={styles.description}>
           Expand your inventory with unique opportunities.
         </Text>
+        </View>
 
         <View style={styles.tabContainer}>
           {products.map((pkg, index) => {
@@ -500,6 +518,7 @@ const ScrapRoute = ({
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
+        <View style={{backgroundColor:Colors.primary,padding:20}}>
         <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
         <Text style={styles.description}>
           Access a curated list of car sellers.
@@ -510,6 +529,7 @@ const ScrapRoute = ({
         <Text style={styles.description}>
           Contact sellers directly to negotiate and close deals.
         </Text>
+        </View>
 
         <View style={styles.tabContainer}>
           {products.map((pkg, index) => {
@@ -593,15 +613,16 @@ const styles = StyleSheet.create({
   subHeader: {
     fontSize: wp * 0.05,
     fontFamily: Fonts.semiBold,
+    fontWeight:'600',
     textAlign: 'center',
-    color: Colors.primary,
+    color: 'white',
     paddingBottom: wp * 0.03,
   },
   description: {
     fontSize: wp * 0.04,
     fontFamily: Fonts.regular,
     textAlign: 'center',
-    color: Colors.gray,
+    color: Colors.white,
     marginTop: 5,
   },
   tabContainer: {
@@ -690,17 +711,53 @@ const styles = StyleSheet.create({
     color: Colors.footerGray,
     marginHorizontal: wp * 0.01,
   },
-  tabView: {
-    flex: 1,
-    marginTop: hp * 0.02,
-  },
-  tabBar: {
-    backgroundColor: Colors.lightGray,
-    elevation: 0,
-    shadowOpacity: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.lightGray,
-  },
+  customTabContainer: {
+  flexDirection: 'row',
+  backgroundColor: Colors.white,
+  borderRadius: 100,
+  marginHorizontal: 20,
+  overflow: 'hidden',
+  borderWidth:1,
+  borderColor:Colors.primary,
+    // Elevation / Shadow
+  ...Platform.select({
+    ios: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+    },
+    android: {
+      elevation: 5,
+    },
+  }),
+},
+
+customTab: {
+  flex: 1,
+  paddingVertical: 12,
+  backgroundColor: '#F7F7F7',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+activeTab: {
+  backgroundColor: Colors.primary,
+  borderRadius:100     // FULL primary color
+},
+
+customTabLabel: {
+  fontSize: 15,
+  fontWeight: '600',
+  color: 'black',                        // normal text
+  textAlign: 'center',
+},
+
+activeTabLabel: {
+  color: '#FFFFFF',                     // WHITE when selected
+  textAlign: 'center',
+},
+
   tabIndicator: {
     backgroundColor: Colors.primary,
     height: 3,

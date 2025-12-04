@@ -67,7 +67,6 @@ const Details = ({route}: any) => {
     power: car?.engineCapacity + ' cc' || '',
     motStatus: car?.motStatus || 'N/A',
     transmission: car?.transmission || 'dummy Automatic',
-    description: car?.description || 'dummy Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
   };
 
   console.log('car', car);
@@ -304,7 +303,7 @@ const Details = ({route}: any) => {
             style={styles.messageButton}
             onPress={handleMessageSeller}
             activeOpacity={0.8}>
-            <Text style={styles.messageButtonText}>Message seller</Text>
+            <Text style={styles.messageButtonText}>Contact seller</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.getNowButton}

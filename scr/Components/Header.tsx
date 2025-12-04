@@ -18,18 +18,7 @@ export default function Header({
   return (
     <View style={styles.headerContainer}>
       {/* Left Side: Back Button */}
-      <View style={styles.leftSection}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.4}>
-          <Image
-            source={require('../assets/left-arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors?.backIconColor}
-          />
-        </TouchableOpacity>
-      </View>
+     <View style={styles.leftSection} />
       <View style={styles.midSection} >
         <Text style={styles.textData}>{textData}</Text>
       </View>
@@ -62,12 +51,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingVertical: hp(2.5),
   },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: wp(2),
+    width: wp(12),
   },
   backButton: {
   marginRight: wp(1),
@@ -83,8 +73,8 @@ const styles = StyleSheet.create({
   shadowRadius: 2,
 },
   iconBack: {
-    width: 20,
-    height: 20,
+    width: wp(5),
+    height: wp(5),
     resizeMode: 'contain',
   },
   titleText: {
@@ -109,7 +99,7 @@ const styles = StyleSheet.create({
     marginLeft:50,
   },
   textData:{
-    fontSize:22,
+    fontSize:25,
     fontWeight:'600'
   },
   bellIcon: {
