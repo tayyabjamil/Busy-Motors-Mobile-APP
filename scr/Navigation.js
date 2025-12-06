@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {Image, Linking, Platform} from 'react-native';
+import {Image, View, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -32,6 +31,7 @@ import {navigationRef} from './navigationRef';
 import Splash from './Screens/Splash/splash';
 import Colors from './Helper/Colors';
 import CustomTabBar from './Components/CustomTabBar';
+import { hp } from './Helper/Responsive';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -231,7 +231,7 @@ const AppNavigation = () => {
   // };
 
   return (
-    <SafeAreaView style={{flex: 1}}> 
+    <View style={{flex: 1}}> 
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
@@ -241,7 +241,7 @@ const AppNavigation = () => {
         <Stack.Screen name="AuthStack" component={AuthStack} />
       </Stack.Navigator>
     </NavigationContainer>
-          </SafeAreaView>
+          </View>
   );
 };
 

@@ -6,7 +6,6 @@ import {
   FlatList,
   StyleSheet,
   Image,
-  ActivityIndicator,
   Modal,
   SafeAreaView,
   Platform,
@@ -38,11 +37,10 @@ const Listings = () => {
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {
-    // loading: userLoading,
+    
     userData,
     // error: userError,
   } = useSelector((state: any) => state.user);
-  const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
@@ -166,7 +164,6 @@ const Listings = () => {
     getLocation();
   }, []);
   const fetchCarListings = async () => {
-    setLoading(true);
     setError(null);
 
     try {
@@ -200,8 +197,6 @@ const Listings = () => {
         console.log('API Unexpected Error:', err.message);
         setError(err.message);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -665,16 +660,6 @@ const Listings = () => {
       </View>
     );
   };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading Listings...</Text>
-      </View>
-    );
-  }
-
   if (error) {
     return (
       <View style={styles.errorContainer}>
@@ -977,17 +962,6 @@ const styles = StyleSheet.create({
     height: wp(5),
     resizeMode: 'contain',
     tintColor: Colors.black
-  },
-
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: hp(1),
-    fontSize: wp(4),
-    color: Colors.primary,
   },
   errorContainer: {
     flex: 1,

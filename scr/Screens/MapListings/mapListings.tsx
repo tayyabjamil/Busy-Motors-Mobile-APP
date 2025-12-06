@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   container: {flex: 1},
   sliderContainer: {
     position: 'absolute',
-    top: 50,
+    top: 80,
     left: 20,
     right: 20,
     backgroundColor: 'white',

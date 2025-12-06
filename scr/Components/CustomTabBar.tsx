@@ -34,7 +34,7 @@ export default CustomTabBar;
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',   // float on top
-    top: 680,                // distance from top
+    top: 770,                // distance from top
     left: 0,
     right: 0,
     zIndex: 1000,           // above screen content

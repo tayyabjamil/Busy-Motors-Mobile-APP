@@ -36,12 +36,10 @@ const Profile = () => {
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {
-    loading: userLoading,
     userData,
     error: userError,
   } = useSelector((state: any) => state.user);
   const {
-    loading: updateLoading,
     success: updateSuccess,
     error: updateError,
     message,
@@ -201,29 +199,13 @@ const Profile = () => {
       Toast.show('Something went wrong while deleting profile', Toast.LONG);
     }
   };
-  if (userLoading || updateLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
-
-  // if (userError || updateError) {
-  //   return (
-  //     <View style={styles.errorContainer}>
-  //       <Text style={styles.errorText}>Error: {userError || updateError}</Text>
-  //     </View>
-  //   );
-  // }
   const handleImageSelection = async document => {
     setShowImage(document);
   };
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      style={{backgroundColor: Colors.white}}>
+      style={styles.scrollViewContainer}>
       <SafeAreaView
         style={[
           styles.container,
@@ -412,6 +394,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     margin: Platform.OS === 'ios' ? 20 : 5,
     marginTop:0
+  },
+  scrollViewContainer:{
+    backgroundColor: Colors.white
   },
   headerTitleStyle: {
     flexDirection: 'row',
@@ -668,16 +653,6 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: '#FF3B30',
     fontFamily: Fonts.bold,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: Colors.primary,
   },
   errorContainer: {
     flex: 1,

@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(5),
-    paddingTop: hp(2),
+    paddingTop: hp(6),
     backgroundColor: '#F5F5F5',
   },
   list: {

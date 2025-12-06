@@ -343,7 +343,7 @@ const SalvageRoute = ({
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
-        <View style={{backgroundColor:Colors.primary,padding:20}}>
+        <View style={styles.subContainer}>
         <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
         <Text style={styles.description}>
           Find salvaged cars at competitive prices.
@@ -444,7 +444,7 @@ const ScrapRoute = ({
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
-        <View style={{backgroundColor:Colors.primary,padding:20}}>
+        <View style={styles.subContainer}>
         <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
         <Text style={styles.description}>
           Access a curated list of car sellers.
@@ -522,6 +522,7 @@ const ScrapRoute = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: hp * 0.06,
   },
   loaderOverlay: {
     position: 'absolute',
@@ -574,6 +575,11 @@ const styles = StyleSheet.create({
     height: hp / 4.5,
     padding: 10,
     position: 'relative',
+  },
+  subContainer:{
+    backgroundColor:Colors.primary,
+    padding:20,
+    borderRadius:20
   },
   optionFocused: {
     borderWidth: 2,
