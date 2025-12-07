@@ -1,5 +1,10 @@
 import axios from 'axios';
 import DeviceInfo from 'react-native-device-info';
+import { startNetworkLogging } from 'react-native-network-logger';
+
+// Start network logging for all requests
+startNetworkLogging();
+
 // https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
 const api = axios.create({
@@ -30,7 +35,11 @@ export const login = async userData => {
         fcm_token: userData?.token,
       }),
     );
-    console.log('#@@##RESPONCE', response?.data);
+    console.log('🔍 [API] Login Response:', JSON.stringify(response?.data, null, 2));
+    console.log('🔍 [API] Response Keys:', Object.keys(response?.data || {}));
+    console.log('🔍 [API] Has access_token?', !!response?.data?.access_token);
+    console.log('🔍 [API] Token value:', response?.data?.access_token ? `${response.data.access_token.substring(0, 30)}...` : 'NOT FOUND');
+
     if (response.data?.message === 'Login successful') {
       return response.data;
     } else {
@@ -38,9 +47,10 @@ export const login = async userData => {
       throw new Error(response.data?.message || 'Login failed');
     }
   } catch (error) {
-    console.log('API Error:', error.response?.data || error.message);
+    console.log('❌ [API] Login Error:', error.response?.data || error.message);
+    console.log('❌ [API] Error status:', error.response?.status);
     // Re-throw the error so saga can handle it
-    // throw new Error('Something went wrong');
+    throw error;
   }
 };
 //Atempt login

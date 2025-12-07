@@ -282,7 +282,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 68;
-				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
+				DEVELOPMENT_TEAM = 87V6U6T534;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = carScrap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BusyMotors;
@@ -297,7 +297,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.carscrape.rniap;
+				PRODUCT_BUNDLE_IDENTIFIER = com.affanmahboob.busymotors;
 				PRODUCT_NAME = carScrap;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -315,7 +315,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 68;
-				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
+				DEVELOPMENT_TEAM = 87V6U6T534;
 				INFOPLIST_FILE = carScrap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BusyMotors;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -329,7 +329,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.carscrape.rniap;
+				PRODUCT_BUNDLE_IDENTIFIER = com.affanmahboob.busymotors;
 				PRODUCT_NAME = carScrap;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;

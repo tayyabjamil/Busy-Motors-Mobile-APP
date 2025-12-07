@@ -22,10 +22,15 @@ const authSlice = createSlice({
       state.error = null;
     },
     loginSuccess: (state, action) => {
+      console.log('🔑 [authSlice] loginSuccess called');
+      console.log('🔑 [authSlice] Full payload:', JSON.stringify(action.payload, null, 2));
+
       if (action?.payload && action?.payload?.access_token) {
         state.token = action?.payload?.access_token;
+        console.log('✅ [authSlice] Token saved to state:', state.token);
       } else {
-        console.log('🚨 access_token not found in payload');
+        console.log('🚨 [authSlice] access_token not found in payload');
+        console.log('🚨 [authSlice] Payload keys:', Object.keys(action?.payload || {}));
       }
       state.loading = false;
       state.loginResponse = {
@@ -67,8 +72,13 @@ const authSlice = createSlice({
     },
 
     guestLoginSuccess: (state, action) => {
+      console.log('🔑 [authSlice] guestLoginSuccess called');
+      console.log('🔑 [authSlice] Guest payload:', JSON.stringify(action.payload, null, 2));
+
       state.guestLoading = false;
       state.token = action.payload.access_token;
+      console.log('✅ [authSlice] Guest token saved to state:', state.token);
+
       state.loginResponse = {
         success: true,
         message: action.payload.message,

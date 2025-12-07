@@ -104,7 +104,11 @@ const AppNavigation = () => {
   const authState = useSelector((state) => state.auth);
 
   const {token} = authState;
-  console.log(token);
+  console.log('🗺️ [Navigation] Current auth state:', {
+    hasToken: !!token,
+    tokenLength: token?.length || 0,
+    token: token ? `${token.substring(0, 20)}...` : 'null'
+  });
   // const token = useSelector(state => state.auth.token);
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);

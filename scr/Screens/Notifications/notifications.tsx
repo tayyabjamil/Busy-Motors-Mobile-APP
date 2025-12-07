@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,11 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import {hp, wp} from '../../Helper/Responsive';
+import { hp, wp } from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
-import {Fonts} from '../../Helper/Fonts';
+import { Fonts } from '../../Helper/Fonts';
 import Header from '../../Components/Header';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const initialNotifications = [
   {
@@ -99,7 +99,7 @@ const Notifications = () => {
     setData([]);
   };
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <View style={styles.notificationCard}>
       <Image
         source={require('../../assets/profile.png')} // Replace with your image
@@ -118,17 +118,19 @@ const Notifications = () => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Header navigation={navigation} showNotification={false} textData={'Notifications'} />
+      <Header navigation={navigation} showBackButton showNotification={false} textData={'Notifications'} />
       {/* Notification List */}
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No notifications</Text>
-        }
-      />
+      <View style={styles.sidePadding}>
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No notifications</Text>
+          }
+        />
+      </View>
     </View>
   );
 };
@@ -136,13 +138,15 @@ const Notifications = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp(5),
     paddingTop: hp(6),
     backgroundColor: '#F5F5F5',
   },
+  sidePadding: {
+    paddingHorizontal: wp(5),
+  },
   list: {
     paddingBottom: hp(2),
-    marginTop:10
+    marginTop: 10
   },
   notificationCard: {
     flexDirection: 'row',
@@ -154,7 +158,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     elevation: 2,
   },
 

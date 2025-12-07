@@ -8,6 +8,7 @@ import {
   Linking,
   ScrollView,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -18,7 +19,7 @@ import Header from '../../Components/Header';
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}>
@@ -117,7 +118,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         </TouchableOpacity>
       </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    paddingTop:hp(6)
+    // paddingTop:hp(6)
   },
   innerContainer: {
     flex: 1,

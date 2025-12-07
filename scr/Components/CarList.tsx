@@ -174,11 +174,11 @@ const styles = StyleSheet.create({
     paddingTop: hp(4),
     paddingHorizontal: wp(3.5),
     paddingBottom: hp(0.5),
-    shadowColor: Colors.black,
+    // shadowColor: Colors.black,
     shadowOpacity: 0.15,
-    shadowRadius: wp(2),
-    shadowOffset: { width: 0, height: hp(1) },
-    elevation: 5,
+    // shadowRadius: wp(2),
+    // shadowOffset: { width: 0, height: hp(1) },
+    // elevation: 5,
     borderColor:'white'
   },
   heartTagContainer: {

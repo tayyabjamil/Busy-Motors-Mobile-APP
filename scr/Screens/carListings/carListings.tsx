@@ -7,13 +7,13 @@ import {
   StyleSheet,
   Image,
   Modal,
-  SafeAreaView,
   Platform,
   TouchableWithoutFeedback,
   Alert,
   TextInput,
   ScrollView,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {hp, wp} from '../../Helper/Responsive';
@@ -152,24 +152,41 @@ const Listings = () => {
   // }, [isFocused]);
 
   // Fetch carListings when the screen is focused
-  console.log('@token', token);
+  console.log('🏠 [CarListings] Component rendered');
+  console.log('🏠 [CarListings] Token from Redux:', {
+    hasToken: !!token,
+    tokenLength: token?.length || 0,
+    token: token ? `${token.substring(0, 20)}...` : 'null'
+  });
+
   useEffect(() => {
-    if (isFocused) {
+    console.log('🏠 [CarListings] useEffect triggered, isFocused:', isFocused);
+    if (isFocused && token) {
       fetchCarListings();
       dispatch(fetchUserRequest(token));
     }
-  }, [isFocused]);
+  }, [isFocused, token]);
 
   useEffect(() => {
     getLocation();
   }, []);
   const fetchCarListings = async () => {
+    console.log('🏠 [CarListings] fetchCarListings called');
+    console.log('🏠 [CarListings] Token check:', {
+      hasToken: !!token,
+      tokenValue: token ? `${token.substring(0, 20)}...` : 'null'
+    });
+
     setError(null);
 
     try {
       if (!token) {
+        console.error('❌ [CarListings] TOKEN NOT FOUND!');
+        console.error('❌ [CarListings] This is the error the user is seeing');
         throw new Error('Token not found');
       }
+
+      console.log('✅ [CarListings] Token exists, making API call...');
 
       const response = await api.get('/car/get-all-listing', {
         headers: {

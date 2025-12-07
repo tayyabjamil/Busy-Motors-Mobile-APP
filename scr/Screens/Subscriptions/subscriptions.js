@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,18 +12,19 @@ import {
   ActivityIndicator,
   Linking,
 } from 'react-native';
-import {TabView, TabBar} from 'react-native-tab-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { TabView, TabBar } from 'react-native-tab-view';
 import Colors from '../../Helper/Colors';
-import {useNavigation} from '@react-navigation/native';
-import {Fonts} from '../../Helper/Fonts';
+import { useNavigation } from '@react-navigation/native';
+import { Fonts } from '../../Helper/Fonts';
 import Purchases from 'react-native-purchases';
-import {useDispatch, useSelector} from 'react-redux';
-import {checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions} from '../../redux/slices/subcriptionsSlice';
-import {cancelSubscriptionRequest} from '../../redux/slices/canceleSubcriptionsSlice';
-import {updateSubscriptionRequest} from '../../redux/slices/updateSubcriptionSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions } from '../../redux/slices/subcriptionsSlice';
+import { cancelSubscriptionRequest } from '../../redux/slices/canceleSubcriptionsSlice';
+import { updateSubscriptionRequest } from '../../redux/slices/updateSubcriptionSlice';
 import Header from '../../Components/Header';
 
-const {width: wp, height: hp} = Dimensions.get('window');
+const { width: wp, height: hp } = Dimensions.get('window');
 
 const SubscriptionScreen = () => {
   const navigation = useNavigation();
@@ -32,10 +33,10 @@ const SubscriptionScreen = () => {
   const token = useSelector((state) => state.auth?.token);
 
   const routes = [
-    {key: 'scrap', title: 'Scrap'},
-    {key: 'salvage', title: 'Salvage'},
+    { key: 'scrap', title: 'Scrap' },
+    { key: 'salvage', title: 'Salvage' },
   ];
-  
+
   const [email, setEmail] = useState('tayyabjamil999@gmail.com');
   const [subscriptionSelected, setSubscriptionSelected] = useState('');
   const [selectedActiveSubscription, setSelectedActiveSubscription] = useState(false);
@@ -47,7 +48,7 @@ const SubscriptionScreen = () => {
   const {
     userData,
   } = useSelector((state) => state.user);
-  const {cancelSuccess, updateSuccess} = useSelector(
+  const { cancelSuccess, updateSuccess } = useSelector(
     state => state?.cancelSubscription,
   );
   const activeSubscriptions = useSelector(
@@ -63,7 +64,7 @@ const SubscriptionScreen = () => {
 
   useEffect(() => {
     if (userData?.email) {
-      dispatch(checkSubscriptionRequest({email: userData.email}));
+      dispatch(checkSubscriptionRequest({ email: userData.email }));
     }
   }, [userData?.email, cancelSuccess, updateSuccess]);
   // Function to refresh active subscriptions
@@ -124,7 +125,7 @@ const SubscriptionScreen = () => {
 
           // Filter scrap packages - look for 'scrap' in the identifier and exclude salvage
           const scrap = packages.filter(pkg =>
-            pkg.product.identifier.toLowerCase().includes('scrap') && 
+            pkg.product.identifier.toLowerCase().includes('scrap') &&
             !pkg.product.identifier.toLowerCase().includes('salvage')
           );
 
@@ -150,7 +151,7 @@ const SubscriptionScreen = () => {
     try {
       setIsPurchasing(true);
       console.log('🛒 Attempting to purchase package:', selectedIdentifier);
-      
+
       const allOfferings = await Purchases.getOfferings();
       const availablePackages = allOfferings.current.availablePackages;
 
@@ -182,17 +183,17 @@ const SubscriptionScreen = () => {
           {
             text: 'Continue',
             onPress: () => {
-              dispatch(checkSubscriptionRequest({email: userData.email}));
+              dispatch(checkSubscriptionRequest({ email: userData.email }));
               navigation.goBack();
             },
           },
         ],
-        {cancelable: false},
+        { cancelable: false },
       );
 
     } catch (error) {
       console.log('❌ Purchase error:', error);
-      
+
       if (error.userCancelled) {
         console.log('🚫 Purchase cancelled by user');
       } else {
@@ -203,7 +204,7 @@ const SubscriptionScreen = () => {
     }
   };
 
-  const renderScene = ({route}) => {
+  const renderScene = ({ route }) => {
     const sharedProps = {
       onSelectSubscription: handlePurchase,
       selectedSubscription: subscriptionSelected,
@@ -221,47 +222,51 @@ const SubscriptionScreen = () => {
         return null;
     }
   };
-  
-  return (
-    <View style={styles.container}>
-      <Header textData={"Unlock All Features"} />
-      <TabView
-  navigationState={{ index, routes }}
-  renderScene={renderScene}
-  onIndexChange={setIndex}
-  initialLayout={{ width: layout.width }}
-  style={styles.tabView}
-  renderTabBar={props => {
-    const activeIndex = props.navigationState.index;
 
-    return (
-      <View style={styles.customTabContainer}>
-        {props.navigationState.routes.map((route, i) => {
-          const isActive = activeIndex === i;
+  return (
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <Header
+        textData={"Unlock All Features"}
+        navigation={navigation}
+        showBackButton={true}
+      />
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        style={styles.tabView}
+        renderTabBar={props => {
+          const activeIndex = props.navigationState.index;
 
           return (
-            <TouchableOpacity
-              key={route.key}
-              onPress={() => props.jumpTo(route.key)}
-              style={[
-                styles.customTab,
-                isActive && styles.activeTab,      // selected tab
-              ]}
-              activeOpacity={0.7}>
-              <Text
-                style={[
-                  styles.customTabLabel,
-                  isActive && styles.activeTabLabel, // selected text
-                ]}>
-                {route.title}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.customTabContainer}>
+              {props.navigationState.routes.map((route, i) => {
+                const isActive = activeIndex === i;
+
+                return (
+                  <TouchableOpacity
+                    key={route.key}
+                    onPress={() => props.jumpTo(route.key)}
+                    style={[
+                      styles.customTab,
+                      isActive && styles.activeTab,      // selected tab
+                    ]}
+                    activeOpacity={0.7}>
+                    <Text
+                      style={[
+                        styles.customTabLabel,
+                        isActive && styles.activeTabLabel, // selected text
+                      ]}>
+                      {route.title}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           );
-        })}
-      </View>
-    );
-  }}
-/>
+        }}
+      />
       {subscriptionSelected && subscriptionSelected !== '' ? (
         <>
           {selectedActiveSubscription ? (
@@ -274,7 +279,7 @@ const SubscriptionScreen = () => {
                     `You have an active subscription: ${subscriptionSelected}\n\nTo manage your subscription, please go to:\n\n` +
                     'iOS: Settings > Apple ID > Subscriptions\n' +
                     'Android: Google Play Store > Subscriptions',
-                    [{text: 'OK'}],
+                    [{ text: 'OK' }],
                   );
                 }}>
                 <Text style={styles.infoButtonText}>
@@ -296,7 +301,7 @@ const SubscriptionScreen = () => {
           )}
         </>
       ) : null}
-      
+
       {loading && (
         <View style={styles.loaderOverlay}>
           <ActivityIndicator size="large" color={Colors.primary} />
@@ -304,8 +309,8 @@ const SubscriptionScreen = () => {
       )}
 
       {/* Active Subscriptions Display */}
-      
-    </View>
+
+    </SafeAreaView>
   );
 };
 
@@ -317,7 +322,7 @@ const SalvageRoute = ({
   setSelectedActiveSubscription,
   activeSubscriptions = [],
 }) => {
-  const {subscriptions = []} = useSelector(
+  const { subscriptions = [] } = useSelector(
     state => state?.subscription?.subscriptionData || {},
   );
 
@@ -344,16 +349,16 @@ const SalvageRoute = ({
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
         <View style={styles.subContainer}>
-        <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
-        <Text style={styles.description}>
-          Find salvaged cars at competitive prices.
-        </Text>
-        <Text style={styles.description}>
-          Connect with sellers offload vehicles.
-        </Text>
-        <Text style={styles.description}>
-          Expand your inventory with unique opportunities.
-        </Text>
+          <Text style={styles.subHeader}>Salvage Monthly Subscription:</Text>
+          <Text style={styles.description}>
+            Find salvaged cars at competitive prices.
+          </Text>
+          <Text style={styles.description}>
+            Connect with sellers offload vehicles.
+          </Text>
+          <Text style={styles.description}>
+            Expand your inventory with unique opportunities.
+          </Text>
         </View>
 
         <View style={styles.tabContainer}>
@@ -364,55 +369,55 @@ const SalvageRoute = ({
                 !pkg.product.title.toLowerCase().includes('corporate'),
             )
             .map((pkg, index) => {
-            const isActive = isSubscriptionActive(pkg.product.identifier);
-            console.log(`🎯 SALVAGE - Package ${pkg.product.identifier} active:`, isActive);
-            return (
-              <TouchableOpacity
-                key={pkg.identifier}
-                onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
-                style={[
-                  styles.optionSelected,
-                  selectedSubscription === pkg.product.identifier
-                    ? styles.optionFocused
-                    : styles.optionDisabled,
-                ]}>
-                <Image
-                  source={require('../../assets/loyalty.png')}
-                  style={styles.optionImage}
-                  resizeMode="contain"
-                />
-                <Text style={styles.optionText}>{pkg.product.title}</Text>
+              const isActive = isSubscriptionActive(pkg.product.identifier);
+              console.log(`🎯 SALVAGE - Package ${pkg.product.identifier} active:`, isActive);
+              return (
+                <TouchableOpacity
+                  key={pkg.identifier}
+                  onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
+                  style={[
+                    styles.optionSelected,
+                    selectedSubscription === pkg.product.identifier
+                      ? styles.optionFocused
+                      : styles.optionDisabled,
+                  ]}>
+                  <Image
+                    source={require('../../assets/loyalty.png')}
+                    style={styles.optionImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.optionText}>{pkg.product.title}</Text>
 
-                <Text style={styles.optionSubText}>{pkg.product.priceString}</Text>
-                <Text style={styles.helperText}>
-                  {pkg.product.identifier.includes('weekly') ? '7 days access' : '1 month access'}
-                </Text>
-                <View style={styles.linksContainer}>
-                  <Text
-                    style={styles.linkText}
-                    onPress={() =>
-                      Linking.openURL('https://scrape4you.onrender.com/terms')
-                    }>
-                    Terms and Conditions
+                  <Text style={styles.optionSubText}>{pkg.product.priceString}</Text>
+                  <Text style={styles.helperText}>
+                    {pkg.product.identifier.includes('weekly') ? '7 days access' : '1 month access'}
                   </Text>
-                  <Text
-                    style={styles.linkText}
-                    onPress={() =>
-                      Linking.openURL(
-                        'https://scrape4you.onrender.com/privacy-policy',
-                      )
-                    }>
-                    Privacy Policy
-                  </Text>
-                </View>
-                {isActive && (
-                  <View style={styles.activeOverlay}>
-                    <Text style={styles.activeText}>Active</Text>
+                  <View style={styles.linksContainer}>
+                    <Text
+                      style={styles.linkText}
+                      onPress={() =>
+                        Linking.openURL('https://scrape4you.onrender.com/terms')
+                      }>
+                      Terms and Conditions
+                    </Text>
+                    <Text
+                      style={styles.linkText}
+                      onPress={() =>
+                        Linking.openURL(
+                          'https://scrape4you.onrender.com/privacy-policy',
+                        )
+                      }>
+                      Privacy Policy
+                    </Text>
                   </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
+                  {isActive && (
+                    <View style={styles.activeOverlay}>
+                      <Text style={styles.activeText}>Active</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
         </View>
       </View>
     </ScrollView>
@@ -427,7 +432,7 @@ const ScrapRoute = ({
   setSelectedActiveSubscription,
   activeSubscriptions = [],
 }) => {
-  const {subscriptions = []} = useSelector(
+  const { subscriptions = [] } = useSelector(
     state => state?.subscription?.subscriptionData || {},
   );
 
@@ -445,16 +450,16 @@ const ScrapRoute = ({
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.tabContent}>
         <View style={styles.subContainer}>
-        <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
-        <Text style={styles.description}>
-          Access a curated list of car sellers.
-        </Text>
-        <Text style={styles.description}>
-          Get real-time updates on vehicles.
-        </Text>
-        <Text style={styles.description}>
-          Contact sellers directly to negotiate and close deals.
-        </Text>
+          <Text style={styles.subHeader}>Scrap Monthly Subscription:</Text>
+          <Text style={styles.description}>
+            Access a curated list of car sellers.
+          </Text>
+          <Text style={styles.description}>
+            Get real-time updates on vehicles.
+          </Text>
+          <Text style={styles.description}>
+            Contact sellers directly to negotiate and close deals.
+          </Text>
         </View>
 
         <View style={styles.tabContainer}>
@@ -465,54 +470,54 @@ const ScrapRoute = ({
                 !pkg.product.title.toLowerCase().includes('corporate'),
             )
             .map((pkg, index) => {
-            const isActive = isSubscriptionActive(pkg.product.identifier);
-            return (
-              <TouchableOpacity
-                key={pkg.identifier}
-                onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
-                style={[
-                  styles.optionSelected,
-                  selectedSubscription === pkg.product.identifier
-                    ? styles.optionFocused
-                    : styles.optionDisabled,
-                ]}>
-                <Image
-                  source={require('../../assets/loyalty.png')}
-                  style={styles.optionImage}
-                  resizeMode="contain"
-                />
-                <Text style={styles.optionText}>{pkg.product.title}</Text>
-                <Text style={styles.optionSubText}>{pkg.product.priceString}</Text>
-                <Text style={styles.helperText}>
-                  {pkg.product.identifier.includes('weekly') ? '7 days access' : '1 month access'}
-                </Text>
-                <View style={styles.linksContainer}>
-                  <Text
-                    style={styles.linkText}
-                    onPress={() =>
-                      Linking.openURL('https://scrape4you.onrender.com/terms')
-                    }>
-                    Terms and Conditions
+              const isActive = isSubscriptionActive(pkg.product.identifier);
+              return (
+                <TouchableOpacity
+                  key={pkg.identifier}
+                  onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
+                  style={[
+                    styles.optionSelected,
+                    selectedSubscription === pkg.product.identifier
+                      ? styles.optionFocused
+                      : styles.optionDisabled,
+                  ]}>
+                  <Image
+                    source={require('../../assets/loyalty.png')}
+                    style={styles.optionImage}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.optionText}>{pkg.product.title}</Text>
+                  <Text style={styles.optionSubText}>{pkg.product.priceString}</Text>
+                  <Text style={styles.helperText}>
+                    {pkg.product.identifier.includes('weekly') ? '7 days access' : '1 month access'}
                   </Text>
-                  <Text
-                    style={styles.linkText}
-                    onPress={() =>
-                      Linking.openURL(
-                        'https://scrape4you.onrender.com/privacy-policy',
-                      )
-                    }>
-                    Privacy Policy
-                  </Text>
-                </View>
-                
-                {isActive && (
-                  <View style={styles.activeOverlay}>
-                    <Text style={styles.activeText}>Active</Text>
+                  <View style={styles.linksContainer}>
+                    <Text
+                      style={styles.linkText}
+                      onPress={() =>
+                        Linking.openURL('https://scrape4you.onrender.com/terms')
+                      }>
+                      Terms and Conditions
+                    </Text>
+                    <Text
+                      style={styles.linkText}
+                      onPress={() =>
+                        Linking.openURL(
+                          'https://scrape4you.onrender.com/privacy-policy',
+                        )
+                      }>
+                      Privacy Policy
+                    </Text>
                   </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
+
+                  {isActive && (
+                    <View style={styles.activeOverlay}>
+                      <Text style={styles.activeText}>Active</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
         </View>
       </View>
     </ScrollView>
@@ -522,7 +527,8 @@ const ScrapRoute = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: hp * 0.06,
+    // paddingTop: hp * 0.06,
+    backgroundColor: Colors.white,
   },
   loaderOverlay: {
     position: 'absolute',
@@ -546,7 +552,7 @@ const styles = StyleSheet.create({
   subHeader: {
     fontSize: wp * 0.05,
     fontFamily: Fonts.semiBold,
-    fontWeight:'600',
+    fontWeight: '600',
     textAlign: 'center',
     color: 'white',
     paddingBottom: wp * 0.03,
@@ -576,10 +582,10 @@ const styles = StyleSheet.create({
     padding: 10,
     position: 'relative',
   },
-  subContainer:{
-    backgroundColor:Colors.primary,
-    padding:20,
-    borderRadius:20
+  subContainer: {
+    backgroundColor: Colors.primary,
+    padding: 20,
+    borderRadius: 20
   },
   optionFocused: {
     borderWidth: 2,
@@ -650,51 +656,51 @@ const styles = StyleSheet.create({
     marginHorizontal: wp * 0.01,
   },
   customTabContainer: {
-  flexDirection: 'row',
-  backgroundColor: Colors.white,
-  borderRadius: 100,
-  marginHorizontal: 20,
-  overflow: 'hidden',
-  borderWidth:1,
-  borderColor:Colors.primary,
+    flexDirection: 'row',
+    backgroundColor: Colors.white,
+    borderRadius: 100,
+    marginHorizontal: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.primary,
     // Elevation / Shadow
-  ...Platform.select({
-    ios: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 4,
-    },
-    android: {
-      elevation: 5,
-    },
-  }),
-},
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
 
-customTab: {
-  flex: 1,
-  paddingVertical: 12,
-  backgroundColor: '#F7F7F7',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
+  customTab: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: '#F7F7F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-activeTab: {
-  backgroundColor: Colors.primary,
-  borderRadius:100     // FULL primary color
-},
+  activeTab: {
+    backgroundColor: Colors.primary,
+    borderRadius: 100     // FULL primary color
+  },
 
-customTabLabel: {
-  fontSize: 15,
-  fontWeight: '600',
-  color: 'black',                        // normal text
-  textAlign: 'center',
-},
+  customTabLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: 'black',                        // normal text
+    textAlign: 'center',
+  },
 
-activeTabLabel: {
-  color: '#FFFFFF',                     // WHITE when selected
-  textAlign: 'center',
-},
+  activeTabLabel: {
+    color: '#FFFFFF',                     // WHITE when selected
+    textAlign: 'center',
+  },
 
   tabIndicator: {
     backgroundColor: Colors.primary,

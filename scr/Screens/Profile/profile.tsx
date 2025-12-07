@@ -9,9 +9,9 @@ import {
   Pressable,
   Modal,
   ActivityIndicator,
-  SafeAreaView,
   Platform,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../../redux/slices/authSlice';
@@ -209,7 +209,6 @@ const Profile = () => {
       <SafeAreaView
         style={[
           styles.container,
-          {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
         ]}>
         <Header navigation={navigation} textData={'User Profile'} />
         <View style={styles.profileSection}>
@@ -392,8 +391,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(5),
     backgroundColor: Colors.white,
-    margin: Platform.OS === 'ios' ? 20 : 5,
-    marginTop:0
+    // marginTop:0
   },
   scrollViewContainer:{
     backgroundColor: Colors.white

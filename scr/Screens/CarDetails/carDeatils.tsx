@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,20 +15,20 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
 } from 'react-native';
-import {hp, wp} from '../../Helper/Responsive';
+import { hp, wp } from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import Banner from '../../Components/Banner';
-import {Fonts} from '../../Helper/Fonts';
-import {useDispatch, useSelector} from 'react-redux';
+import { Fonts } from '../../Helper/Fonts';
+import { useDispatch, useSelector } from 'react-redux';
 import WebView from 'react-native-webview';
-import {resetQuoteState, sendQuoteRequest} from '../../redux/slices/qouteSlice';
+import { resetQuoteState, sendQuoteRequest } from '../../redux/slices/qouteSlice';
 import Toast from 'react-native-simple-toast';
-import {navigationRef} from '../../navigationRef';
+import { navigationRef } from '../../navigationRef';
 
 const defaultCarImage = require('../../assets/car2.png');
 
-const Details = ({route}) => {
+const Details = ({ route }) => {
   const dispatch = useDispatch();
   const car = route?.params?.car || null;
 
@@ -44,7 +44,7 @@ const Details = ({route}) => {
   // Check if user has any active subscriptions
   const hasActiveSubscription = activeSubscriptions.length > 0;
 
-  const {userData} = useSelector(state => state.user);
+  const { userData } = useSelector(state => state.user);
   const token = useSelector(state => state.auth?.token);
   const qoute = useSelector(state => state?.quote);
   const [showWebView, setShowWebView] = useState(false);
@@ -72,7 +72,7 @@ const Details = ({route}) => {
       return;
     }
     let hasError = false;
-    let newErrors = {messageError: '', amountError: ''};
+    let newErrors = { messageError: '', amountError: '' };
 
     if (!message.trim()) {
       newErrors.messageError = 'Please enter a message';
@@ -102,7 +102,7 @@ const Details = ({route}) => {
 
   const handlePlaceBid = () => {
     if (!amount.trim()) {
-      setError(prev => ({...prev, amountError: 'Please enter an amount'}));
+      setError(prev => ({ ...prev, amountError: 'Please enter an amount' }));
       return;
     }
 
@@ -161,7 +161,7 @@ const Details = ({route}) => {
           style: 'default',
         },
       ],
-      {cancelable: true},
+      { cancelable: true },
     );
   };
 
@@ -177,118 +177,119 @@ const Details = ({route}) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}>
+      style={{ flex: 1 }}>
       <ScrollView
         style={[
           styles.container,
-          {paddingTop: Platform.OS === 'ios' ? 20  : 0},
+          { paddingTop: Platform.OS === 'ios' ? 20 : 0 },
         ]}>
         <View style={styles.headerContainer}>
-        <Header navigation={navigationRef} showNotification={false} textData={'Car Details'}/>
+          <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Car Details'} />
         </View>
-        <View style={styles.detailsContainer}>
-        <View style={styles.carTagContainer}>
-            <Text style={styles.scrapText}>{car?.tag || 'Unknown'}</Text>
-          </View>
-          <Image
-            source={
-              car?.displayImage && car?.displayImage !== 'N/A'
-                ? {uri: car?.displayImage}
-                : defaultCarImage
-            }
-            style={styles.carImage}
-            resizeMode={'contain'}
-          />
-        
-          <Text style={styles.carTitle}>
-            {car?.make || 'Model Not Available'}
-          </Text>
+        <View style={[styles.sidePadding]}>
+          <View style={styles.detailsContainer}>
+            <View style={styles.carTagContainer}>
+              <Text style={styles.scrapText}>{car?.tag || 'Unknown'}</Text>
+            </View>
+            <Image
+              source={
+                car?.displayImage && car?.displayImage !== 'N/A'
+                  ? { uri: car?.displayImage }
+                  : defaultCarImage
+              }
+              style={styles.carImage}
+              resizeMode={'contain'}
+            />
 
-          {[
-            ['Registration :', car?.registrationNumber],
-            ['Year :', car?.yearOfManufacture],
-            ['Postcode :', car?.postcode],
-            ['Colour :', car?.color],
-            ['Model :', car?.model],
-            ['Fuel Type :', car?.fuelType],
-          ].map(([label, value], index) => {
-            // Show only first 3 characters for postcode with ellipsis
-            const displayValue = label === 'Postcode :' 
-              ? (value?.toString() && value.toString().length > 3
+            <Text style={styles.carTitle}>
+              {car?.make || 'Model Not Available'}
+            </Text>
+
+            {[
+              ['Registration :', car?.registrationNumber],
+              ['Year :', car?.yearOfManufacture],
+              ['Postcode :', car?.postcode],
+              ['Colour :', car?.color],
+              ['Model :', car?.model],
+              ['Fuel Type :', car?.fuelType],
+            ].map(([label, value], index) => {
+              // Show only first 3 characters for postcode with ellipsis
+              const displayValue = label === 'Postcode :'
+                ? (value?.toString() && value.toString().length > 3
                   ? value.toString().substring(0, 3).toUpperCase() + '...'
                   : (value?.toString().toUpperCase() || 'N/A'))
-              : (value?.toString().toUpperCase() || 'N/A');
-            
-            return (
-              <View key={index} style={styles.infoRow}>
-                <Text style={styles.label}>{label}</Text>
-                <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
-                  {displayValue}
-                </Text>
-              </View>
-            );
-          })}
-          <View style={styles.motContainer}>
-            <Image
-              source={require('../../assets/Union.png')}
-              style={styles.motImage}
-            />
-            <View style={styles.textContainer}>
-              <View style={styles.rowText}>
-                <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
-                <TouchableOpacity
-                  style={styles.motHistoryButton}
-                  onPress={() => handleMotHistory()}>
-                  <Text style={styles.motHistoryText}>MOT history</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.expiry}>
-                Expiry: {formatDate(car?.date_added)}
-              </Text>
-            </View>
-          </View>
-          <Banner navigation={navigationRef} />
-        </View>
-
-        <View style={styles.contactContainer}>
-          <Text style={styles.contactTitle}>Contact Seller Via</Text>
-          <View style={styles.contactIcons}>
-            {[
-              ['Call', require('../../assets/apple.png'), handleCall],
-              [
-                'WhatsApp',
-                require('../../assets/whatsapp.png'),
-                handleWhatsApp,
-              ],
-              ['Text', require('../../assets/messages.png'), handleTextMessage],
-            ].map(([text, icon, action], index) => {
-              const isSold = car?.isSold;
-              const opacityStyle = {opacity: isSold ? 0.3 : 1};
+                : (value?.toString().toUpperCase() || 'N/A');
 
               return (
-                <View key={index}>
-                  <TouchableOpacity
-                    style={[
-                      styles.contactButton,
-                      styles[`${text.toLowerCase()}Button`],
-                      opacityStyle,
-                    ]}
-                    onPress={() => {
-                      if (!isSold) {
-                        action('+' + car?.phoneNumber);
-                      }
-                    }}
-                    activeOpacity={isSold ? 1 : 0.7}
-                    disabled={isSold}>
-                    <Image source={icon} style={[styles.icon, opacityStyle]} />
-                  </TouchableOpacity>
-                  <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
+                <View key={index} style={styles.infoRow}>
+                  <Text style={styles.label}>{label}</Text>
+                  <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                    {displayValue}
+                  </Text>
                 </View>
               );
             })}
+            <View style={styles.motContainer}>
+              <Image
+                source={require('../../assets/Union.png')}
+                style={styles.motImage}
+              />
+              <View style={styles.textContainer}>
+                <View style={styles.rowText}>
+                  <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
+                  <TouchableOpacity
+                    style={styles.motHistoryButton}
+                    onPress={() => handleMotHistory()}>
+                    <Text style={styles.motHistoryText}>MOT history</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.expiry}>
+                  Expiry: {formatDate(car?.date_added)}
+                </Text>
+              </View>
+            </View>
+            <Banner navigation={navigationRef} />
           </View>
-        </View>
-        {/* {!car?.isSold && (
+
+          <View style={styles.contactContainer}>
+            <Text style={styles.contactTitle}>Contact Seller Via</Text>
+            <View style={styles.contactIcons}>
+              {[
+                ['Call', require('../../assets/apple.png'), handleCall],
+                [
+                  'WhatsApp',
+                  require('../../assets/whatsapp.png'),
+                  handleWhatsApp,
+                ],
+                ['Text', require('../../assets/messages.png'), handleTextMessage],
+              ].map(([text, icon, action], index) => {
+                const isSold = car?.isSold;
+                const opacityStyle = { opacity: isSold ? 0.3 : 1 };
+
+                return (
+                  <View key={index}>
+                    <TouchableOpacity
+                      style={[
+                        styles.contactButton,
+                        styles[`${text.toLowerCase()}Button`],
+                        opacityStyle,
+                      ]}
+                      onPress={() => {
+                        if (!isSold) {
+                          action('+' + car?.phoneNumber);
+                        }
+                      }}
+                      activeOpacity={isSold ? 1 : 0.7}
+                      disabled={isSold}>
+                      <Image source={icon} style={[styles.icon, opacityStyle]} />
+                    </TouchableOpacity>
+                    <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+          {/* {!car?.isSold && (
           <View style={styles.messageBox}>
             <TextInput
               placeholder="Write your message..."
@@ -331,6 +332,7 @@ const Details = ({route}) => {
             ) : null}
           </View>
         )} */}
+        </View>
         <Modal
           visible={showWebView}
           animationType="slide"
@@ -351,13 +353,14 @@ const Details = ({route}) => {
               </TouchableOpacity>
             </View>
             <WebView
-              source={{uri: webViewUrl}}
+              source={{ uri: webViewUrl }}
               style={styles.webView}
               startInLoadingState={true}
               onError={syntheticEvent => {
                 console.error('WebView error:', syntheticEvent.nativeEvent);
               }}
             />
+
           </SafeAreaView>
         </Modal>
       </ScrollView>
@@ -368,6 +371,8 @@ const Details = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  sidePadding: {
     padding: wp(5),
   },
   detailsContainer: {
@@ -385,7 +390,7 @@ const styles = StyleSheet.create({
     fontSize: wp(6),
     fontFamily: Fonts.bold,
     color: Colors.primary,
-    marginBottom:20,
+    marginBottom: 20,
     textAlign: 'center',
     fontWeight: 'bold',
   },
@@ -414,8 +419,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: hp(1),
   },
-  headerContainer:{
-    paddingTop:hp(4)
+  headerContainer: {
+    paddingTop: hp(2),
   },
   label: {
     fontSize: wp(4),
