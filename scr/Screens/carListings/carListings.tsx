@@ -900,7 +900,7 @@ const Listings = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: hp(2),
+    paddingTop: hp(1),
     ...Platform.select({
       android: {
         marginLeft: 20,

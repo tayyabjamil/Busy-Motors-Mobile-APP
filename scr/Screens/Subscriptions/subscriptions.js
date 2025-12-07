@@ -14,9 +14,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TabView, TabBar } from 'react-native-tab-view';
-import Colors from '../../Helper/Colors';
+import Colors, { Spacing, Shadows, BorderRadius } from '../../Helper/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { Fonts } from '../../Helper/Fonts';
+import LinearGradient from 'react-native-linear-gradient';
 import Purchases from 'react-native-purchases';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions } from '../../redux/slices/subcriptionsSlice';
@@ -25,6 +26,55 @@ import { updateSubscriptionRequest } from '../../redux/slices/updateSubcriptionS
 import Header from '../../Components/Header';
 
 const { width: wp, height: hp } = Dimensions.get('window');
+
+// 🧪 TESTING MODE - Set to true to use dummy subscriptions
+const USE_DUMMY_SUBSCRIPTIONS = false;
+
+// 🧪 Dummy subscription packages for testing
+const DUMMY_SCRAP_PACKAGES = [
+  {
+    identifier: 'scrap_weekly',
+    product: {
+      identifier: 'scrap_weekly',
+      title: 'Scrap Weekly',
+      priceString: '$9.99',
+      description: 'Weekly access to scrap listings',
+    }
+  },
+  {
+    identifier: 'scrap_monthly',
+    product: {
+      identifier: 'scrap_monthly',
+      title: 'Scrap Monthly',
+      priceString: '$29.99',
+      description: 'Monthly access to scrap listings',
+    }
+  },
+];
+
+const DUMMY_SALVAGE_PACKAGES = [
+  {
+    identifier: 'salvage_weekly',
+    product: {
+      identifier: 'salvage_weekly',
+      title: 'Salvage Weekly',
+      priceString: '$14.99',
+      description: 'Weekly access to salvage listings',
+    }
+  },
+  {
+    identifier: 'salvage_monthly',
+    product: {
+      identifier: 'salvage_monthly',
+      title: 'Salvage Monthly',
+      priceString: '$49.99',
+      description: 'Monthly access to salvage listings',
+    }
+  },
+];
+
+// 🧪 Dummy active subscriptions - add identifiers here to mark as "Active"
+const DUMMY_ACTIVE_SUBSCRIPTIONS = ['scrap_monthly']; // Example: mark scrap_monthly as active
 
 const SubscriptionScreen = () => {
   const navigation = useNavigation();
@@ -89,6 +139,12 @@ const SubscriptionScreen = () => {
   // Check for active subscriptions and save to Redux store
   useEffect(() => {
     const checkActiveSubscriptions = async () => {
+      // 🧪 Skip RevenueCat in testing mode
+      if (USE_DUMMY_SUBSCRIPTIONS) {
+        console.log('🧪 TESTING MODE: Skipping RevenueCat active subscription check');
+        return;
+      }
+
       try {
         const customerInfo = await Purchases.getCustomerInfo();
         const activeSubs = customerInfo.activeSubscriptions || [];
@@ -108,9 +164,25 @@ const SubscriptionScreen = () => {
     checkActiveSubscriptions();
   }, [dispatch]);
 
-  // Fetch RevenueCat products
+  // Fetch RevenueCat products (or use dummy data for testing)
   useEffect(() => {
     const fetchRevenueCatProducts = async () => {
+      // 🧪 Use dummy data if testing mode is enabled
+      if (USE_DUMMY_SUBSCRIPTIONS) {
+        console.log('🧪 TESTING MODE: Using dummy subscriptions');
+        setSalvagePackages(DUMMY_SALVAGE_PACKAGES);
+        setScrapPackages(DUMMY_SCRAP_PACKAGES);
+
+        // Set dummy active subscriptions in Redux
+        dispatch(setActiveSubscriptions(DUMMY_ACTIVE_SUBSCRIPTIONS));
+
+        console.log('✅ Dummy Salvage Packages:', DUMMY_SALVAGE_PACKAGES.map(p => p.product.title));
+        console.log('✅ Dummy Scrap Packages:', DUMMY_SCRAP_PACKAGES.map(p => p.product.title));
+        console.log('✅ Dummy Active Subscriptions:', DUMMY_ACTIVE_SUBSCRIPTIONS);
+        return;
+      }
+
+      // Real RevenueCat flow
       try {
         console.log('🔄 Fetching RevenueCat offerings...');
         const allOfferings = await Purchases.getOfferings();
@@ -144,7 +216,7 @@ const SubscriptionScreen = () => {
     };
 
     fetchRevenueCatProducts();
-  }, []);
+  }, [dispatch]);
 
   // Handle RevenueCat purchase
   const handlePurchase = async (selectedIdentifier) => {
@@ -152,6 +224,34 @@ const SubscriptionScreen = () => {
       setIsPurchasing(true);
       console.log('🛒 Attempting to purchase package:', selectedIdentifier);
 
+      // 🧪 Testing mode - simulate purchase without RevenueCat
+      if (USE_DUMMY_SUBSCRIPTIONS) {
+        console.log('🧪 TESTING MODE: Simulating purchase for:', selectedIdentifier);
+
+        // Simulate loading delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Find the package name for display
+        const allPackages = [...DUMMY_SCRAP_PACKAGES, ...DUMMY_SALVAGE_PACKAGES];
+        const selectedPackage = allPackages.find(pkg => pkg.product.identifier === selectedIdentifier);
+        const packageName = selectedPackage?.product.title || selectedIdentifier;
+
+        Alert.alert(
+          '🧪 Test Purchase Successful!',
+          `This is a TEST purchase of "${packageName}". In production, this would process a real payment through RevenueCat.\n\nTo test the "Active" badge, add this identifier to DUMMY_ACTIVE_SUBSCRIPTIONS at the top of the file.`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                console.log('✅ Test purchase completed');
+              },
+            },
+          ],
+        );
+        return;
+      }
+
+      // Real RevenueCat flow
       const allOfferings = await Purchases.getOfferings();
       const availablePackages = allOfferings.current.availablePackages;
 
@@ -527,8 +627,7 @@ const ScrapRoute = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // paddingTop: hp * 0.06,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.backgroundSecondary,
   },
   loaderOverlay: {
     position: 'absolute',
@@ -550,19 +649,21 @@ const styles = StyleSheet.create({
     paddingTop: hp * 0.03,
   },
   subHeader: {
-    fontSize: wp * 0.05,
-    fontFamily: Fonts.semiBold,
-    fontWeight: '600',
-    textAlign: 'center',
-    color: 'white',
-    paddingBottom: wp * 0.03,
-  },
-  description: {
-    fontSize: wp * 0.04,
-    fontFamily: Fonts.regular,
+    fontSize: wp * 0.055,
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
     textAlign: 'center',
     color: Colors.white,
-    marginTop: 5,
+    paddingBottom: Spacing.md,
+    letterSpacing: 0.5,
+  },
+  description: {
+    fontSize: wp * 0.038,
+    fontFamily: Fonts.regular,
+    textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: Spacing.xs,
+    lineHeight: wp * 0.055,
   },
   tabContainer: {
     marginTop: wp * 0.05,
@@ -572,39 +673,48 @@ const styles = StyleSheet.create({
   },
   optionSelected: {
     width: wp / 2.4,
-    borderRadius: 10,
-    borderColor: Colors.primary,
+    borderRadius: BorderRadius.xl,
     backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: wp * 0.03,
-    height: hp / 4.5,
-    padding: 10,
+    marginBottom: Spacing.base,
+    height: hp / 4.2,
+    padding: Spacing.base,
     position: 'relative',
+    ...Shadows.large,
+    borderWidth: 2,
+    borderColor: Colors.lightGray,
   },
   subContainer: {
-    backgroundColor: Colors.primary,
-    padding: 20,
-    borderRadius: 20
+    backgroundColor: Colors.backgroundDark,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    ...Shadows.medium,
   },
   optionFocused: {
-    borderWidth: 2,
-    borderColor: Colors.primary,
+    borderWidth: 3,
+    borderColor: Colors.accent,
+    ...Shadows.large,
+    transform: [{ scale: 1.02 }],
   },
   optionDisabled: {
-    backgroundColor: Colors?.white,
+    backgroundColor: Colors.white,
     opacity: 1,
-    borderWidth: 0,
+    borderWidth: 2,
+    borderColor: Colors.lightGray,
   },
   optionImage: {
-    width: '18%',
-    height: '18%',
+    width: wp * 0.12,
+    height: wp * 0.12,
+    tintColor: Colors.accent,
+    marginBottom: Spacing.sm,
   },
   optionText: {
-    marginTop: wp * 0.01,
-    fontSize: wp * 0.035,
+    marginTop: Spacing.sm,
+    fontSize: wp * 0.04,
     fontFamily: Fonts.bold,
-    color: Colors.black,
+    fontWeight: '700',
+    color: Colors.textPrimary,
     textAlign: 'center',
   },
   sharingText: {
@@ -626,16 +736,17 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   optionSubText: {
-    marginTop: wp * 0.01,
-    fontSize: wp * 0.035,
+    marginTop: Spacing.xs,
+    fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
-    color: Colors.black,
+    fontWeight: '800',
+    color: Colors.accent,
   },
   helperText: {
-    fontSize: wp * 0.03,
-    fontFamily: Fonts.regular,
-    color: Colors.footerGray,
-    marginTop: wp * 0.005,
+    fontSize: wp * 0.032,
+    fontFamily: Fonts.medium,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
   },
   linksContainer: {
     flexDirection: 'row',
@@ -657,48 +768,40 @@ const styles = StyleSheet.create({
   },
   customTabContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.white,
-    borderRadius: 100,
-    marginHorizontal: 20,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: BorderRadius.round,
+    marginHorizontal: Spacing.lg,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    // Elevation / Shadow
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
+    borderWidth: 2,
+    borderColor: Colors.lightGray,
+    ...Shadows.medium,
   },
 
   customTab: {
     flex: 1,
-    paddingVertical: 12,
-    backgroundColor: '#F7F7F7',
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   activeTab: {
-    backgroundColor: Colors.primary,
-    borderRadius: 100     // FULL primary color
+    backgroundColor: Colors.accent,
+    borderRadius: BorderRadius.round,
   },
 
   customTabLabel: {
-    fontSize: 15,
+    fontSize: wp * 0.04,
     fontWeight: '600',
-    color: 'black',                        // normal text
+    fontFamily: Fonts.semiBold,
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
 
   activeTabLabel: {
-    color: '#FFFFFF',                     // WHITE when selected
+    color: Colors.white,
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
     textAlign: 'center',
   },
 
@@ -755,17 +858,22 @@ const styles = StyleSheet.create({
   },
   activeOverlay: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    top: Spacing.sm,
+    right: Spacing.sm,
+    backgroundColor: Colors.success,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.round,
+    ...Shadows.medium,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   activeText: {
     color: Colors.white,
-    fontSize: wp * 0.025,
+    fontSize: wp * 0.028,
     fontFamily: Fonts.bold,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   debugContainer: {
     backgroundColor: Colors.lightGray,

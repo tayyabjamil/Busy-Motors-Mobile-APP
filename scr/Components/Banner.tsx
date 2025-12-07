@@ -5,13 +5,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import Colors from '../Helper/Colors';
+import Colors, {Spacing, Shadows, BorderRadius} from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 import {Fonts} from '../Helper/Fonts';
 import {checkSubscriptionRequest} from '../redux/slices/subcriptionsSlice';
 import Purchases from 'react-native-purchases';
+import Toast from 'react-native-simple-toast';
 
 const Banner = ({navigation}: {navigation: any}) => {
   const {hasSubscription, subscriptions = []} = useSelector(
@@ -121,42 +123,57 @@ const Banner = ({navigation}: {navigation: any}) => {
   let isSubscriptionActive = hasRevenueCatSubscription || subscription;
 
   return (
-    <View style={isSubscriptionActive ? styles.bannerContainer2 : styles.bannerContainer}>
-      {/* Left Section: Text and Price OR Loader */}
+    <View style={styles.bannerContainer}>
+      {/* Left Section: Text and Price */}
       <View style={styles.leftSection}>
         {(loading || revenueCatLoading) ? (
           <View style={styles.loadingWrapper}>
-            <ActivityIndicator size="small" color={Colors.primary} />
-            <Text style={styles.loadingText}>
-              Loading subscription details...
-            </Text>
+            <ActivityIndicator size="small" color={Colors.accent} />
+            <Text style={styles.loadingText}>Loading...</Text>
           </View>
         ) : (
           <>
-            <View style={styles.priceContainer}>
-              <Text style={ isSubscriptionActive ? styles.discountedPrice : styles.discountedPrice2}>
-
-                {isSubscriptionActive
-                  ? `Hi, ${userData.first_name} ${userData.last_name}`
-                  : 'Start from £50/week'}
-              </Text>
-              {!isSubscriptionActive && (
-                <Text style={styles.originalPrice}>£180/Monthly</Text>
-              )}
-            </View>
-           </>
+            <Text style={styles.greetingText}>
+              {isSubscriptionActive
+                ? `Hi, ${userData?.first_name || 'User'}`
+                : 'Start from £50/week'}
+            </Text>
+            {isSubscriptionActive && (
+              <Text style={styles.subscriptionBadge}>{subscriptionName}</Text>
+            )}
+            {!isSubscriptionActive && (
+              <Text style={styles.originalPrice}>£180/Monthly</Text>
+            )}
+          </>
         )}
       </View>
-      {/* Right Section: Button always rendered to maintain width */}
-    <TouchableOpacity
-        style={styles.getNowButton}
-        onPress={() => !isSubscriptionActive && navigation.navigate('Subscriptions')}
-        disabled={loading || revenueCatLoading}>
-        <Text style={styles.getNowText}>
-          {(loading || revenueCatLoading) ? '...' : isSubscriptionActive ? subscriptionName : 'Get Now'}
-        </Text>
-      </TouchableOpacity>
 
+      {/* Right Section: Bell Icon & Button */}
+      <View style={styles.rightSection}>
+
+        {!isSubscriptionActive && (
+          <TouchableOpacity
+            style={styles.getNowButton}
+            onPress={() => navigation.navigate('Subscriptions')}
+            disabled={loading || revenueCatLoading}>
+            <Text style={styles.getNowText}>Get Now</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={styles.bellContainer}
+          onPress={() => {
+            if (userData?.is_guest) {
+              Toast.show('Please log in to access notifications', Toast.LONG);
+            } else {
+              navigation.navigate('Notifications');
+            }
+          }}>
+          <Image
+            source={require('../assets/bellEmpty.png')}
+            style={styles.bellIcon}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -165,86 +182,77 @@ const styles = StyleSheet.create({
   bannerContainer: {
     flexDirection: 'row',
     backgroundColor: Colors.white,
-    borderRadius: wp(3),
-    borderWidth: 0.3,
-    paddingHorizontal: 17,
-    paddingVertical:10,
-    borderColor: Colors.lightGray,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: Colors.black,
-    shadowOpacity: 0.2,
-    shadowRadius: wp(1),
-    shadowOffset: {width: 0, height: hp(0.5)},
-    elevation: 3,
-    width: '100%',
-  },
-  bannerContainer2: {
-    flexDirection: 'row',
-    borderRadius: wp(3),
-    borderWidth: 0.3,
-    paddingHorizontal: 17,
+    ...Shadows.medium,
+    borderWidth: 1,
     borderColor: Colors.lightGray,
-    alignItems: 'center',
-    justifyContent: 'space-between',
     width: '100%',
   },
   loadingWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.sm,
   },
-
   leftSection: {
     flex: 1,
-    marginRight: wp(2),
+    marginRight: Spacing.md,
   },
-  priceContainer: {
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    marginBottom: hp(0.5),
-  },
-  discountedPrice: {
-    fontSize: 14,
-    fontFamily: Fonts.semiBold,
-    color: Colors.black,
-    marginRight: wp(2),
-  },
-  discountedPrice2: {
-    fontSize: 16,
+  greetingText: {
+    fontSize: wp(4.2),
     fontFamily: Fonts.bold,
-    color: Colors.black,
-    marginRight: wp(2),
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
   },
-  additionalText: {
+  subscriptionBadge: {
+    fontSize: wp(3.2),
+    fontFamily: Fonts.medium,
+    color: Colors.accent,
+  },
+  originalPrice: {
+    fontSize: wp(3.2),
     fontFamily: Fonts.regular,
-    fontSize: wp(3),
-    color: Colors.black,
-    opacity: 0.8,
+    color: Colors.textSecondary,
+    textDecorationLine: 'line-through',
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  bellContainer: {
+    padding: Spacing.sm,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: BorderRadius.md,
+    ...Shadows.small,
+  },
+  bellIcon: {
+    width: wp(5),
+    height: wp(5),
+    resizeMode: 'contain',
+    tintColor: Colors.textSecondary,
   },
   getNowButton: {
-    borderRadius: wp(2),
-    borderColor: 'lightgray',
-    borderWidth: 0.3,
-    paddingVertical: hp(1),
-    paddingHorizontal: wp(4),
+    backgroundColor: Colors.accent,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.base,
+    ...Shadows.small,
   },
   getNowText: {
     fontSize: wp(3.5),
     fontFamily: Fonts.bold,
-    color: Colors.primary,
+    fontWeight: '600',
+    color: Colors.white,
     textAlign: 'center',
   },
-  loaderContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: hp(10),
-    padding: wp(4),
-  },
   loadingText: {
-    color: Colors.primary,
+    color: Colors.textSecondary,
     fontSize: wp(3.5),
-    marginLeft: hp(1),
     fontFamily: Fonts.regular,
   },
 });
