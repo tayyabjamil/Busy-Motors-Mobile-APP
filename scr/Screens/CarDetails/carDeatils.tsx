@@ -112,34 +112,118 @@ const Details = ({ route }) => {
   };
 
   const handleCall = phoneNumber => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to contact the seller and access all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: () => navigationRef.navigate('Login'),
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
   const handleTextMessage = phoneNumber => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to contact the seller and access all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: () => navigationRef.navigate('Login'),
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     Linking.openURL(`sms:${phoneNumber}`);
   };
 
   const handleWhatsApp = phoneNumber => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to contact the seller and access all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: () => navigationRef.navigate('Login'),
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     Linking.openURL(`https://wa.me/${phoneNumber}`);
   };
 
   const handleMotHistory = () => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to access MOT history and all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: () => navigationRef.navigate('Login'),
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     setWebViewUrl(
       `https://www.check-mot.service.gov.uk/results?registration=${car?.registrationNumber}`,
     );

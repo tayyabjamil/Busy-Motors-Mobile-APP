@@ -44,6 +44,9 @@ const Listings = () => {
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
+  const {hasSubscription} = useSelector(
+    (state: any) => state?.subscription?.subscriptionData || {},
+  );
   const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
@@ -565,6 +568,26 @@ const Listings = () => {
       <View style={styles.listingCardContainer}>
         <TouchableOpacity
       onPress={() => {
+        // Check if car has more than 20 views and user doesn't have subscription
+        if (item?.views?.length > 20 && !hasSubscription) {
+          Alert.alert(
+            'High Demand Car',
+            'This car has been visited by too many users. Subscribe to our subscription to view details and unlock all features.',
+            [
+              {
+                text: 'Subscribe Now',
+                onPress: () => navigation.navigate('Subscriptions'),
+              },
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+            ]
+          );
+          return;
+        }
+
+        // Original logic for sold cars
         if (item.isSold) {
           Alert.alert('Car Sold', 'This car has already been sold.', [
             {
