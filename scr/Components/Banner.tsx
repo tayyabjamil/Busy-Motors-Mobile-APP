@@ -150,7 +150,6 @@ const Banner = ({navigation}: {navigation: any}) => {
 
       {/* Right Section: Bell Icon & Button */}
       <View style={styles.rightSection}>
-
         {!isSubscriptionActive && (
           <TouchableOpacity
             style={styles.getNowButton}
@@ -159,20 +158,23 @@ const Banner = ({navigation}: {navigation: any}) => {
             <Text style={styles.getNowText}>Get Now</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          style={styles.bellContainer}
-          onPress={() => {
-            if (userData?.is_guest) {
-              Toast.show('Please log in to access notifications', Toast.LONG);
-            } else {
-              navigation.navigate('Notifications');
-            }
-          }}>
-          <Image
-            source={require('../assets/bellEmpty.png')}
-            style={styles.bellIcon}
-          />
-        </TouchableOpacity>
+
+        {isSubscriptionActive && (
+          <TouchableOpacity
+            style={styles.bellContainer}
+            onPress={() => {
+              if (userData?.is_guest) {
+                Toast.show('Please log in to access notifications', Toast.LONG);
+              } else {
+                navigation.navigate('Notifications');
+              }
+            }}>
+            <Image
+              source={require('../assets/bellEmpty.png')}
+              style={styles.bellIcon}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
   subscriptionBadge: {
     fontSize: wp(3.2),
     fontFamily: Fonts.medium,
-    color: Colors.accent,
+    color: Colors.primary,
   },
   originalPrice: {
     fontSize: wp(3.2),
@@ -237,7 +239,7 @@ const styles = StyleSheet.create({
     tintColor: Colors.textSecondary,
   },
   getNowButton: {
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.base,

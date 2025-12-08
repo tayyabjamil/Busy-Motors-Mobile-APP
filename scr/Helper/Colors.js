@@ -1,8 +1,8 @@
 // Automotive-inspired color palette with depth and character
 const Colors = {
   // Primary - Deep automotive blue (distinctive, not generic)
-  primary: '#3b58e8',
-  primaryLight: '#1A3A5C',
+  primary: '#3B5A7E',
+  primaryLight: '#2C4A6E ',
   primaryDark: '#081725',
 
   // Accent - Warm amber/copper (automotive heritage)
@@ -34,7 +34,7 @@ const Colors = {
   // Backgrounds
   backgroundPrimary: '#FFFFFF',
   backgroundSecondary: '#F8F9FA',
-  backgroundDark: '#0F2642',
+  backgroundDark: '#1A3A5C',
 
   // Gradients
   gradientStart: '#0F2642',

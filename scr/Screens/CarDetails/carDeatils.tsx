@@ -177,7 +177,7 @@ const Details = ({ route }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}>
+      style={{ flex: 1,paddingTop: hp(2) }}>
       <ScrollView
         style={[
           styles.container,
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   headerContainer: {
-    paddingTop: hp(2),
+    paddingTop: hp(4),
   },
   label: {
     fontSize: wp(4),

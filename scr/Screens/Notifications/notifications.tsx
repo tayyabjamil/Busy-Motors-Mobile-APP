@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,99 +7,17 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import { hp, wp } from '../../Helper/Responsive';
+import {hp, wp} from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
-import { Fonts } from '../../Helper/Fonts';
+import {Fonts} from '../../Helper/Fonts';
 import Header from '../../Components/Header';
-import { useNavigation } from '@react-navigation/native';
-
-const initialNotifications = [
-  {
-    id: '1',
-    title: 'New Bid Received',
-    description: 'You received a bid of £350 for your 2012 Ford Focus',
-    time: '5 minutes ago',
-    type: 'bid',
-    isRead: false,
-    carId: 'car123',
-    bidAmount: 350,
-  },
-  {
-    id: '2',
-    title: 'Contact Viewed',
-    description: 'A potential buyer viewed your contact information',
-    time: '1 hour ago',
-    type: 'contact',
-    isRead: true,
-    carId: 'car123',
-  },
-  {
-    id: '3',
-    title: 'Price Alert',
-    description: 'Similar cars in your area are selling for £400-£450',
-    time: '3 hours ago',
-    type: 'alert',
-    isRead: false,
-  },
-  {
-    id: '4',
-    title: 'Bid Accepted',
-    description: 'You accepted a bid of £400 for your 2012 Ford Focus',
-    time: '1 day ago',
-    type: 'transaction',
-    isRead: true,
-    carId: 'car123',
-    bidAmount: 400,
-  },
-  {
-    id: '5',
-    title: 'New Message',
-    description: 'Buyer: "Is the car still available?"',
-    time: '2 days ago',
-    type: 'message',
-    isRead: false,
-    carId: 'car123',
-    sender: 'buyer789',
-  },
-  {
-    id: '6',
-    title: 'Reminder',
-    description: 'Your ad for the 2012 Ford Focus expires in 3 days',
-    time: '2 days ago',
-    type: 'reminder',
-    isRead: true,
-    carId: 'car123',
-  },
-  {
-    id: '7',
-    title: 'Payment Received',
-    description: '£400 payment received for your 2012 Ford Focus',
-    time: '1 week ago',
-    type: 'payment',
-    isRead: true,
-    carId: 'car123',
-    amount: 400,
-  },
-  {
-    id: '8',
-    title: 'New Offer',
-    description: 'Scrap yard offered £300 for immediate collection',
-    time: '1 week ago',
-    type: 'offer',
-    isRead: false,
-    carId: 'car123',
-    offerAmount: 300,
-  },
-];
+import {useNavigation} from '@react-navigation/native';
 
 const Notifications = () => {
-  const [data, setData] = useState(initialNotifications);
+  const [data, setData] = useState([]);
   const navigation = useNavigation();
-  const handleClearAll = () => {
-    setData([]);
-  };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}: {item: any}) => (
     <View style={styles.notificationCard}>
       <Image
         source={require('../../assets/profile.png')} // Replace with your image
@@ -120,17 +38,26 @@ const Notifications = () => {
       {/* Header */}
       <Header navigation={navigation} showBackButton showNotification={false} textData={'Notifications'} />
       {/* Notification List */}
-      <View style={styles.sidePadding}>
-        <FlatList
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No notifications</Text>
-          }
-        />
-      </View>
+      <View>
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Image
+              source={require('../../assets/bellEmpty.png')}
+              style={styles.emptyImage}
+            />
+            <Text style={styles.emptyTitle}>No Notifications Yet</Text>
+            <Text style={styles.emptyDescription}>
+              We'll notify you when something new arrives
+            </Text>
+          </View>
+        }
+      />
+       </View>
     </View>
   );
 };
@@ -138,15 +65,12 @@ const Notifications = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: hp(6),
+    paddingTop: hp(8),
     backgroundColor: '#F5F5F5',
-  },
-  sidePadding: {
-    paddingHorizontal: wp(5),
   },
   list: {
     paddingBottom: hp(2),
-    marginTop: 10
+    marginTop:10
   },
   notificationCard: {
     flexDirection: 'row',
@@ -158,7 +82,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     elevation: 2,
   },
 
@@ -211,11 +135,34 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     color: '#333',
   },
-  emptyText: {
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: hp(15),
+    paddingHorizontal: wp(10),
+  },
+  emptyImage: {
+    width: wp(25),
+    height: wp(25),
+    resizeMode: 'contain',
+    tintColor: '#BDC3C7',
+    marginBottom: hp(3),
+    opacity: 0.6,
+  },
+  emptyTitle: {
+    fontSize: wp(5),
+    fontWeight: '700',
+    fontFamily: Fonts.bold,
+    color: '#2C3E50',
+    marginBottom: hp(1),
     textAlign: 'center',
-    marginTop: hp(10),
-    fontSize: wp(4),
-    color: '#999',
+  },
+  emptyDescription: {
+    fontSize: wp(3.8),
+    fontFamily: Fonts.regular,
+    color: '#95A5A6',
+    textAlign: 'center',
+    lineHeight: hp(3),
   },
 });
 

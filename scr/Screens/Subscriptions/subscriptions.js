@@ -628,6 +628,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.backgroundSecondary,
+    paddingTop: hp * 0.01
+
   },
   loaderOverlay: {
     position: 'absolute',
@@ -639,6 +641,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
+  },
+  tabView:{
+    paddingTop: hp * 0.03,
   },
   scrollContent: {
     flexGrow: 1,
@@ -693,7 +698,7 @@ const styles = StyleSheet.create({
   },
   optionFocused: {
     borderWidth: 3,
-    borderColor: Colors.accent,
+    borderColor: Colors.primary,
     ...Shadows.large,
     transform: [{ scale: 1.02 }],
   },
@@ -706,7 +711,7 @@ const styles = StyleSheet.create({
   optionImage: {
     width: wp * 0.12,
     height: wp * 0.12,
-    tintColor: Colors.accent,
+    tintColor: Colors.primary,
     marginBottom: Spacing.sm,
   },
   optionText: {
@@ -740,7 +745,7 @@ const styles = StyleSheet.create({
     fontSize: wp * 0.045,
     fontFamily: Fonts.bold,
     fontWeight: '800',
-    color: Colors.accent,
+    color: Colors.primary,
   },
   helperText: {
     fontSize: wp * 0.032,
@@ -786,7 +791,7 @@ const styles = StyleSheet.create({
   },
 
   activeTab: {
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.round,
   },
 

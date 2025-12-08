@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+     paddingTop:hp(1)
   },
   pageSidePadding: {
     paddingHorizontal: wp(6),
@@ -103,8 +104,8 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
     fontSize: 15,
     fontWeight: '700',
-    paddingTop: 8,
-    paddingBottom: 10,
+    paddingTop: 18,
+    paddingBottom: 6,
   },
   noDataContainer: {
     flex: 1,

@@ -65,7 +65,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: hp(2.5),
+    paddingVertical: hp(1.5),
+    backgroundColor: Colors.white,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
+    borderTopWidth:1,
+    borderBottomWidth:1,
+    borderColor:Colors.lightGray,
   },
   leftSection: {
     flexDirection: 'row',
@@ -124,6 +133,6 @@ const styles = StyleSheet.create({
   },
   bellContainer: {
     position: 'absolute',
-    right: 7
+    right: 25
   }
 });

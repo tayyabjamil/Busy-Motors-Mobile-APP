@@ -23,11 +23,11 @@ const Dashboard = ({navigation}: {navigation: any}) => {
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}>
-      <View style={styles.innerContainer}>
         {/* Dashboard Items */}
         <View style={styles.headerContainer}>
-        <Header navigation={navigation} textData={'Dashboard'} showNotification={true} />
+        <Header navigation={navigation} showBackButton textData={'Dashboard'} showNotification={true} />
         </View>
+        <View style={styles.sidePadding}>
         <TouchableOpacity style={styles.card}>
           <Image
             source={require('../../assets/pie-chart.png')}
@@ -43,7 +43,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.card}>
           <Image
-            source={require('../../assets/bell.png')}
+            source={require('../../assets/bellEmpty.png')}
             style={styles.icon}
           />
 
@@ -56,7 +56,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
           style={styles.card}
           onPress={() => navigation.navigate('Savage')}>
           <Image
-            source={require('../../assets/favourite.png')}
+            source={require('../../assets/heart.png')}
             style={styles.icon}
           />
 
@@ -116,7 +116,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
             </Text>
           </View>
         </TouchableOpacity>
-      </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -126,15 +126,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    // paddingTop:hp(6)
-  },
-  innerContainer: {
-    flex: 1,
-    margin: 20,
-    marginTop:0,
+     paddingTop:hp(1)
   },
   headerContainer:{
-    paddingBottom:10,
+    paddingBottom:26,
+  },
+   sidePadding: {  
+  paddingHorizontal: wp(5),
   },
   icon: {
     width: wp('6%'),

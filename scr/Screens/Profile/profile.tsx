@@ -210,7 +210,8 @@ const Profile = () => {
         style={[
           styles.container,
         ]}>
-        <Header navigation={navigation} textData={'User Profile'} />
+        <Header navigation={navigation} showBackButton showNotification={false}textData={'User Profile'} />
+        <View style={styles.sidePadding}>
         <View style={styles.profileSection}>
           <View style={styles.profileContainer}>
             <Image
@@ -381,6 +382,7 @@ const Profile = () => {
             </View>
           </View>
         </Modal>
+        </View>
       </SafeAreaView>
     </ScrollView>
   );
@@ -389,12 +391,14 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp(5),
     backgroundColor: Colors.white,
-    // marginTop:0
+    paddingTop:hp(1)
   },
   scrollViewContainer:{
     backgroundColor: Colors.white
+  },
+   sidePadding: {  
+  paddingHorizontal: wp(5),
   },
   headerTitleStyle: {
     flexDirection: 'row',
@@ -429,7 +433,8 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom:hp(2),
+    marginTop: hp(4)
   },
   profileContainer: {
     alignItems: 'center',
