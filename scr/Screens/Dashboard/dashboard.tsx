@@ -20,13 +20,12 @@ import Header from '../../Components/Header';
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <Header navigation={navigation} showBackButton textData={'Dashboard'} showNotification={true} />
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}>
         {/* Dashboard Items */}
-        <View style={styles.headerContainer}>
-        <Header navigation={navigation} showBackButton textData={'Dashboard'} showNotification={true} />
-        </View>
+      
         <View style={styles.sidePadding}>
         <TouchableOpacity style={styles.card}>
           <Image
@@ -126,10 +125,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-     paddingTop:hp(1)
-  },
-  headerContainer:{
-    paddingBottom:26,
   },
    sidePadding: {  
   paddingHorizontal: wp(5),
@@ -171,6 +166,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingTop:hp(2.5),
   },
   scrollContent: {
     flexGrow: 1,

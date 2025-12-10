@@ -7,14 +7,12 @@ import {
   StyleSheet,
   ScrollView,
   Linking,
-  SafeAreaView,
   Platform,
   Alert,
   Modal,
-  TextInput,
-  ActivityIndicator,
   KeyboardAvoidingView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { hp, wp } from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
@@ -259,17 +257,19 @@ const Details = ({ route }) => {
   };
 
   return (
+    <SafeAreaView style={styles.container}>
+
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1,paddingTop: hp(2) }}>
+      style={styles.container}>
+                  <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Car Details'} />
+
       <ScrollView
         style={[
           styles.container,
           { paddingTop: Platform.OS === 'ios' ? 20 : 0 },
         ]}>
-        <View style={styles.headerContainer}>
-          <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Car Details'} />
-        </View>
+    
         <View style={[styles.sidePadding]}>
           <View style={styles.detailsContainer}>
             <View style={styles.carTagContainer}>
@@ -449,6 +449,8 @@ const Details = ({ route }) => {
         </Modal>
       </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
+
   );
 };
 

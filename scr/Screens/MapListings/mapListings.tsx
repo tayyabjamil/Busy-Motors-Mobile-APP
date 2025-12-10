@@ -8,7 +8,6 @@ import {
   Modal,
   Platform,
   StatusBar,
-  Dimensions,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';

@@ -7,8 +7,8 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {hp, wp} from '../../Helper/Responsive';
-import Colors from '../../Helper/Colors';
 import {Fonts} from '../../Helper/Fonts';
 import Header from '../../Components/Header';
 import {useNavigation} from '@react-navigation/native';
@@ -34,7 +34,7 @@ const Notifications = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <Header navigation={navigation} showBackButton showNotification={false} textData={'Notifications'} />
       {/* Notification List */}
@@ -58,14 +58,13 @@ const Notifications = () => {
         }
       />
        </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: hp(8),
     backgroundColor: '#F5F5F5',
   },
   list: {

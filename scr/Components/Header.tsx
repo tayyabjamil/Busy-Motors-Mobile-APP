@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
     borderTopWidth:1,
     borderBottomWidth:1,
     borderColor:Colors.lightGray,
+    marginTop: hp(1.5),
   },
   leftSection: {
     flexDirection: 'row',

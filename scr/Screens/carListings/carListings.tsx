@@ -45,7 +45,7 @@ const Listings = () => {
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
-  const {hasSubscription} = useSelector(
+  const {hasSubscription,subscriptions} = useSelector(
     (state: any) => state?.subscription?.subscriptionData || {},
   );
   const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
@@ -56,6 +56,10 @@ const Listings = () => {
     longitude: null,
   });
   const [distance, setDistance] = useState(null); // Start with null (no filtering)
+  const activeSubscriptions = useSelector(
+    (state: any) => state?.subscription?.activeSubscriptions || [],
+  );
+  const hasRevenueCatSubscription = activeSubscriptions?.length > 0;
   const [activeDistanceFilter, setActiveDistanceFilter] = useState(null); // Tracks if user is fil
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
@@ -565,12 +569,15 @@ const Listings = () => {
       item.latitude,
       item.longitude,
     );
+
+    let isSubscriptionActive = hasRevenueCatSubscription || subscriptions;
+
     return (
       <View style={styles.listingCardContainer}>
         <Pressable
       onPress={() => {
         // Check if car has more than 20 views and user doesn't have subscription
-        if (item?.views?.length > 20 && !hasSubscription) {
+        if (item?.views?.length > 20 && !isSubscriptionActive) {
           Alert.alert(
             'High Demand Car',
             'This car has been visited by too many users. Subscribe to our subscription to view details and unlock all features.',

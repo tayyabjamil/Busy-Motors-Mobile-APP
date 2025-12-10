@@ -24,54 +24,6 @@ import Header from '../../Components/Header';
 
 const { width: wp, height: hp } = Dimensions.get('window');
 
-// 🧪 TESTING MODE - Set to true to use dummy subscriptions
-const USE_DUMMY_SUBSCRIPTIONS = true;
-
-// 🧪 Dummy subscription packages for testing
-const DUMMY_SCRAP_PACKAGES = [
-  {
-    identifier: 'scrap_weekly',
-    product: {
-      identifier: 'scrap_weekly',
-      title: 'Scrap Weekly',
-      priceString: '$9.99',
-      description: 'Weekly access to scrap listings',
-    }
-  },
-  {
-    identifier: 'scrap_monthly',
-    product: {
-      identifier: 'scrap_monthly',
-      title: 'Scrap Monthly',
-      priceString: '$29.99',
-      description: 'Monthly access to scrap listings',
-    }
-  },
-];
-
-const DUMMY_SALVAGE_PACKAGES = [
-  {
-    identifier: 'salvage_weekly',
-    product: {
-      identifier: 'salvage_weekly',
-      title: 'Salvage Weekly',
-      priceString: '$14.99',
-      description: 'Weekly access to salvage listings',
-    }
-  },
-  {
-    identifier: 'salvage_monthly',
-    product: {
-      identifier: 'salvage_monthly',
-      title: 'Salvage Monthly',
-      priceString: '$49.99',
-      description: 'Monthly access to salvage listings',
-    }
-  },
-];
-
-// 🧪 Dummy active subscriptions - add identifiers here to mark as "Active"
-const DUMMY_ACTIVE_SUBSCRIPTIONS = ['scrap_monthly']; // Example: mark scrap_monthly as active
 
 const SubscriptionScreen = () => {
   const navigation = useNavigation();
@@ -136,12 +88,6 @@ const SubscriptionScreen = () => {
   // Check for active subscriptions and save to Redux store
   useEffect(() => {
     const checkActiveSubscriptions = async () => {
-      // 🧪 Skip RevenueCat in testing mode
-      if (USE_DUMMY_SUBSCRIPTIONS) {
-        console.log('🧪 TESTING MODE: Skipping RevenueCat active subscription check');
-        return;
-      }
-
       try {
         const customerInfo = await Purchases.getCustomerInfo();
         const activeSubs = customerInfo.activeSubscriptions || [];
@@ -164,22 +110,6 @@ const SubscriptionScreen = () => {
   // Fetch RevenueCat products (or use dummy data for testing)
   useEffect(() => {
     const fetchRevenueCatProducts = async () => {
-      // 🧪 Use dummy data if testing mode is enabled
-      if (USE_DUMMY_SUBSCRIPTIONS) {
-        console.log('🧪 TESTING MODE: Using dummy subscriptions');
-        setSalvagePackages(DUMMY_SALVAGE_PACKAGES);
-        setScrapPackages(DUMMY_SCRAP_PACKAGES);
-
-        // Set dummy active subscriptions in Redux
-        dispatch(setActiveSubscriptions(DUMMY_ACTIVE_SUBSCRIPTIONS));
-
-        console.log('✅ Dummy Salvage Packages:', DUMMY_SALVAGE_PACKAGES.map(p => p.product.title));
-        console.log('✅ Dummy Scrap Packages:', DUMMY_SCRAP_PACKAGES.map(p => p.product.title));
-        console.log('✅ Dummy Active Subscriptions:', DUMMY_ACTIVE_SUBSCRIPTIONS);
-        return;
-      }
-
-      // Real RevenueCat flow
       try {
         console.log('🔄 Fetching RevenueCat offerings...');
         const allOfferings = await Purchases.getOfferings();
@@ -219,38 +149,10 @@ const SubscriptionScreen = () => {
   const handlePurchase = async (selectedIdentifier) => {
     try {
       setIsPurchasing(true);
-      console.log('🛒 Attempting to purchase package:', selectedIdentifier);
-
-      // 🧪 Testing mode - simulate purchase without RevenueCat
-      if (USE_DUMMY_SUBSCRIPTIONS) {
-        console.log('🧪 TESTING MODE: Simulating purchase for:', selectedIdentifier);
-
-        // Simulate loading delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Find the package name for display
-        const allPackages = [...DUMMY_SCRAP_PACKAGES, ...DUMMY_SALVAGE_PACKAGES];
-        const selectedPackage = allPackages.find(pkg => pkg.product.identifier === selectedIdentifier);
-        const packageName = selectedPackage?.product.title || selectedIdentifier;
-
-        Alert.alert(
-          '🧪 Test Purchase Successful!',
-          `This is a TEST purchase of "${packageName}". In production, this would process a real payment through RevenueCat.\n\nTo test the "Active" badge, add this identifier to DUMMY_ACTIVE_SUBSCRIPTIONS at the top of the file.`,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                console.log('✅ Test purchase completed');
-              },
-            },
-          ],
-        );
-        return;
-      }
-
-      // Real RevenueCat flow
+      console.log('🛒 Starting purchase for:', selectedIdentifier);
+      
       const allOfferings = await Purchases.getOfferings();
-      const availablePackages = allOfferings.current.availablePackages;
+      const availablePackages = allOfferings.current?.availablePackages || [];
 
       const selectedPackage = availablePackages.find(
         pkg => pkg.product.identifier === selectedIdentifier
@@ -262,8 +164,16 @@ const SubscriptionScreen = () => {
         return;
       }
 
-      // Check customer info after purchase
-      const customerInfo = await Purchases.getCustomerInfo();
+      console.log('📦 Selected package:', selectedPackage.product.title);
+      
+      // IMPORTANT: Actually make the purchase with RevenueCat
+      const { customerInfo } = await Purchases.purchasePackage(selectedPackage);
+      
+      console.log('✅ Purchase successful!');
+      console.log('📊 Customer info after purchase:', {
+        activeSubscriptions: customerInfo.activeSubscriptions,
+        entitlements: customerInfo.entitlements.active,
+      });
 
       // Update active subscriptions in Redux store
       dispatch(updateActiveSubscriptions(customerInfo.activeSubscriptions || []));
@@ -293,8 +203,9 @@ const SubscriptionScreen = () => {
 
       if (error.userCancelled) {
         console.log('🚫 Purchase cancelled by user');
+        // Don't show an alert for user cancellation - it's intentional
       } else {
-        Alert.alert('Purchase Failed', error.message || 'Something went wrong');
+        Alert.alert('Purchase Failed', error.message || 'Something went wrong. Please try again.');
       }
     } finally {
       setIsPurchasing(false);
