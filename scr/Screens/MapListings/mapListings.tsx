@@ -7,7 +7,8 @@ import {
   Image,
   Modal,
   Platform,
-  SafeAreaView,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';
@@ -135,11 +136,12 @@ const MapListings = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
-      ]}>
+    <View style={styles.container}>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="dark-content"
+      />
       {/* Map Section */}
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
@@ -279,7 +281,7 @@ const MapListings = () => {
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
   container: {flex: 1},
   sliderContainer: {
     position: 'absolute',
-    top: 80,
+    top: Platform.OS === 'ios' ? 60 : StatusBar.currentHeight ? StatusBar.currentHeight + 20 : 40,
     left: 20,
     right: 20,
     backgroundColor: 'white',
@@ -312,8 +314,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 20,
   },
-  mapContainer: {flex: 1},
-  map: {width: '100%', height: '100%'},
+  mapContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
 
   // Modal Styles
   modalOverlay: {
