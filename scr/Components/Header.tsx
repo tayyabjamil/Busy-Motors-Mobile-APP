@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
     marginLeft: 50,
   },
   textData: {
-    fontSize: 25,
-    fontWeight: '600'
+    fontSize: 20,
+    fontWeight: '500'
   },
   bellIcon: {
     width: wp(6),

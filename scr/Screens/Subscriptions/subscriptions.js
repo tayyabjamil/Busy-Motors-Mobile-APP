@@ -17,18 +17,15 @@ import { TabView, TabBar } from 'react-native-tab-view';
 import Colors, { Spacing, Shadows, BorderRadius } from '../../Helper/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { Fonts } from '../../Helper/Fonts';
-import LinearGradient from 'react-native-linear-gradient';
 import Purchases from 'react-native-purchases';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions } from '../../redux/slices/subcriptionsSlice';
-import { cancelSubscriptionRequest } from '../../redux/slices/canceleSubcriptionsSlice';
-import { updateSubscriptionRequest } from '../../redux/slices/updateSubcriptionSlice';
 import Header from '../../Components/Header';
 
 const { width: wp, height: hp } = Dimensions.get('window');
 
 // 🧪 TESTING MODE - Set to true to use dummy subscriptions
-const USE_DUMMY_SUBSCRIPTIONS = false;
+const USE_DUMMY_SUBSCRIPTIONS = true;
 
 // 🧪 Dummy subscription packages for testing
 const DUMMY_SCRAP_PACKAGES = [

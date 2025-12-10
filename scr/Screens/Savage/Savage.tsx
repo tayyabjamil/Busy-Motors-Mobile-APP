@@ -94,8 +94,7 @@ export default Savage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-     paddingTop:hp(1)
+    backgroundColor: 'white',
   },
   pageSidePadding: {
     paddingHorizontal: wp(6),

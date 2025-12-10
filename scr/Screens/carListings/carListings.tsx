@@ -12,6 +12,7 @@ import {
   Alert,
   TextInput,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Colors from '../../Helper/Colors';
@@ -566,7 +567,7 @@ const Listings = () => {
     );
     return (
       <View style={styles.listingCardContainer}>
-        <TouchableOpacity
+        <Pressable
       onPress={() => {
         // Check if car has more than 20 views and user doesn't have subscription
         if (item?.views?.length > 20 && !hasSubscription) {
@@ -696,7 +697,7 @@ const Listings = () => {
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
       </View>
     );
   };
