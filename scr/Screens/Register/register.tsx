@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    marginTop: 30,
+    paddingTop: 30,
     backgroundColor: Colors.white,
   },
   scrollContainer: {
