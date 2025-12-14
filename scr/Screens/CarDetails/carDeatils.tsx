@@ -267,7 +267,6 @@ const Details = ({ route }) => {
       <ScrollView
         style={[
           styles.container,
-          { paddingTop: Platform.OS === 'ios' ? 20 : 0 },
         ]}>
     
         <View style={[styles.sidePadding]}>
@@ -459,7 +458,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sidePadding: {
-    padding: wp(5),
+    paddingHorizontal: 20,
+    paddingTop: 15,
   },
   detailsContainer: {
     backgroundColor: Colors.white,
