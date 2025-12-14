@@ -733,35 +733,6 @@ const Listings = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Banner navigation={navigation} />
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Image
-            source={require('../../assets/search.png')}
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search cars..."
-            placeholderTextColor={Colors.gray}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-           <TouchableOpacity
-          style={styles.filterIconButton}
-          onPress={() => setIsFilterModalVisible(true)}>
-          <Image
-            source={require('../../assets/Filter_icon.png')}
-            style={styles.filterIcon}
-          />
-        </TouchableOpacity>
-        </View>
-       
-      </View>
-
-
       <Modal
         transparent={true}
         visible={isLocationModalVisible}
@@ -918,6 +889,34 @@ const Listings = () => {
         <FlatList
           data={sortedData}
           renderItem={renderItem}
+          ListHeaderComponent={
+            <>
+              <Banner navigation={navigation} />
+              <View style={styles.searchContainer}>
+                <View style={styles.searchBar}>
+                  <Image
+                    source={require('../../assets/search.png')}
+                    style={styles.searchIcon}
+                  />
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search cars..."
+                    placeholderTextColor={Colors.gray}
+                    defaultValue={searchQuery}
+                    onChangeText={setSearchQuery}
+                  />
+                  <TouchableOpacity
+                    style={styles.filterIconButton}
+                    onPress={() => setIsFilterModalVisible(true)}>
+                    <Image
+                      source={require('../../assets/Filter_icon.png')}
+                      style={styles.filterIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </>
+          }
           showsVerticalScrollIndicator={false}
           keyExtractor={item => item._id}
           contentContainerStyle={styles.list}
@@ -935,10 +934,11 @@ const styles = StyleSheet.create({
       android: {
         marginLeft: 20,
         marginRight: 20,
-        marginTop: 20,
+        marginTop: 0,
       },
       ios: {
-        margin: 20,
+        marginHorizontal: 20,
+        marginTop: 0,
         marginBottom: 0,
       },
     }),
