@@ -60,12 +60,13 @@ const Listings = () => {
     (state: any) => state?.subscription?.activeSubscriptions || [],
   );
   const hasRevenueCatSubscription = activeSubscriptions?.length > 0;
-  const [activeDistanceFilter, setActiveDistanceFilter] = useState(null); // Tracks if user is fil
+  const [activeDistanceFilter, setActiveDistanceFilter] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
-  const [selectedFuelTypes, setSelectedFuelTypes] = useState<string[]>([]);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  
+  // Temporary filter states (used in modal before applying)
+  const [tempActiveFilters, setTempActiveFilters] = useState(['Scrap', 'Salvage']);
+  const [tempDistance, setTempDistance] = useState<number | null>(null);
   const locationOptions = [
     '5 miles',
     '10 miles',
@@ -234,7 +235,7 @@ const Listings = () => {
           setCurrentLocation({latitude, longitude});
         },
         error => {
-          console.log(error);
+          console.log('Location error:', error);
         },
         {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
       );
@@ -308,8 +309,6 @@ const Listings = () => {
 
     return `${distanceInMiles} mi`; // Return distance in miles
   };
-  console.log('@carListings', carListings);
-
   const filteredData = carListings?.filter(item => {
     // 1. Filter by active tags
     const filterMatch =
@@ -317,12 +316,13 @@ const Listings = () => {
       (activeFilters.includes('Salvage') && item.tag === 'salvage') ||
       activeFilters.length === 0;
 
-    // 2. Apply distance filter ONLY if user actively filtered
+    // 2. Apply distance filter ONLY if user actively filtered AND we have valid location
     let distanceMatch = true;
     if (
-      activeDistanceFilter && // Only check if user interacted
-      currentLocation?.latitude &&
-      currentLocation?.longitude &&
+      activeDistanceFilter === true &&
+      distance !== null &&
+      currentLocation?.latitude !== null &&
+      currentLocation?.longitude !== null &&
       item?.latitude &&
       item?.longitude
     ) {
@@ -333,8 +333,8 @@ const Listings = () => {
         },
         {latitude: item.latitude, longitude: item.longitude},
       );
-      const distanceInMiles = distanceInMeters * 0.000621371;
-      distanceMatch = distanceInMiles <= distance;
+      const distanceInKm = distanceInMeters / 1000;
+      distanceMatch = distanceInKm <= distance;
     }
 
     // 3. Apply search filter (real-time local search)
@@ -357,55 +357,7 @@ const Listings = () => {
       );
     }
 
-    // 4. Apply fuel type filter (case-insensitive)
-    let fuelTypeMatch = true;
-    if (selectedFuelTypes.length > 0) {
-      const itemFuelType = item?.fuelType?.toLowerCase() || '';
-      fuelTypeMatch = selectedFuelTypes.some(
-        selected => selected.toLowerCase() === itemFuelType,
-      );
-    }
-
-    // 5. Apply color filter (case-insensitive)
-    let colorMatch = true;
-    if (selectedColors.length > 0) {
-      const itemColor = item?.color?.toLowerCase() || '';
-      colorMatch = selectedColors.some(
-        selected => selected.toLowerCase() === itemColor,
-      );
-    }
-
-    // 6. Apply brand filter (case-insensitive with variations)
-    let brandMatch = true;
-    if (selectedBrands.length > 0) {
-      const itemBrand = item?.make?.toLowerCase() || '';
-      brandMatch = selectedBrands.some(selected => {
-        const selectedLower = selected.toLowerCase();
-        const itemBrandLower = itemBrand;
-        
-        // Direct match
-        if (selectedLower === itemBrandLower) return true;
-        
-        // Check for variations (e.g., "Mercedes-Benz" vs "Mercedes" vs "MercedesBenz")
-        const brandInfo = allAvailableBrands.find(b => b.name.toLowerCase() === selectedLower);
-        if (brandInfo) {
-          // Check if item brand matches any variation of the selected brand
-          const variations = [
-            brandInfo.name.toLowerCase(),
-            brandInfo.key.toLowerCase(),
-            brandInfo.name.toLowerCase().replace(/-/g, ' '),
-            brandInfo.name.toLowerCase().replace(/-/g, ''),
-            brandInfo.name.toLowerCase().replace(/ /g, '-'),
-            brandInfo.name.toLowerCase().replace(/ /g, ''),
-          ];
-          return variations.some(v => v === itemBrandLower);
-        }
-        
-        return false;
-      });
-    }
-
-    return filterMatch && distanceMatch && searchMatch && fuelTypeMatch && colorMatch && brandMatch;
+    return filterMatch && distanceMatch && searchMatch;
   });
   const noDataFound = filteredData?.length === 0;
   const sortedData = filteredData?.sort((a, b) => {
@@ -716,16 +668,38 @@ const Listings = () => {
     );
   }
   const handleSliderChange = value => {
-    setDistance(value);
-    setActiveDistanceFilter(true); // User is actively filtering
+    setTempDistance(value);
   };
 
   const handleSliderComplete = (value: any) => {
-    // if (distance === null) {
-    setDistance(value);
+    setTempDistance(value);
+  };
 
-    setActiveDistanceFilter(false); // Reset if user slides to minimum
-    // }
+  // Open filter modal and initialize temp states with current applied values
+  const openFilterModal = () => {
+    setTempActiveFilters([...activeFilters]);
+    setTempDistance(distance);
+    setIsFilterModalVisible(true);
+  };
+
+  // Apply filters when user clicks Filter button
+  const applyFilters = () => {
+    setActiveFilters([...tempActiveFilters]);
+    setDistance(tempDistance);
+    
+    // Enable distance filter only if user set a distance and has location
+    if (tempDistance !== null && currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
+      setActiveDistanceFilter(true);
+    } else {
+      setActiveDistanceFilter(null);
+    }
+    setIsFilterModalVisible(false);
+  };
+
+  // Reset all filters
+  const resetFilters = () => {
+    setTempActiveFilters(['Scrap', 'Salvage']);
+    setTempDistance(null);
   };
   const kilometersToMiles = km => {
     return km * 0.621371;
@@ -785,15 +759,7 @@ const Listings = () => {
                 {/* Header */}
                 <View style={styles.filterModalHeader}>
                   <Text style={styles.filterModalTitle}>Filters</Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setActiveFilters(['Scrap', 'Salvage']);
-                      setSelectedFuelTypes([]);
-                      setSelectedColors([]);
-                      setSelectedBrands([]);
-                      setDistance(null);
-                      setActiveDistanceFilter(null);
-                    }}>
+                  <TouchableOpacity onPress={resetFilters}>
                     <Text style={styles.resetButtonText}>RESET</Text>
                   </TouchableOpacity>
                 </View>
@@ -812,14 +778,20 @@ const Listings = () => {
                       key={filter}
                       style={[
                         styles.filterOptionButton,
-                        activeFilters.includes(filter) &&
+                        tempActiveFilters.includes(filter) &&
                           styles.filterOptionButtonActive,
                       ]}
-                      onPress={() => handleFilterPress(filter)}>
+                      onPress={() => {
+                        setTempActiveFilters(prev =>
+                          prev.includes(filter)
+                            ? prev.filter(f => f !== filter)
+                            : [...prev, filter],
+                        );
+                      }}>
                       <Text
                         style={[
                           styles.filterOptionText,
-                          activeFilters.includes(filter) &&
+                          tempActiveFilters.includes(filter) &&
                             styles.filterOptionTextActive,
                         ]}>
                         {filter}
@@ -834,15 +806,14 @@ const Listings = () => {
                 <Text style={styles.filterSectionTitle}>Mileage</Text>
                 <View style={styles.filterSliderContainer}>
                   <Text style={styles.filterSliderLabel}>
-                    {Math.min(kilometersToMiles(distance || 10), 100).toFixed(0)}{' '}
-                    miles
+                    {tempDistance || 10} km
                   </Text>
                   <Slider
                     style={styles.filterSlider}
                     minimumValue={1}
                     maximumValue={1000}
                     step={1}
-                    value={distance || 10}
+                    value={tempDistance || 10}
                     onValueChange={handleSliderChange}
                     onSlidingComplete={handleSliderComplete}
                     minimumTrackTintColor={Colors.primary}
@@ -857,19 +828,12 @@ const Listings = () => {
                 <View style={styles.filterActionButtons}>
                   <TouchableOpacity
                     style={styles.resetFiltersButton}
-                    onPress={() => {
-                      setActiveFilters(['Scrap', 'Salvage']);
-                      setSelectedFuelTypes([]);
-                      setSelectedColors([]);
-                      setSelectedBrands([]);
-                      setDistance(null);
-                      setActiveDistanceFilter(null);
-                    }}>
+                    onPress={resetFilters}>
                     <Text style={styles.resetFiltersButtonText}>Reset Filters</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.applyFilterButton}
-                    onPress={() => setIsFilterModalVisible(false)}>
+                    onPress={applyFilters}>
                     <Text style={styles.applyFilterButtonText}>Filter</Text>
                   </TouchableOpacity>
                 </View>
@@ -878,50 +842,48 @@ const Listings = () => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Show error message if no carListings is found */}
-      {noDataFound ? (
-        <View style={styles.noDataContainer}>
-          <Text style={styles.noDataText}>
-            No carListings found for the selected filters.
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={sortedData}
-          renderItem={renderItem}
-          ListHeaderComponent={
-            <>
-              <Banner navigation={navigation} />
-              <View style={styles.searchContainer}>
-                <View style={styles.searchBar}>
+      <FlatList
+        data={noDataFound ? [] : sortedData}
+        renderItem={renderItem}
+        ListHeaderComponent={
+          <>
+            <Banner navigation={navigation} />
+            <View style={styles.searchContainer}>
+              <View style={styles.searchBar}>
+                <Image
+                  source={require('../../assets/search.png')}
+                  style={styles.searchIcon}
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search cars..."
+                  placeholderTextColor={Colors.gray}
+                  defaultValue={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                <TouchableOpacity
+                  style={styles.filterIconButton}
+                  onPress={openFilterModal}>
                   <Image
-                    source={require('../../assets/search.png')}
-                    style={styles.searchIcon}
+                    source={require('../../assets/Filter_icon.png')}
+                    style={styles.filterIcon}
                   />
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search cars..."
-                    placeholderTextColor={Colors.gray}
-                    defaultValue={searchQuery}
-                    onChangeText={setSearchQuery}
-                  />
-                  <TouchableOpacity
-                    style={styles.filterIconButton}
-                    onPress={() => setIsFilterModalVisible(true)}>
-                    <Image
-                      source={require('../../assets/Filter_icon.png')}
-                      style={styles.filterIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               </View>
-            </>
-          }
-          showsVerticalScrollIndicator={false}
-          keyExtractor={item => item._id}
-          contentContainerStyle={styles.list}
-        />
-      )}
+            </View>
+          </>
+        }
+        ListEmptyComponent={
+          <View style={styles.noDataContainer}>
+            <Text style={styles.noDataText}>
+              No carListings found for the selected filters.
+            </Text>
+          </View>
+        }
+        showsVerticalScrollIndicator={false}
+        keyExtractor={item => item?._id || Math.random().toString()}
+        contentContainerStyle={styles.list}
+      />
     </SafeAreaView>
   );
 };
