@@ -930,23 +930,12 @@ const Listings = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    ...Platform.select({
-      android: {
-        marginLeft: 20,
-        marginRight: 20,
-        marginTop: 0,
-      },
-      ios: {
-        marginHorizontal: 20,
-        marginTop: 0,
-        marginBottom: 0,
-      },
-    }),
+    paddingHorizontal: 20,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: hp(1),
+    marginTop: 17,
   },
   searchBar: {
     flex: 1,
@@ -1052,8 +1041,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   list: {
-    paddingBottom: hp(2.5),
-    marginTop: hp(0.2)
+    paddingBottom: 20,
   },
   noDataContainer: {
     flex: 1,
@@ -1068,14 +1056,14 @@ const styles = StyleSheet.create({
   },
   //render item
   listingCardContainer: {
-    marginBottom:3,
+    marginBottom: 0,
     position: 'relative',
   },
-listingCard: {
+  listingCard: {
     backgroundColor: Colors.white,
-    borderRadius: wp(5),
+    borderRadius: 20,
     borderWidth: 0.2,
-    marginTop: hp(2),
+    marginTop: 20,
     paddingTop: hp(4),
     paddingHorizontal: wp(3.5),
     paddingBottom: hp(0.5),
@@ -1084,7 +1072,7 @@ listingCard: {
     shadowRadius: wp(2),
     shadowOffset: { width: 0, height: hp(1) },
     elevation: 5,
-    borderColor:'white'
+    borderColor: 'white',
   },
   infoRow: {
     flexDirection: 'row',
