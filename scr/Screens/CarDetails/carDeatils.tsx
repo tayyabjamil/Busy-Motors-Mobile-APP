@@ -331,7 +331,7 @@ const Details = ({ route }) => {
                 </Text>
               </View>
             </View>
-            <Banner navigation={navigationRef} />
+            {!hasActiveSubscription && <Banner navigation={navigationRef} />}
           </View>
 
           <View style={styles.contactContainer}>
