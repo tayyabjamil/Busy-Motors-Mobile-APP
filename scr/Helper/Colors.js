@@ -1,7 +1,7 @@
 // Automotive-inspired color palette with depth and character
 const Colors = {
   // Primary - Deep automotive blue (distinctive, not generic)
-  primary: '#3B5A7E',
+  primary: '#5484ef',
   primaryLight: '#2C4A6E ',
   primaryDark: '#081725',
 

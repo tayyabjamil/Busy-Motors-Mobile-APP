@@ -6,14 +6,17 @@ import {
   StyleSheet,
   ActivityIndicator,
   Image,
+  Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Colors, {Spacing, Shadows, BorderRadius} from '../Helper/Colors';
 import {hp, wp} from '../Helper/Responsive';
 import {Fonts} from '../Helper/Fonts';
 import {checkSubscriptionRequest} from '../redux/slices/subcriptionsSlice';
+import {logout} from '../redux/slices/authSlice';
 import Purchases from 'react-native-purchases';
 import Toast from 'react-native-simple-toast';
+import {navigationRef} from '../navigationRef';
 
 const Banner = ({navigation}: {navigation: any}) => {
   const {hasSubscription, subscriptions = []} = useSelector(
@@ -121,6 +124,43 @@ const Banner = ({navigation}: {navigation: any}) => {
   const subscriptionType = activeSubscriptionDetails?.type || 'Premium';
 
   let isSubscriptionActive = hasRevenueCatSubscription || subscription;
+  const isGuest = userData?.is_guest === true;
+
+  // Handle Get Now button press
+  const handleGetNow = () => {
+    if (isGuest) {
+      Alert.alert(
+        'Create Account',
+        'Please create an account to purchase a subscription and unlock all premium features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign Up',
+            onPress: () => {
+              dispatch(logout());
+              // Navigate to AuthStack first, then to Register
+              navigationRef.current?.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'AuthStack',
+                    state: {
+                      routes: [{name: 'Register'}],
+                    },
+                  },
+                ],
+              });
+            },
+          },
+        ],
+      );
+      return;
+    }
+    navigation.navigate('Subscriptions');
+  };
 
   return (
     <View style={styles.bannerContainer}>
@@ -153,7 +193,7 @@ const Banner = ({navigation}: {navigation: any}) => {
         {!isSubscriptionActive && (
           <TouchableOpacity
             style={styles.getNowButton}
-            onPress={() => navigation.navigate('Subscriptions')}
+            onPress={handleGetNow}
             disabled={loading || revenueCatLoading}>
             <Text style={styles.getNowText}>Get Now</Text>
           </TouchableOpacity>

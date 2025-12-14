@@ -136,7 +136,6 @@ const Register = ({navigation}: {navigation: any}) => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
-          <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Register'} />
 
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
