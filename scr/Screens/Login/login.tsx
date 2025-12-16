@@ -119,10 +119,6 @@ const Login = ({navigation}: {navigation: any}) => {
       // Get FCM token safely using the notification service
       let token = null;
       try {
-        // Register device for remote messages first (iOS only)
-        if (Platform.OS === 'ios') {
-          await getMessaging().registerDeviceForRemoteMessages();
-        }
         token = await getMessaging().getToken();
       } catch (tokenError) {
         console.log('FCM Token Error in login:', tokenError);
@@ -164,9 +160,6 @@ const Login = ({navigation}: {navigation: any}) => {
       // Get FCM token safely
       let token = null;
       try {
-        if (Platform.OS === 'ios') {
-          await getMessaging().registerDeviceForRemoteMessages();
-        }
         token = await getMessaging().getToken();
       } catch (tokenError) {
         console.log('FCM Token Error in handleLogin:', tokenError);
@@ -191,9 +184,6 @@ const Login = ({navigation}: {navigation: any}) => {
       // Get FCM token safely
       let fcm_token = null;
       try {
-        if (Platform.OS === 'ios') {
-          await getMessaging().registerDeviceForRemoteMessages();
-        }
         fcm_token = await getMessaging().getToken();
       } catch (tokenError) {
         console.log('FCM Token Error in handleGuestLogin:', tokenError);

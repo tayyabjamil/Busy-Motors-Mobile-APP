@@ -65,7 +65,6 @@ const useNotifications = () => {
         }
 
         // Register device for remote messages first
-        await getMessaging().registerDeviceForRemoteMessages();
 
         // Get APNs token (only works on real device)
         const apnsToken = await getMessaging().getAPNSToken();
@@ -95,11 +94,6 @@ const useNotifications = () => {
   // 2. Get FCM Token
   const getFCMToken = async () => {
     try {
-      // Register device for remote messages first (iOS only)
-      if (Platform.OS === 'ios') {
-        await getMessaging().registerDeviceForRemoteMessages();
-      }
-
       const token = await getMessaging().getToken();
       setFcmToken(token);
       console.log('FCM Token:', token);
