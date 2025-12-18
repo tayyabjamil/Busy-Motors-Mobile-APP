@@ -23,6 +23,7 @@ import WebView from 'react-native-webview';
 import { resetQuoteState, sendQuoteRequest } from '../../redux/slices/qouteSlice';
 import Toast from 'react-native-simple-toast';
 import { navigationRef } from '../../navigationRef';
+import { logout } from '../../redux/slices/authSlice';
 
 const defaultCarImage = require('../../assets/car2.png');
 
@@ -109,6 +110,21 @@ const Details = ({ route }) => {
     Toast.show(`Bid placed: ₹${amount}`, Toast.SHORT);
   };
 
+  const handleGuestSignIn = () => {
+    dispatch(logout());
+    navigationRef.current?.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'AuthStack',
+          state: {
+            routes: [{name: 'Login'}],
+          },
+        },
+      ],
+    });
+  };
+
   const handleCall = phoneNumber => {
     // Check if user is guest
     if (userData?.is_guest) {
@@ -122,7 +138,7 @@ const Details = ({ route }) => {
           },
           {
             text: 'Sign In',
-            onPress: () => navigationRef.navigate('Login'),
+            onPress: handleGuestSignIn,
           },
         ]
       );
@@ -151,7 +167,7 @@ const Details = ({ route }) => {
           },
           {
             text: 'Sign In',
-            onPress: () => navigationRef.navigate('Login'),
+            onPress: handleGuestSignIn,
           },
         ]
       );
@@ -180,7 +196,7 @@ const Details = ({ route }) => {
           },
           {
             text: 'Sign In',
-            onPress: () => navigationRef.navigate('Login'),
+            onPress: handleGuestSignIn,
           },
         ]
       );
@@ -209,7 +225,7 @@ const Details = ({ route }) => {
           },
           {
             text: 'Sign In',
-            onPress: () => navigationRef.navigate('Login'),
+            onPress: handleGuestSignIn,
           },
         ]
       );

@@ -874,16 +874,16 @@ const Listings = () => {
           </>
         }
         ListEmptyComponent={
-          <View style={styles.noDataContainer}>
-            <Text style={styles.noDataText}>
-              No carListings found for the selected filters.
-            </Text>
-          </View>
+        <View style={styles.noDataContainer}>
+          <Text style={styles.noDataText}>
+            No carListings found for the selected filters.
+          </Text>
+        </View>
         }
-        showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
         keyExtractor={item => item?._id || Math.random().toString()}
-        contentContainerStyle={styles.list}
-      />
+          contentContainerStyle={styles.list}
+        />
     </SafeAreaView>
   );
 };
@@ -1021,7 +1021,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     position: 'relative',
   },
-  listingCard: {
+listingCard: {
     backgroundColor: Colors.white,
     borderRadius: 20,
     borderWidth: 0.2,
