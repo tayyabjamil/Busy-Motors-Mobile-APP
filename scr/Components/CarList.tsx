@@ -9,7 +9,60 @@ import { useSelector } from 'react-redux';
 import { RequestLocationPermission } from '../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 
-export default function CarList({ item, onPress }: { item: any; onPress: any }) {
+// Default car image fallback
+const defaultCarImage = require('../assets/car2.png');
+
+// Function to get car brand logo
+const getCarImage = (make: string) => {
+  const normalizedMake = make?.toLowerCase().trim();
+  
+  const makeToImageMap: {[key: string]: any} = {
+    'aston martin': require('../assets/cars/astonmartin.png'),
+    'astonmartin': require('../assets/cars/astonmartin.png'),
+    'baic': require('../assets/cars/baic.png'),
+    'bmw': require('../assets/cars/bmw.png'),
+    'bugatti': require('../assets/cars/bugatti.png'),
+    'chevrolet': require('../assets/cars/chevrolet.png'),
+    'citroen': require('../assets/cars/citroen.png'),
+    'dacia': require('../assets/cars/dacia.png'),
+    'daihatsu': require('../assets/cars/daihatsu.png'),
+    'dodge': require('../assets/cars/dodge.png'),
+    'dongfeng': require('../assets/cars/dongfeng.png'),
+    'ford': require('../assets/cars/ford.png'),
+    'honda': require('../assets/cars/honda.png'),
+    'hyundai': require('../assets/cars/hyundai.png'),
+    'kia': require('../assets/cars/kia.png'),
+    'lamborghini': require('../assets/cars/lamborghini.png'),
+    'lotus': require('../assets/cars/lotus.png'),
+    'mazda': require('../assets/cars/mazda.png'),
+    'mclaren': require('../assets/cars/mclaren.png'),
+    'mercedes': require('../assets/cars/mercedes-benz.png'),
+    'mercedes-benz': require('../assets/cars/mercedes-benz.png'),
+    'mercedesbenz': require('../assets/cars/mercedes-benz.png'),
+    'mg': require('../assets/cars/mg.png'),
+    'mini': require('../assets/cars/mini.png'),
+    'nissan': require('../assets/cars/nissan.png'),
+    'opel': require('../assets/cars/opel.png'),
+    'proton': require('../assets/cars/proton.png'),
+    'rolls royce': require('../assets/cars/rollsroyce.png'),
+    'rollsroyce': require('../assets/cars/rollsroyce.png'),
+    'rolls-royce': require('../assets/cars/rollsroyce.png'),
+    'saic': require('../assets/cars/saic.png'),
+    'skoda': require('../assets/cars/skoda.png'),
+    'suzuki': require('../assets/cars/suzuki.png'),
+    'tesla': require('../assets/cars/tesla.png'),
+    'vauxhall': require('../assets/cars/vauxhall.png'),
+    'volkswagen': require('../assets/cars/volkswagen.png'),
+    'volvo': require('../assets/cars/volvo.png'),
+    'xpeng': require('../assets/cars/xpeng.png'),
+  };
+
+  return normalizedMake && makeToImageMap[normalizedMake] 
+    ? makeToImageMap[normalizedMake] 
+    : defaultCarImage;
+};
+
+export default function CarList({ item, onPress, removeLogo = false }: { item: any; onPress: any, removeLogo?: boolean }) {
   const navigation = useNavigation();
   const { favoriteItems } = useSelector((state: any) => state?.favourite);
   const isFavorite = favoriteItems.includes(item._id);
@@ -82,8 +135,8 @@ export default function CarList({ item, onPress }: { item: any; onPress: any }) 
         
       </TouchableOpacity>
 
-      {/* Car Image */}
-      <Image source={{ uri: item?.displayImage }} style={styles.carImage} resizeMode="contain" />
+      {/* Car Brand Logo */}
+        {removeLogo ? <View style={styles.carImage}></View> : <Image source={getCarImage(item?.make)} style={styles.carImage} resizeMode="contain" />}  
 
       {/* Car Details */}
       <View style={styles.detailsContainer}>

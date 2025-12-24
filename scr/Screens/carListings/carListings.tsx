@@ -440,18 +440,20 @@ const Listings = () => {
     return brandImageMap[brand.key] || null;
   };
 
-  // Function to get car image - checks local assets first, then API image
-  const getCarImage = (make: string, displayImage: string) => {
-    if (!make) return {uri: displayImage};
-    
+  // Default car image fallback
+  const defaultCarImage = require('../../assets/car2.png');
+
+  // Function to get car brand logo - always shows brand logo
+  const getCarImage = (make: string) => {
     // Normalize make name to match image filename format
-    const normalizedMake = make.toLowerCase().trim();
+    const normalizedMake = make?.toLowerCase().trim();
     
-    // Map of make names to image filenames (handling variations)
+    // Map of make names to brand logo images
     const makeToImageMap: {[key: string]: any} = {
       'aston martin': require('../../assets/cars/astonmartin.png'),
       'astonmartin': require('../../assets/cars/astonmartin.png'),
       'baic': require('../../assets/cars/baic.png'),
+      'bmw': require('../../assets/cars/bmw.png'),
       'bugatti': require('../../assets/cars/bugatti.png'),
       'chevrolet': require('../../assets/cars/chevrolet.png'),
       'citroen': require('../../assets/cars/citroen.png'),
@@ -488,15 +490,10 @@ const Listings = () => {
       'xpeng': require('../../assets/cars/xpeng.png'),
     };
 
-    // Check if we have a local image for this make
-    const localImage = makeToImageMap[normalizedMake];
-    
-    if (localImage) {
-      return localImage;
-    }
-    
-    // Fallback to API image
-    return {uri: displayImage};
+    // Return brand logo if found, otherwise default car image
+    return normalizedMake && makeToImageMap[normalizedMake] 
+      ? makeToImageMap[normalizedMake] 
+      : defaultCarImage;
   };
 
   const renderItem = ({item, index}) => {
@@ -576,7 +573,7 @@ const Listings = () => {
       {!item.isSold && (
         <View style={styles.carImageContainer}>
           <Image
-            source={getCarImage(item?.make, item?.displayImage)}
+            source={getCarImage(item?.make)}
             resizeMode="contain"
             style={styles.carImage}
           />
@@ -897,7 +894,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 17,
+    marginTop: 8,
   },
   searchBar: {
     flex: 1,
@@ -1025,7 +1022,7 @@ listingCard: {
     backgroundColor: Colors.white,
     borderRadius: 20,
     borderWidth: 0.2,
-    marginTop: 20,
+    marginTop: 10,
     paddingTop: hp(4),
     paddingHorizontal: wp(3.5),
     paddingBottom: hp(0.5),

@@ -376,6 +376,14 @@ const SalvageRoute = ({
                 !pkg.product.identifier.toLowerCase().includes('corporate') &&
                 !pkg.product.title.toLowerCase().includes('corporate'),
             )
+            .sort((a, b) => {
+              // Weekly packages first, then monthly
+              const aIsWeekly = a.product.identifier.toLowerCase().includes('weekly');
+              const bIsWeekly = b.product.identifier.toLowerCase().includes('weekly');
+              if (aIsWeekly && !bIsWeekly) return -1;
+              if (!aIsWeekly && bIsWeekly) return 1;
+              return 0;
+            })
             .map((pkg, index) => {
               const isActive = isSubscriptionActive(pkg.product.identifier);
               console.log(`🎯 SALVAGE - Package ${pkg.product.identifier} active:`, isActive);
@@ -477,6 +485,14 @@ const ScrapRoute = ({
                 !pkg.product.identifier.toLowerCase().includes('corporate') &&
                 !pkg.product.title.toLowerCase().includes('corporate'),
             )
+            .sort((a, b) => {
+              // Weekly packages first, then monthly
+              const aIsWeekly = a.product.identifier.toLowerCase().includes('weekly');
+              const bIsWeekly = b.product.identifier.toLowerCase().includes('weekly');
+              if (aIsWeekly && !bIsWeekly) return -1;
+              if (!aIsWeekly && bIsWeekly) return 1;
+              return 0;
+            })
             .map((pkg, index) => {
               const isActive = isSubscriptionActive(pkg.product.identifier);
               return (

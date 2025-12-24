@@ -60,7 +60,7 @@ const Savage = () => {
           <FlatList
             data={filteredData}
             renderItem={({ item }) => (
-              <CarList item={item} onPress={() => handleToggle(item)} />
+              <CarList removeLogo={true} item={item} onPress={() => handleToggle(item)} />
             )}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item) => item._id}

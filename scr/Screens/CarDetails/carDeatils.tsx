@@ -27,64 +27,64 @@ import { logout } from '../../redux/slices/authSlice';
 
 const defaultCarImage = require('../../assets/car2.png');
 
-// Function to get car image - checks local brand assets first, then API image
-const getCarImage = (make: string, carImage: string) => {
-  // Normalize make name to match image filename format
-  const normalizedMake = make?.toLowerCase().trim();
-  
-  // Map of make names to image filenames (handling variations)
-  const makeToImageMap: {[key: string]: any} = {
-    'aston martin': require('../../assets/cars/astonmartin.png'),
-    'astonmartin': require('../../assets/cars/astonmartin.png'),
-    'baic': require('../../assets/cars/baic.png'),
-    'bugatti': require('../../assets/cars/bugatti.png'),
-    'chevrolet': require('../../assets/cars/chevrolet.png'),
-    'citroen': require('../../assets/cars/citroen.png'),
-    'dacia': require('../../assets/cars/dacia.png'),
-    'daihatsu': require('../../assets/cars/daihatsu.png'),
-    'dodge': require('../../assets/cars/dodge.png'),
-    'dongfeng': require('../../assets/cars/dongfeng.png'),
-    'ford': require('../../assets/cars/ford.png'),
-    'honda': require('../../assets/cars/honda.png'),
-    'hyundai': require('../../assets/cars/hyundai.png'),
-    'kia': require('../../assets/cars/kia.png'),
-    'lamborghini': require('../../assets/cars/lamborghini.png'),
-    'lotus': require('../../assets/cars/lotus.png'),
-    'mazda': require('../../assets/cars/mazda.png'),
-    'mclaren': require('../../assets/cars/mclaren.png'),
-    'mercedes': require('../../assets/cars/mercedes-benz.png'),
-    'mercedes-benz': require('../../assets/cars/mercedes-benz.png'),
-    'mercedesbenz': require('../../assets/cars/mercedes-benz.png'),
-    'mg': require('../../assets/cars/mg.png'),
-    'mini': require('../../assets/cars/mini.png'),
-    'nissan': require('../../assets/cars/nissan.png'),
-    'opel': require('../../assets/cars/opel.png'),
-    'proton': require('../../assets/cars/proton.png'),
-    'rolls royce': require('../../assets/cars/rollsroyce.png'),
-    'rollsroyce': require('../../assets/cars/rollsroyce.png'),
-    'rolls-royce': require('../../assets/cars/rollsroyce.png'),
-    'saic': require('../../assets/cars/saic.png'),
-    'skoda': require('../../assets/cars/skoda.png'),
-    'suzuki': require('../../assets/cars/suzuki.png'),
-    'tesla': require('../../assets/cars/tesla.png'),
-    'vauxhall': require('../../assets/cars/vauxhall.png'),
-    'volkswagen': require('../../assets/cars/volkswagen.png'),
-    'volvo': require('../../assets/cars/volvo.png'),
-    'xpeng': require('../../assets/cars/xpeng.png'),
-  };
+// Map of make names to brand logo images
+const makeToImageMap: {[key: string]: any} = {
+  'aston martin': require('../../assets/cars/astonmartin.png'),
+  'astonmartin': require('../../assets/cars/astonmartin.png'),
+  'baic': require('../../assets/cars/baic.png'),
+  'bmw': require('../../assets/cars/bmw.png'),
+  'bugatti': require('../../assets/cars/bugatti.png'),
+  'chevrolet': require('../../assets/cars/chevrolet.png'),
+  'citroen': require('../../assets/cars/citroen.png'),
+  'dacia': require('../../assets/cars/dacia.png'),
+  'daihatsu': require('../../assets/cars/daihatsu.png'),
+  'dodge': require('../../assets/cars/dodge.png'),
+  'dongfeng': require('../../assets/cars/dongfeng.png'),
+  'ford': require('../../assets/cars/ford.png'),
+  'honda': require('../../assets/cars/honda.png'),
+  'hyundai': require('../../assets/cars/hyundai.png'),
+  'kia': require('../../assets/cars/kia.png'),
+  'lamborghini': require('../../assets/cars/lamborghini.png'),
+  'lotus': require('../../assets/cars/lotus.png'),
+  'mazda': require('../../assets/cars/mazda.png'),
+  'mclaren': require('../../assets/cars/mclaren.png'),
+  'mercedes': require('../../assets/cars/mercedes-benz.png'),
+  'mercedes-benz': require('../../assets/cars/mercedes-benz.png'),
+  'mercedesbenz': require('../../assets/cars/mercedes-benz.png'),
+  'mg': require('../../assets/cars/mg.png'),
+  'mini': require('../../assets/cars/mini.png'),
+  'nissan': require('../../assets/cars/nissan.png'),
+  'opel': require('../../assets/cars/opel.png'),
+  'proton': require('../../assets/cars/proton.png'),
+  'rolls royce': require('../../assets/cars/rollsroyce.png'),
+  'rollsroyce': require('../../assets/cars/rollsroyce.png'),
+  'rolls-royce': require('../../assets/cars/rollsroyce.png'),
+  'saic': require('../../assets/cars/saic.png'),
+  'skoda': require('../../assets/cars/skoda.png'),
+  'suzuki': require('../../assets/cars/suzuki.png'),
+  'tesla': require('../../assets/cars/tesla.png'),
+  'vauxhall': require('../../assets/cars/vauxhall.png'),
+  'volkswagen': require('../../assets/cars/volkswagen.png'),
+  'volvo': require('../../assets/cars/volvo.png'),
+  'xpeng': require('../../assets/cars/xpeng.png'),
+};
 
-  // If car has a valid image from API, use it
+// Function to get car image and determine if it's a logo
+const getCarImageData = (make: string, carImage: string) => {
+  const normalizedMake = make?.toLowerCase().trim();
+
+  // If car has a valid image from API, use it with cover
   if (carImage && carImage !== 'N/A') {
-    return { uri: carImage };
+    return { source: { uri: carImage }, isLogo: false };
   }
 
   // Check if we have a local brand logo for this make
   if (normalizedMake && makeToImageMap[normalizedMake]) {
-    return makeToImageMap[normalizedMake];
+    return { source: makeToImageMap[normalizedMake], isLogo: true };
   }
   
-  // Fallback to default car image
-  return defaultCarImage;
+  // Fallback to default car image (treat as logo/contain)
+  return { source: defaultCarImage, isLogo: true };
 };
 
 const Details = ({ route }) => {
@@ -347,14 +347,16 @@ const Details = ({ route }) => {
     
         <View style={[styles.sidePadding]}>
           <View style={styles.detailsContainer}>
-            <View style={styles.carTagContainer}>
-              <Text style={styles.scrapText}>{car?.tag || 'Unknown'}</Text>
-            </View>
-            <Image
-              source={getCarImage(car?.make, car?.carImage)}
-              style={styles.carImage}
-              resizeMode={'contain'}
-            />
+            {(() => {
+              const imageData = getCarImageData(car?.make, car?.carImage);
+              return (
+                <Image
+                  source={imageData.source}
+                  style={styles.carImage}
+                  resizeMode={imageData.isLogo ? 'contain' : 'cover'}
+                />
+              );
+            })()}
 
             <Text style={styles.carTitle}>
               {car?.make || 'Model Not Available'}
@@ -540,9 +542,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   carImage: {
-    width: 180,
-    height: 150,
-    alignSelf: 'center',
+    width: '100%',
+    height: 200,
   },
   carTitle: {
     fontSize: wp(6),
