@@ -21,6 +21,19 @@ import Geolocation from 'react-native-geolocation-service';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
 
+const defaultCarImage = require('../../assets/cars/ford.png');
+
+// Function to get car image - use uploaded image if available, otherwise fallback
+const getCarImageSource = (carImage?: string, displayImage?: string) => {
+  if (displayImage) {
+    return { uri: displayImage };
+  }
+  if (carImage) {
+    return { uri: carImage };
+  }
+  return defaultCarImage;
+};
+
 const MapListings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -214,8 +227,9 @@ const MapListings = () => {
               </TouchableOpacity>
 
               <Image
-                source={require('../../assets/landcruser.png')}
+                source={getCarImageSource(selectedCar?.carImage, selectedCar?.displayImage)}
                 style={styles.carImage}
+                resizeMode="contain"
               />
             </View>
             <View style={styles.featuresContainer}>
