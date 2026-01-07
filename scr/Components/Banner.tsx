@@ -233,51 +233,33 @@ const Banner = ({navigation}: {navigation: any}) => {
     );
   }
 
-  // Promotional banner for non-subscribers - Bold and aggressive
+  // Promotional banner for non-subscribers - Simple and clean
   return (
-    <View style={styles.promoBannerContainer}>
-      {/* Decorative elements */}
-      <View style={styles.promoDecorCircle1} />
-      <View style={styles.promoDecorCircle2} />
-      <View style={styles.promoDecorStripe} />
-      
-      <View style={styles.promoContent}>
+    <View style={styles.bannerContainer}>
+      {/* Left Section: Text and Price */}
+      <View style={styles.leftSection}>
         {(loading || revenueCatLoading) ? (
-          <ActivityIndicator size="small" color={Colors.white} />
+          <View style={styles.loadingWrapper}>
+            <ActivityIndicator size="small" color={Colors.accent} />
+            <Text style={styles.loadingText}>Loading...</Text>
+          </View>
         ) : (
           <>
-            {/* Discount badge */}
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountText}>🔥 LIMITED OFFER</Text>
-            </View>
-            
-            {/* Main price section */}
-            <View style={styles.priceSection}>
-              <Text style={styles.promoTitle}>Unlock Premium Access</Text>
-              <View style={styles.priceRow}>
-                <Text style={styles.priceCurrency}>£</Text>
-                <Text style={styles.priceAmount}>50</Text>
-                <Text style={styles.pricePeriod}>/week</Text>
-              </View>
-              <Text style={styles.originalPriceText}>
-                <Text style={styles.strikeThrough}>£180/month</Text>
-                {'  •  '}
-                <Text style={styles.saveText}>Save 70%</Text>
-              </Text>
-            </View>
+            <Text style={styles.greetingText}>Start from £50/week</Text>
+            <Text style={styles.originalPrice}>£180/Monthly</Text>
           </>
         )}
       </View>
 
-      {/* CTA Button */}
-      <TouchableOpacity
-        style={styles.promoButton}
-        onPress={handleGetNow}
-        disabled={loading || revenueCatLoading}
-        activeOpacity={0.8}>
-        <Text style={styles.promoButtonText}>GET NOW</Text>
-        <Text style={styles.promoButtonArrow}>→</Text>
-      </TouchableOpacity>
+      {/* Right Section: Button */}
+      <View style={styles.rightSection}>
+        <TouchableOpacity
+          style={styles.getNowButton}
+          onPress={handleGetNow}
+          disabled={loading || revenueCatLoading}>
+          <Text style={styles.getNowText}>Get Now</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -358,144 +340,65 @@ const styles = StyleSheet.create({
     tintColor: Colors.white,
   },
 
-  // ============ PROMOTIONAL BANNER (NON-SUBSCRIBER) ============
-  promoBannerContainer: {
-    backgroundColor: '#E67E22',
-    borderRadius: BorderRadius.xl,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.xl,
-    width: '100%',
-    ...Shadows.large,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  promoDecorCircle1: {
-    position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  promoDecorCircle2: {
-    position: 'absolute',
-    bottom: -50,
-    left: -30,
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  promoDecorStripe: {
-    position: 'absolute',
-    top: 20,
-    right: 60,
-    width: 4,
-    height: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 2,
-    transform: [{rotate: '20deg'}],
-  },
-  promoContent: {
-    zIndex: 1,
-  },
-  discountBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs + 2,
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.md,
-    ...Shadows.small,
-  },
-  discountText: {
-    fontSize: wp(2.8),
-    fontFamily: Fonts.bold,
-    fontWeight: '800',
-    color: '#D35400',
-    letterSpacing: 0.8,
-  },
-  priceSection: {
-    marginBottom: Spacing.lg,
-  },
-  promoTitle: {
-    fontSize: wp(5.5),
-    fontFamily: Fonts.bold,
-    fontWeight: '800',
-    color: Colors.white,
-    marginBottom: Spacing.sm,
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: {width: 0, height: 1},
-    textShadowRadius: 3,
-  },
-  priceRow: {
+  // ============ SIMPLE BANNER (NON-SUBSCRIBER) ============
+  bannerContainer: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    marginBottom: Spacing.xs,
-  },
-  priceCurrency: {
-    fontSize: wp(6),
-    fontFamily: Fonts.bold,
-    fontWeight: '700',
-    color: Colors.white,
-    marginTop: Spacing.sm,
-  },
-  priceAmount: {
-    fontSize: wp(14),
-    fontFamily: Fonts.bold,
-    fontWeight: '900',
-    color: Colors.white,
-    lineHeight: wp(15),
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: {width: 0, height: 2},
-    textShadowRadius: 4,
-  },
-  pricePeriod: {
-    fontSize: wp(4.5),
-    fontFamily: Fonts.medium,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginLeft: Spacing.xs,
-    marginBottom: Spacing.sm,
-  },
-  originalPriceText: {
-    fontSize: wp(3.5),
-    fontFamily: Fonts.medium,
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  strikeThrough: {
-    textDecorationLine: 'line-through',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  saveText: {
-    color: '#FFFFFF',
-    fontFamily: Fonts.bold,
-    fontWeight: '700',
-  },
-  promoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
-    paddingVertical: Spacing.md + 2,
-    paddingHorizontal: Spacing.xl,
-    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'space-between',
     ...Shadows.medium,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    width: '100%',
+  },
+  loadingWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.sm,
   },
-  promoButtonText: {
+  leftSection: {
+    flex: 1,
+    marginRight: Spacing.md,
+  },
+  greetingText: {
     fontSize: wp(4.2),
     fontFamily: Fonts.bold,
-    fontWeight: '800',
-    color: '#D35400',
-    letterSpacing: 1.2,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
   },
-  promoButtonArrow: {
-    fontSize: wp(5),
+  originalPrice: {
+    fontSize: wp(3.2),
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+    textDecorationLine: 'line-through',
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  getNowButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.base,
+    ...Shadows.small,
+  },
+  getNowText: {
+    fontSize: wp(3.5),
     fontFamily: Fonts.bold,
-    fontWeight: '800',
-    color: '#D35400',
+    fontWeight: '600',
+    color: Colors.white,
+    textAlign: 'center',
+  },
+  loadingText: {
+    color: Colors.textSecondary,
+    fontSize: wp(3.5),
+    fontFamily: Fonts.regular,
   },
 });
 
