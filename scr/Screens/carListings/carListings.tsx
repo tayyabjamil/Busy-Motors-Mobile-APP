@@ -13,6 +13,7 @@ import {
   TextInput,
   ScrollView,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Colors from '../../Helper/Colors';
@@ -31,6 +32,7 @@ import api from '../../redux/api';
 import Slider from '@react-native-community/slider';
 import {fetchUserRequest} from '../../redux/slices/userDetail';
 import axios, {AxiosError} from 'axios';
+import Purchases from 'react-native-purchases';
 
 const Listings = () => {
   const navigation = useNavigation();
@@ -44,6 +46,7 @@ const Listings = () => {
   } = useSelector((state: any) => state.user);
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
+  const [isLoading, setIsLoading] = useState(true); // Loading state
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
   const {hasSubscription,subscriptions} = useSelector(
     (state: any) => state?.subscription?.subscriptionData || {},
@@ -67,6 +70,80 @@ const Listings = () => {
   // Temporary filter states (used in modal before applying)
   const [tempActiveFilters, setTempActiveFilters] = useState(['Scrap', 'Salvage']);
   const [tempDistance, setTempDistance] = useState<number | null>(null);
+  
+  // RevenueCat products for subscription details
+  const [revenueCatProducts, setRevenueCatProducts] = useState<any[]>([]);
+
+  // Fetch RevenueCat products to get subscription type
+  useEffect(() => {
+    const fetchRevenueCatProducts = async () => {
+      try {
+        const allOfferings = await Purchases.getOfferings();
+        if (allOfferings.current) {
+          const packages = allOfferings.current.availablePackages;
+          setRevenueCatProducts(packages);
+        }
+      } catch (error) {
+        console.log('Error fetching RevenueCat products:', error);
+      }
+    };
+    fetchRevenueCatProducts();
+  }, []);
+
+  // Get active subscription details including type
+  const getActiveSubscriptionType = () => {
+    if (activeSubscriptions.length === 0) {
+      return null;
+    }
+    
+    const activeSubscriptionId = activeSubscriptions[0];
+    const activeProduct = revenueCatProducts.find(
+      (pkg: any) => pkg.product.identifier === activeSubscriptionId
+    );
+
+    if (activeProduct) {
+      const identifier = activeProduct.product.identifier.toLowerCase();
+      if (identifier.includes('scrap')) {
+        return 'scrap';
+      } else if (identifier.includes('salvage')) {
+        return 'salvage';
+      }
+    }
+    return null;
+  };
+
+  const activeSubscriptionType = getActiveSubscriptionType();
+
+  // Set default filter based on subscription type when it changes
+  useEffect(() => {
+    if (activeSubscriptionType) {
+      const defaultFilter = activeSubscriptionType === 'scrap' ? ['Scrap'] : ['Salvage'];
+      setActiveFilters(defaultFilter);
+      setTempActiveFilters(defaultFilter);
+    }
+  }, [activeSubscriptionType]);
+
+  // Check if user is trying to view cars outside their subscription
+  const isViewingRestrictedContent = () => {
+    if (!activeSubscriptionType || !hasRevenueCatSubscription) {
+      return false; // No subscription, no restrictions
+    }
+    
+    // If user has scrap subscription but trying to view salvage (and not scrap)
+    if (activeSubscriptionType === 'scrap') {
+      return activeFilters.includes('Salvage') && !activeFilters.includes('Scrap');
+    }
+    
+    // If user has salvage subscription but trying to view scrap (and not salvage)
+    if (activeSubscriptionType === 'salvage') {
+      return activeFilters.includes('Scrap') && !activeFilters.includes('Salvage');
+    }
+    
+    return false;
+  };
+
+  const restrictedContentType = activeSubscriptionType === 'scrap' ? 'Salvage' : 'Scrap';
+  const userSubscriptionType = activeSubscriptionType === 'scrap' ? 'Scrap' : 'Salvage';
   const locationOptions = [
     '5 miles',
     '10 miles',
@@ -187,6 +264,7 @@ const Listings = () => {
     });
 
     setError(null);
+    setIsLoading(true);
 
     try {
       if (!token) {
@@ -223,6 +301,8 @@ const Listings = () => {
         console.log('API Unexpected Error:', err.message);
         setError(err.message);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -310,7 +390,7 @@ const Listings = () => {
     return `${distanceInMiles} mi`; // Return distance in miles
   };
   const filteredData = carListings?.filter(item => {
-    // 1. Filter by active tags
+    // 1. Filter by active tags (user can always change filters)
     const filterMatch =
       (activeFilters.includes('Scrap') && item.tag === 'scrap') ||
       (activeFilters.includes('Salvage') && item.tag === 'salvage') ||
@@ -840,7 +920,7 @@ const Listings = () => {
       </Modal>
 
       <FlatList
-        data={noDataFound ? [] : sortedData}
+        data={isLoading ? [] : (isViewingRestrictedContent() ? [] : (noDataFound ? [] : sortedData))}
         renderItem={renderItem}
         ListHeaderComponent={
           <>
@@ -871,11 +951,56 @@ const Listings = () => {
           </>
         }
         ListEmptyComponent={
-        <View style={styles.noDataContainer}>
-          <Text style={styles.noDataText}>
-            No carListings found for the selected filters.
-          </Text>
-        </View>
+          isLoading ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+              <Text style={styles.loaderText}>Loading cars...</Text>
+            </View>
+          ) : isViewingRestrictedContent() ? (
+            <View style={styles.restrictedContainer}>
+              <View style={styles.restrictedIconContainer}>
+                <Text style={styles.lockEmoji}>🔒</Text>
+              </View>
+              <Text style={styles.restrictedTitle}>Access Restricted</Text>
+              <Text style={styles.restrictedSubtitle}>
+                Your active subscription is{' '}
+                <Text style={styles.restrictedHighlight}>{userSubscriptionType}</Text>
+              </Text>
+              <Text style={styles.restrictedDescription}>
+                You cannot view {restrictedContentType} cars with your current plan.
+                Upgrade your subscription to access all car listings.
+              </Text>
+              <TouchableOpacity 
+                style={styles.upgradeButton}
+                onPress={() => navigation.navigate('Subscriptions')}>
+                <Text style={styles.upgradeButtonText}>View Subscriptions</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.backToMyListingsButton}
+                onPress={() => {
+                  const defaultFilter = activeSubscriptionType === 'scrap' ? ['Scrap'] : ['Salvage'];
+                  setActiveFilters(defaultFilter);
+                  setTempActiveFilters(defaultFilter);
+                }}>
+                <Text style={styles.backToMyListingsText}>
+                  Back to {userSubscriptionType} Cars
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.emptyStateContainer}>
+              <View style={styles.emptyStateIconContainer}>
+                <Image 
+                  source={require('../../assets/search.png')} 
+                  style={styles.emptyStateIcon}
+                />
+              </View>
+              <Text style={styles.emptyStateTitle}>No Cars Found</Text>
+              <Text style={styles.emptyStateDescription}>
+                We couldn't find any cars matching your current filters. Try adjusting your search criteria or check back later for new listings.
+              </Text>
+            </View>
+          )
         }
           showsVerticalScrollIndicator={false}
         keyExtractor={item => item?._id || Math.random().toString()}
@@ -1012,6 +1137,59 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     color: Colors.red,
     fontFamily: Fonts.regular,
+  },
+  // Loader Styles
+  loaderContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: hp(15),
+  },
+  loaderText: {
+    marginTop: hp(2),
+    fontSize: wp(4),
+    fontFamily: Fonts.medium,
+    color: Colors.gray,
+  },
+  // Empty State Styles
+  emptyStateContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: wp(10),
+    paddingVertical: hp(8),
+    marginTop: hp(5),
+  },
+  emptyStateIconContainer: {
+    width: wp(22),
+    height: wp(22),
+    borderRadius: wp(11),
+    backgroundColor: '#F5F5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(2.5),
+  },
+  emptyStateIcon: {
+    width: wp(10),
+    height: wp(10),
+    tintColor: '#9E9E9E',
+  },
+  emptyStateTitle: {
+    fontSize: wp(6),
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
+    color: Colors.black,
+    marginBottom: hp(1.5),
+    textAlign: 'center',
+  },
+  emptyStateDescription: {
+    fontSize: wp(3.8),
+    fontFamily: Fonts.regular,
+    color: Colors.gray,
+    textAlign: 'center',
+    lineHeight: hp(2.8),
+    marginBottom: hp(3),
+    paddingHorizontal: wp(5),
   },
   //render item
   listingCardContainer: {
@@ -1321,6 +1499,77 @@ scrapText: {
     fontSize: wp(4.5),
     fontFamily: Fonts.bold,
     color: Colors.white,
+  },
+  // Restricted Content Styles
+  restrictedContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: wp(8),
+    paddingVertical: hp(8),
+    marginTop: hp(5),
+  },
+  restrictedIconContainer: {
+    width: wp(25),
+    height: wp(25),
+    borderRadius: wp(12.5),
+    backgroundColor: '#FFF3E0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(3),
+  },
+  lockEmoji: {
+    fontSize: wp(12),
+  },
+  restrictedTitle: {
+    fontSize: wp(6),
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
+    color: Colors.black,
+    marginBottom: hp(1),
+    textAlign: 'center',
+  },
+  restrictedSubtitle: {
+    fontSize: wp(4),
+    fontFamily: Fonts.medium,
+    color: Colors.darkGray,
+    marginBottom: hp(1.5),
+    textAlign: 'center',
+  },
+  restrictedHighlight: {
+    color: Colors.primary,
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
+  },
+  restrictedDescription: {
+    fontSize: wp(3.8),
+    fontFamily: Fonts.regular,
+    color: Colors.gray,
+    textAlign: 'center',
+    lineHeight: hp(2.8),
+    marginBottom: hp(3),
+  },
+  upgradeButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: hp(1.8),
+    paddingHorizontal: wp(10),
+    borderRadius: wp(3),
+    marginBottom: hp(1.5),
+  },
+  upgradeButtonText: {
+    fontSize: wp(4.2),
+    fontFamily: Fonts.bold,
+    color: Colors.white,
+  },
+  backToMyListingsButton: {
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(6),
+  },
+  backToMyListingsText: {
+    fontSize: wp(3.8),
+    fontFamily: Fonts.medium,
+    color: Colors.primary,
+    textDecorationLine: 'underline',
   },
 });
 

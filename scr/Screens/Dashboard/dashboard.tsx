@@ -124,7 +124,6 @@ const Dashboard = ({navigation}: {navigation: any}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
   },
    sidePadding: {  
   paddingHorizontal: wp(5),

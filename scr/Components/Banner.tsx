@@ -124,6 +124,8 @@ const Banner = ({navigation}: {navigation: any}) => {
   const subscriptionType = activeSubscriptionDetails?.type || 'Premium';
 
   let isSubscriptionActive = hasRevenueCatSubscription || subscription;
+  console.log('🔍 isSubscriptionActive:', activeSubscriptionDetails);
+  console.log('🔍 hasRevenueCatSubscription:', hasRevenueCatSubscription);
   const isGuest = userData?.is_guest === true;
 
   // Handle Get Now button press

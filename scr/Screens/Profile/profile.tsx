@@ -203,14 +203,14 @@ const Profile = () => {
     setShowImage(document);
   };
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      style={styles.scrollViewContainer}>
+    
       <SafeAreaView
         style={[
           styles.container,
         ]}>
-        <Header navigation={navigation} showBackButton showNotification={false}textData={'User Profile'} />
+          <Header navigation={navigation} showBackButton showNotification={false}textData={'User Profile'} />
+          <ScrollView
+      showsVerticalScrollIndicator={false}>
         <View style={styles.sidePadding}>
         <View style={styles.profileSection}>
           <View style={styles.profileContainer}>
@@ -383,18 +383,14 @@ const Profile = () => {
           </View>
         </Modal>
         </View>
+        </ScrollView>
       </SafeAreaView>
-    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
-  },
-  scrollViewContainer:{
-    backgroundColor: Colors.white
   },
    sidePadding: {  
   paddingHorizontal: wp(5),
@@ -443,6 +439,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.4,
     borderColor: 'lightgray',
     borderRadius: 60,
+    backgroundColor: Colors.white,
   },
   profileImage: {
     width: wp(18),

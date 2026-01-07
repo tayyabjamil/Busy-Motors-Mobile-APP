@@ -46,13 +46,15 @@ const Notifications = () => {
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Image
-              source={require('../../assets/bellEmpty.png')}
-              style={styles.emptyImage}
-            />
+            <View style={styles.emptyIconContainer}>
+              <Image
+                source={require('../../assets/bellEmpty.png')}
+                style={styles.emptyImage}
+              />
+            </View>
             <Text style={styles.emptyTitle}>No Notifications Yet</Text>
             <Text style={styles.emptyDescription}>
-              We'll notify you when something new arrives
+              You're all caught up! We'll notify you when there's something new — like updates on your saved cars or subscription alerts.
             </Text>
           </View>
         }
@@ -137,31 +139,39 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: hp(15),
+    paddingVertical: hp(20),
     paddingHorizontal: wp(10),
   },
-  emptyImage: {
-    width: wp(25),
-    height: wp(25),
-    resizeMode: 'contain',
-    tintColor: '#BDC3C7',
+  emptyIconContainer: {
+    width: wp(24),
+    height: wp(24),
+    borderRadius: wp(12),
+    backgroundColor: '#F0F4F8',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: hp(3),
-    opacity: 0.6,
+  },
+  emptyImage: {
+    width: wp(11),
+    height: wp(11),
+    resizeMode: 'contain',
+    tintColor: '#9E9E9E',
   },
   emptyTitle: {
-    fontSize: wp(5),
+    fontSize: wp(5.5),
     fontWeight: '700',
     fontFamily: Fonts.bold,
-    color: '#2C3E50',
-    marginBottom: hp(1),
+    color: '#1A1A1A',
+    marginBottom: hp(1.5),
     textAlign: 'center',
   },
   emptyDescription: {
     fontSize: wp(3.8),
     fontFamily: Fonts.regular,
-    color: '#95A5A6',
+    color: '#757575',
     textAlign: 'center',
-    lineHeight: hp(3),
+    lineHeight: hp(2.8),
+    paddingHorizontal: wp(5),
   },
 });
 
