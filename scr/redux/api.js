@@ -8,7 +8,7 @@ startNetworkLogging();
 // https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
 const api = axios.create({
-  baseURL: 'https://scrape4you.onrender.com', // Replace this with your actual API base URL
+  baseURL: 'https://scrape4you.onrender.com', // Production URL
   timeout: 30000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
@@ -358,4 +358,30 @@ export const getQuotesAPI = async (userId, token) => {
     throw new Error(error.response?.data?.message || 'Failed to fetch quotes');
   }
 };
+
+// Get Notifications List with Pagination (Using localhost for testing)
+// TODO: Change NOTIFICATIONS_BASE_URL to production when ready
+const NOTIFICATIONS_BASE_URL = 'http://192.168.1.14:5000'; // Local testing
+// const NOTIFICATIONS_BASE_URL = 'https://scrape4you.onrender.com'; // Production
+
+export const getNotificationsAPI = async (page = 1, limit = 20, token) => {
+  console.log('🔍 [API] NOTIFICATIONS_BASE_URL', `${NOTIFICATIONS_BASE_URL}/notifications/list?page=${page}&limit=${limit}`);
+  try {
+    const response = await api.get(
+      `/notifications/list?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        timeout: 30000,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log('Get Notifications API Error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Failed to fetch notifications');
+  }
+};
+
 export default api;

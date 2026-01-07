@@ -19,6 +19,8 @@ import getQuoteSaga from './sagas/qouteDataSaga';
 import qouteReducer from './slices/qouteSlice';
 import quoteSaga from './sagas/qouteSaga';
 
+import notificationsReducer from './slices/notificationsSlice';
+
 import cancelSubscriptionSaga from './sagas/cancelSubcriptionsSaga';
 import updateSubscriptionSaga from './sagas/updateSubcriptionSaga';
 
@@ -59,12 +61,13 @@ const rootReducer = combineReducers({
   profileUpdate: userProfileUpdateReducer,
   favourite: favoritesReducer,
   favListings: favListingsReducer,
-  viewCount: viewCountReducer, // Add the new slice
-  subscription: subscriptionReducer, // Add the new reducer
+  viewCount: viewCountReducer,
+  subscription: subscriptionReducer,
   cancelSubscription: cancelSubscriptionReducer,
   updateSubscription: updateSubscriptionReducer,
   quote: qouteReducer,
   quoteData: getQuoteDataReducer,
+  notifications: notificationsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

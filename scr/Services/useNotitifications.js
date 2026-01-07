@@ -4,9 +4,12 @@ import {PermissionsAndroid, Platform, Alert} from 'react-native';
 import {Linking} from 'react-native';
 import {DeepLinkingRoute} from '../Components/DeepLinkingRoute';
 import {navigationRef} from '../navigationRef';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import Purchases from 'react-native-purchases';
 import {setActiveSubscriptions} from '../redux/slices/subcriptionsSlice';
+import {triggerNotificationsRefresh} from '../redux/slices/notificationsSlice';
+import {getNotificationsAPI} from '../redux/api';
+import {store} from '../redux/store';
 
 // Global subscription check service
 export const checkGlobalSubscriptions = async (dispatch) => {
@@ -120,6 +123,12 @@ const useNotifications = () => {
     // }
   };
 
+  // Helper function to trigger notifications refresh
+  const refreshNotificationsList = () => {
+    console.log('📬 Triggering notifications list refresh...');
+    store.dispatch(triggerNotificationsRefresh());
+  };
+
   // 3. Notification handlers
   const setupNotificationHandlers = () => {
     // Foreground messages
@@ -127,7 +136,10 @@ const useNotifications = () => {
       async remoteMessage => {
         console.log('Foreground Notification:', remoteMessage);
         setNotification(remoteMessage);
-        // showAlert(remoteMessage);
+        // Trigger refresh to fetch latest notifications
+        refreshNotificationsList();
+        // Optionally show alert
+        showAlert(remoteMessage);
       },
     );
 
@@ -135,6 +147,8 @@ const useNotifications = () => {
     getMessaging().setBackgroundMessageHandler(async remoteMessage => {
       console.log('Background Notification:', remoteMessage);
       setNotification(remoteMessage);
+      // Trigger refresh to fetch latest notifications
+      refreshNotificationsList();
     });
 
     // Notification opened from quit state
@@ -144,6 +158,8 @@ const useNotifications = () => {
         if (remoteMessage) {
           console.log('App opened from notification:', remoteMessage);
           setNotification(remoteMessage);
+          // Trigger refresh to fetch latest notifications
+          refreshNotificationsList();
           handleNotificationClick(remoteMessage);
         }
       });
@@ -153,6 +169,8 @@ const useNotifications = () => {
       remoteMessage => {
         console.log('Notification clicked:', remoteMessage);
         setNotification(remoteMessage);
+        // Trigger refresh to fetch latest notifications
+        refreshNotificationsList();
         handleNotificationClick(remoteMessage);
       },
     );
