@@ -90,60 +90,123 @@ const Listings = () => {
     fetchRevenueCatProducts();
   }, []);
 
-  // Get active subscription details including type
-  const getActiveSubscriptionType = () => {
-    if (activeSubscriptions.length === 0) {
-      return null;
-    }
-    
-    const activeSubscriptionId = activeSubscriptions[0];
-    const activeProduct = revenueCatProducts.find(
-      (pkg: any) => pkg.product.identifier === activeSubscriptionId
-    );
+  console.log('🏠 [CarListings] revenueCatProducts', activeSubscriptions);
 
-    if (activeProduct) {
-      const identifier = activeProduct.product.identifier.toLowerCase();
-      if (identifier.includes('scrap')) {
-        return 'scrap';
-      } else if (identifier.includes('salvage')) {
-        return 'salvage';
-      }
+  // Get ALL active subscription types (handles multiple subscriptions)
+  const getActiveSubscriptionTypes = () => {
+    let hasScrap = false;
+    let hasSalvage = false;
+
+    if (activeSubscriptions.length === 0) {
+      return { hasScrap, hasSalvage, hasBoth: false, hasAny: false };
     }
-    return null;
+
+    // Check ALL active subscriptions
+    activeSubscriptions.forEach((subscriptionId: string) => {
+      const activeProduct = revenueCatProducts.find(
+        (pkg: any) => pkg.product.identifier === subscriptionId
+      );
+
+      if (activeProduct) {
+        const identifier = activeProduct.product.identifier.toLowerCase();
+        if (identifier.includes('scrap')) {
+          hasScrap = true;
+        }
+        if (identifier.includes('salvage')) {
+          hasSalvage = true;
+        }
+      }
+    });
+
+    return {
+      hasScrap,
+      hasSalvage,
+      hasBoth: hasScrap && hasSalvage,
+      hasAny: hasScrap || hasSalvage,
+    };
   };
 
-  const activeSubscriptionType = getActiveSubscriptionType();
+  const subscriptionTypes = getActiveSubscriptionTypes();
+  
+  // For backward compatibility - get primary subscription type
+  const activeSubscriptionType = subscriptionTypes.hasBoth 
+    ? 'both' 
+    : subscriptionTypes.hasScrap 
+      ? 'scrap' 
+      : subscriptionTypes.hasSalvage 
+        ? 'salvage' 
+        : null;
 
-  // Set default filter based on subscription type when it changes
+  // Set default filter based on subscription types when they change
   useEffect(() => {
-    if (activeSubscriptionType) {
-      const defaultFilter = activeSubscriptionType === 'scrap' ? ['Scrap'] : ['Salvage'];
+    if (subscriptionTypes.hasAny) {
+      let defaultFilter: string[] = [];
+      
+      if (subscriptionTypes.hasBoth) {
+        // User has both subscriptions - show both types
+        defaultFilter = ['Scrap', 'Salvage'];
+      } else if (subscriptionTypes.hasScrap) {
+        defaultFilter = ['Scrap'];
+      } else if (subscriptionTypes.hasSalvage) {
+        defaultFilter = ['Salvage'];
+      }
+      
       setActiveFilters(defaultFilter);
       setTempActiveFilters(defaultFilter);
     }
-  }, [activeSubscriptionType]);
+  }, [subscriptionTypes.hasScrap, subscriptionTypes.hasSalvage]);
 
   // Check if user is trying to view cars outside their subscription
   const isViewingRestrictedContent = () => {
-    if (!activeSubscriptionType || !hasRevenueCatSubscription) {
+    if (!subscriptionTypes.hasAny || !hasRevenueCatSubscription) {
       return false; // No subscription, no restrictions
     }
     
-    // If user has scrap subscription but trying to view salvage (and not scrap)
-    if (activeSubscriptionType === 'scrap') {
+    // If user has BOTH subscriptions, no restrictions at all
+    if (subscriptionTypes.hasBoth) {
+      return false;
+    }
+    
+    // If user has only scrap subscription but trying to view salvage (and not scrap)
+    if (subscriptionTypes.hasScrap && !subscriptionTypes.hasSalvage) {
       return activeFilters.includes('Salvage') && !activeFilters.includes('Scrap');
     }
     
-    // If user has salvage subscription but trying to view scrap (and not salvage)
-    if (activeSubscriptionType === 'salvage') {
+    // If user has only salvage subscription but trying to view scrap (and not salvage)
+    if (subscriptionTypes.hasSalvage && !subscriptionTypes.hasScrap) {
       return activeFilters.includes('Scrap') && !activeFilters.includes('Salvage');
     }
     
     return false;
   };
 
-  const restrictedContentType = activeSubscriptionType === 'scrap' ? 'Salvage' : 'Scrap';
-  const userSubscriptionType = activeSubscriptionType === 'scrap' ? 'Scrap' : 'Salvage';
+  // Get restricted content type for display
+  const getRestrictedContentType = () => {
+    if (subscriptionTypes.hasScrap && !subscriptionTypes.hasSalvage) {
+      return 'Salvage';
+    }
+    if (subscriptionTypes.hasSalvage && !subscriptionTypes.hasScrap) {
+      return 'Scrap';
+    }
+    return '';
+  };
+
+  // Get user's subscription type for display
+  const getUserSubscriptionType = () => {
+    if (subscriptionTypes.hasBoth) {
+      return 'Scrap & Salvage';
+    }
+    if (subscriptionTypes.hasScrap) {
+      return 'Scrap';
+    }
+    if (subscriptionTypes.hasSalvage) {
+      return 'Salvage';
+    }
+    return '';
+  };
+
+  const restrictedContentType = getRestrictedContentType();
+  const userSubscriptionType = getUserSubscriptionType();
   const locationOptions = [
     '5 miles',
     '10 miles',
@@ -978,7 +1041,14 @@ const Listings = () => {
               <TouchableOpacity 
                 style={styles.backToMyListingsButton}
                 onPress={() => {
-                  const defaultFilter = activeSubscriptionType === 'scrap' ? ['Scrap'] : ['Salvage'];
+                  let defaultFilter: string[] = [];
+                  if (subscriptionTypes.hasBoth) {
+                    defaultFilter = ['Scrap', 'Salvage'];
+                  } else if (subscriptionTypes.hasScrap) {
+                    defaultFilter = ['Scrap'];
+                  } else if (subscriptionTypes.hasSalvage) {
+                    defaultFilter = ['Salvage'];
+                  }
                   setActiveFilters(defaultFilter);
                   setTempActiveFilters(defaultFilter);
                 }}>
