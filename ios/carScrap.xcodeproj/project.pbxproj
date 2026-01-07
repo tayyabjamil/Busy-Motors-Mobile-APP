@@ -284,7 +284,7 @@
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 76;
+				CURRENT_PROJECT_VERSION = 77;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = carScrap/Info.plist;
@@ -294,7 +294,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.29;
+				MARKETING_VERSION = 1.0.30;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -318,7 +318,7 @@
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 76;
+				CURRENT_PROJECT_VERSION = 77;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				INFOPLIST_FILE = carScrap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BusyMotors;
@@ -327,7 +327,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.29;
+				MARKETING_VERSION = 1.0.30;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
