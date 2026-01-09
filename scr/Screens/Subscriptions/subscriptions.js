@@ -69,19 +69,11 @@ const SubscriptionScreen = () => {
   // Function to refresh active subscriptions
   const refreshActiveSubscriptions = async () => {
     try {
-      console.log('🔄 Refreshing active subscriptions...');
       const customerInfo = await Purchases.getCustomerInfo();
       const activeSubs = customerInfo.activeSubscriptions || [];
       dispatch(setActiveSubscriptions(activeSubs));
-      console.log('✅ Refreshed active subscriptions:', activeSubs);
-      console.log('📊 Full refreshed customer info:', {
-        originalAppUserId: customerInfo.originalAppUserId,
-        activeSubscriptions: customerInfo.activeSubscriptions,
-        allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
-        entitlements: customerInfo.entitlements.active
-      });
     } catch (error) {
-      console.log('❌ Error refreshing active subscriptions:', error);
+      // Silent error
     }
   };
 
@@ -92,53 +84,62 @@ const SubscriptionScreen = () => {
         const customerInfo = await Purchases.getCustomerInfo();
         const activeSubs = customerInfo.activeSubscriptions || [];
         dispatch(setActiveSubscriptions(activeSubs));
-        console.log('✅ Active subscriptions found:', activeSubs);
-        console.log('📊 Full customer info:', {
-          originalAppUserId: customerInfo.originalAppUserId,
-          activeSubscriptions: customerInfo.activeSubscriptions,
-          allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
-          entitlements: customerInfo.entitlements.active
-        });
       } catch (error) {
-        console.log('❌ Error checking active subscriptions:', error);
+        // Silent error
       }
     };
 
     checkActiveSubscriptions();
   }, [dispatch]);
 
-  // Fetch RevenueCat products (or use dummy data for testing)
+  // Fetch RevenueCat products from ALL offerings
   useEffect(() => {
     const fetchRevenueCatProducts = async () => {
       try {
-        console.log('🔄 Fetching RevenueCat offerings...');
         const allOfferings = await Purchases.getOfferings();
+        
+        // Show all products
+        console.log('📦 All Products:', Object.values(allOfferings.all || {}).flatMap(o => 
+          o.availablePackages?.map(p => p.product.identifier) || []
+        ));
 
-        if (allOfferings.current) {
-          const packages = allOfferings.current.availablePackages;
-
-          // Filter salvage packages - look for 'salvage' in the identifier
-          const salvage = packages.filter(pkg =>
-            pkg.product.identifier.toLowerCase().includes('salvage')
-          );
-
-          // Filter scrap packages - look for 'scrap' in the identifier and exclude salvage
-          const scrap = packages.filter(pkg =>
-            pkg.product.identifier.toLowerCase().includes('scrap') &&
-            !pkg.product.identifier.toLowerCase().includes('salvage')
-          );
-
-          setSalvagePackages(salvage);
-          setScrapPackages(scrap);
-
-          console.log('✅ Salvage Packages:', salvage.map(p => p.product.title));
-          console.log('✅ Scrap Packages:', scrap.map(p => p.product.title));
-          console.log('🔍 All Package Identifiers:', packages.map(p => p.product.identifier));
-        } else {
-          console.log('❌ No current offering found');
+        // Collect ALL packages from ALL offerings
+        let allPackages = [];
+        
+        // First, add packages from current offering
+        if (allOfferings.current?.availablePackages) {
+          allPackages = [...allOfferings.current.availablePackages];
         }
+        
+        // Then, add packages from other offerings (avoiding duplicates)
+        Object.values(allOfferings.all || {}).forEach(offering => {
+          if (offering.availablePackages) {
+            offering.availablePackages.forEach(pkg => {
+              const exists = allPackages.some(p => p.product.identifier === pkg.product.identifier);
+              if (!exists) {
+                allPackages.push(pkg);
+              }
+            });
+          }
+        });
+
+
+        // Filter salvage packages - look for 'salvage' in the identifier
+        const salvage = allPackages.filter(pkg =>
+          pkg.product.identifier.toLowerCase().includes('salvage')
+        );
+
+        // Filter scrap packages - look for 'scrap' in the identifier and exclude salvage
+        const scrap = allPackages.filter(pkg =>
+          pkg.product.identifier.toLowerCase().includes('scrap') &&
+          !pkg.product.identifier.toLowerCase().includes('salvage')
+        );
+
+        setSalvagePackages(salvage);
+        setScrapPackages(scrap);
+        
       } catch (error) {
-        console.log('❌ Error fetching offerings:', error);
+        // Silent error
       }
     };
 
@@ -149,31 +150,38 @@ const SubscriptionScreen = () => {
   const handlePurchase = async (selectedIdentifier) => {
     try {
       setIsPurchasing(true);
-      console.log('🛒 Starting purchase for:', selectedIdentifier);
       
       const allOfferings = await Purchases.getOfferings();
-      const availablePackages = allOfferings.current?.availablePackages || [];
-
-      const selectedPackage = availablePackages.find(
-        pkg => pkg.product.identifier === selectedIdentifier
-      );
+      
+      // Search across ALL offerings for the package
+      let selectedPackage = null;
+      
+      // First check current offering
+      if (allOfferings.current?.availablePackages) {
+        selectedPackage = allOfferings.current.availablePackages.find(
+          pkg => pkg.product.identifier === selectedIdentifier
+        );
+      }
+      
+      // If not found in current, search all offerings
+      if (!selectedPackage) {
+        for (const offering of Object.values(allOfferings.all || {})) {
+          if (offering.availablePackages) {
+            selectedPackage = offering.availablePackages.find(
+              pkg => pkg.product.identifier === selectedIdentifier
+            );
+            if (selectedPackage) break;
+          }
+        }
+      }
 
       if (!selectedPackage) {
-        console.warn('❌ Package not found for identifier:', selectedIdentifier);
         Alert.alert('Error', 'Package not found. Please try again.');
         return;
       }
-
-      console.log('📦 Selected package:', selectedPackage.product.title);
       
       // IMPORTANT: Actually make the purchase with RevenueCat
       const { customerInfo } = await Purchases.purchasePackage(selectedPackage);
-      
-      console.log('✅ Purchase successful!');
-      console.log('📊 Customer info after purchase:', {
-        activeSubscriptions: customerInfo.activeSubscriptions,
-        entitlements: customerInfo.entitlements.active,
-      });
 
       // Update active subscriptions in Redux store
       dispatch(updateActiveSubscriptions(customerInfo.activeSubscriptions || []));
@@ -199,12 +207,7 @@ const SubscriptionScreen = () => {
       );
 
     } catch (error) {
-      console.log('❌ Purchase error:', error);
-
-      if (error.userCancelled) {
-        console.log('🚫 Purchase cancelled by user');
-        // Don't show an alert for user cancellation - it's intentional
-      } else {
+      if (!error.userCancelled) {
         Alert.alert('Purchase Failed', error.message || 'Something went wrong. Please try again.');
       }
     } finally {
@@ -341,17 +344,8 @@ const SalvageRoute = ({
 
   // Check if a subscription is active
   const isSubscriptionActive = (productIdentifier) => {
-    const isActive = activeSubscriptions.includes(productIdentifier);
-    console.log(`🔍 SALVAGE - Checking if ${productIdentifier} is active:`, isActive);
-    console.log(`📋 SALVAGE - All active subscriptions:`, activeSubscriptions);
-    console.log(`🔍 SALVAGE - Product identifier being checked:`, productIdentifier);
-    console.log(`🔍 SALVAGE - Active subscriptions array:`, activeSubscriptions);
-    console.log(`🔍 SALVAGE - Is included?`, activeSubscriptions.includes(productIdentifier));
-    return isActive;
+    return activeSubscriptions.includes(productIdentifier);
   };
-
-  console.log('🔄 SALVAGE ROUTE - Products:', products.map(p => p.product.identifier));
-  console.log('🔄 SALVAGE ROUTE - Active subscriptions:', activeSubscriptions);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -386,7 +380,6 @@ const SalvageRoute = ({
             })
             .map((pkg, index) => {
               const isActive = isSubscriptionActive(pkg.product.identifier);
-              console.log(`🎯 SALVAGE - Package ${pkg.product.identifier} active:`, isActive);
               return (
                 <TouchableOpacity
                   key={pkg.identifier}

@@ -93,6 +93,7 @@ const Listings = () => {
   console.log('🏠 [CarListings] revenueCatProducts', activeSubscriptions);
 
   // Get ALL active subscription types (handles multiple subscriptions)
+  // Detects type directly from subscription ID for immediate updates
   const getActiveSubscriptionTypes = () => {
     let hasScrap = false;
     let hasSalvage = false;
@@ -101,20 +102,14 @@ const Listings = () => {
       return { hasScrap, hasSalvage, hasBoth: false, hasAny: false };
     }
 
-    // Check ALL active subscriptions
+    // Check ALL active subscriptions - detect type directly from subscription ID
     activeSubscriptions.forEach((subscriptionId: string) => {
-      const activeProduct = revenueCatProducts.find(
-        (pkg: any) => pkg.product.identifier === subscriptionId
-      );
-
-      if (activeProduct) {
-        const identifier = activeProduct.product.identifier.toLowerCase();
-        if (identifier.includes('scrap')) {
-          hasScrap = true;
-        }
-        if (identifier.includes('salvage')) {
-          hasSalvage = true;
-        }
+      const identifier = subscriptionId.toLowerCase();
+      if (identifier.includes('scrap')) {
+        hasScrap = true;
+      }
+      if (identifier.includes('salvage')) {
+        hasSalvage = true;
       }
     });
 

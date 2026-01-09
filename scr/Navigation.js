@@ -119,8 +119,18 @@ const AppNavigation = () => {
       console.log('🔍 Checking RevenueCat subscriptions on login...');
       const customerInfo = await Purchases.getCustomerInfo();
       const activeSubs = customerInfo.activeSubscriptions || [];
+      
+      // DEBUG: Log full customer info to see what RevenueCat returns
+      console.log('📊 ========== REVENUECAT DEBUG ==========');
+      console.log('📊 activeSubscriptions:', activeSubs);
+      console.log('📊 activeSubscriptions count:', activeSubs.length);
+      console.log('📊 allPurchasedProductIdentifiers:', customerInfo.allPurchasedProductIdentifiers);
+      console.log('📊 entitlements.active:', Object.keys(customerInfo.entitlements?.active || {}));
+      console.log('📊 Full entitlements:', JSON.stringify(customerInfo.entitlements?.active, null, 2));
+      console.log('📊 ========================================');
+      
       dispatch(setActiveSubscriptions(activeSubs));
-      console.log('✅ RevenueCat subscriptions found on login:', activeSubs);
+      console.log('✅ RevenueCat subscriptions saved to Redux:', activeSubs);
     } catch (error) {
       console.log('❌ Error checking RevenueCat subscriptions on login:', error);
     }

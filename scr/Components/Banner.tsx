@@ -64,6 +64,7 @@ const Banner = ({navigation}: {navigation: any}) => {
   }, []);
 
   // Get ALL active subscription details from RevenueCat (handles multiple subscriptions)
+  // Now detects subscription type directly from ID without needing product details
   const getAllActiveSubscriptionDetails = () => {
     if (activeSubscriptions.length === 0) {
       return { details: [], hasScrap: false, hasSalvage: false, hasBoth: false };
@@ -73,38 +74,37 @@ const Banner = ({navigation}: {navigation: any}) => {
     let hasScrap = false;
     let hasSalvage = false;
 
-    // Check ALL active subscriptions
+    // Check ALL active subscriptions - detect type directly from subscription ID
     activeSubscriptions.forEach((subscriptionId: string) => {
+      const identifier = subscriptionId.toLowerCase();
+      const isScrap = identifier.includes('scrap');
+      const isSalvage = identifier.includes('salvage');
+      
+      if (isScrap) hasScrap = true;
+      if (isSalvage) hasSalvage = true;
+
+      // Try to find product details if available
       const activeProduct = revenueCatProducts.find(
         (pkg: any) => pkg.product.identifier === subscriptionId
       );
 
-      if (activeProduct) {
-        const identifier = activeProduct.product.identifier.toLowerCase();
-        const isScrap = identifier.includes('scrap');
-        const isSalvage = identifier.includes('salvage');
-        
-        if (isScrap) hasScrap = true;
-        if (isSalvage) hasSalvage = true;
-
-        let subscriptionType = '';
-        if (isScrap) {
-          subscriptionType = 'Scrap';
-        } else if (isSalvage) {
-          subscriptionType = 'Salvage';
-        } else {
-          subscriptionType = 'Premium';
-        }
-
-        details.push({
-          name: activeProduct.product.title,
-          price: activeProduct.product.price,
-          priceString: activeProduct.product.priceString,
-          identifier: activeProduct.product.identifier,
-          description: activeProduct.product.description,
-          type: subscriptionType,
-        });
+      let subscriptionType = '';
+      if (isScrap) {
+        subscriptionType = 'Scrap';
+      } else if (isSalvage) {
+        subscriptionType = 'Salvage';
+      } else {
+        subscriptionType = 'Premium';
       }
+
+      details.push({
+        name: activeProduct?.product?.title || subscriptionType + ' Subscription',
+        price: activeProduct?.product?.price || 0,
+        priceString: activeProduct?.product?.priceString || '',
+        identifier: subscriptionId,
+        description: activeProduct?.product?.description || '',
+        type: subscriptionType,
+      });
     });
 
     return { details, hasScrap, hasSalvage, hasBoth: hasScrap && hasSalvage };
@@ -150,8 +150,19 @@ const Banner = ({navigation}: {navigation: any}) => {
   const subscriptionType = getSubscriptionType();
 
   let isSubscriptionActive = hasRevenueCatSubscription || subscription;
-  console.log('🔍 isSubscriptionActive:', activeSubscriptionDetails);
+  
+  // DEBUG: Log all subscription data to identify the issue
+  console.log('🔍 ========== BANNER SUBSCRIPTION DEBUG ==========');
+  console.log('🔍 activeSubscriptions (from Redux):', activeSubscriptions);
+  console.log('🔍 activeSubscriptions length:', activeSubscriptions.length);
+  console.log('🔍 allSubscriptionData:', allSubscriptionData);
+  console.log('🔍 hasScrap:', allSubscriptionData.hasScrap);
+  console.log('🔍 hasSalvage:', allSubscriptionData.hasSalvage);
+  console.log('🔍 hasBoth:', allSubscriptionData.hasBoth);
+  console.log('🔍 isSubscriptionActive:', isSubscriptionActive);
   console.log('🔍 hasRevenueCatSubscription:', hasRevenueCatSubscription);
+  console.log('🔍 ================================================');
+  
   const isGuest = userData?.is_guest === true;
 
   // Handle Get Now button press
