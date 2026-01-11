@@ -134,12 +134,24 @@ const MapListings = () => {
   //   });
   // };
   const updateRegion = distance => {
-    const delta = distance / 50;
-    setRegion(prev => ({
-      ...prev,
-      latitudeDelta: delta,
-      longitudeDelta: delta,
-    }));
+    const milesValue = kilometersToMiles(distance);
+    
+    // If nationwide (100 miles), zoom out to show all of UK
+    if (milesValue >= 100) {
+      setRegion({
+        latitude: 54.5, // Center of UK
+        longitude: -2.5,
+        latitudeDelta: 10, // Wide view to show all UK
+        longitudeDelta: 10,
+      });
+    } else {
+      const delta = distance / 50;
+      setRegion(prev => ({
+        ...prev,
+        latitudeDelta: delta,
+        longitudeDelta: delta,
+      }));
+    }
   };
   // Handle slider value change
   const handleSliderComplete = value => {
@@ -158,13 +170,12 @@ const MapListings = () => {
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
         <Text style={styles.distanceText}>
-          {Math.min(kilometersToMiles(distance), 100).toFixed(0)} miles
-          {/* {kilometersToMiles(distance).toFixed(0)} miles */}
+          {kilometersToMiles(distance) >= 100 ? 'Nationwide' : `${kilometersToMiles(distance).toFixed(0)} miles`}
         </Text>
         <Slider
           style={styles.slider}
           minimumValue={1}
-          maximumValue={1000}
+          maximumValue={161}
           step={1}
           value={distance}
           minimumTrackTintColor={Colors.primary}
