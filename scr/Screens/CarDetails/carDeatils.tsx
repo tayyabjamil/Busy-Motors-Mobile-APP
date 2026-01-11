@@ -554,6 +554,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     fontWeight: 'bold',
+    paddingTop:15
   },
   carTagContainer: {
     backgroundColor: Colors.primary,
@@ -589,13 +590,13 @@ const styles = StyleSheet.create({
     color: 'black',
     width: '35%',
     textAlign: 'left',
+    fontWeight:'bold'
   },
   value: {
     fontSize: 14,
     fontFamily: Fonts.bold,
-    color: Colors.gray,
+    color: Colors.black,
     width: '65%',
-    fontWeight:'bold'
   },
   motContainer: {
     flexDirection: 'row',

@@ -98,9 +98,13 @@ const SubscriptionScreen = () => {
       try {
         const allOfferings = await Purchases.getOfferings();
         
-        // Show all products
+        // Show all products with prices
         console.log('📦 All Products:', Object.values(allOfferings.all || {}).flatMap(o => 
-          o.availablePackages?.map(p => p.product.identifier) || []
+          o.availablePackages?.map(p => ({
+            id: p.product.identifier,
+            price: p.product.priceString,
+            title: p.product.title
+          })) || []
         ));
 
         // Collect ALL packages from ALL offerings
@@ -129,11 +133,11 @@ const SubscriptionScreen = () => {
           pkg.product.identifier.toLowerCase().includes('salvage')
         );
 
-        // Filter scrap packages - look for 'scrap' in the identifier and exclude salvage
-        const scrap = allPackages.filter(pkg =>
-          pkg.product.identifier.toLowerCase().includes('scrap') &&
-          !pkg.product.identifier.toLowerCase().includes('salvage')
-        );
+        // Filter scrap packages - look for 'scrap' or 'test' in the identifier and exclude salvage
+        const scrap = allPackages.filter(pkg => {
+          const id = pkg.product.identifier.toLowerCase();
+          return (id.includes('scrap') || id.includes('test')) && !id.includes('salvage');
+        });
 
         setSalvagePackages(salvage);
         setScrapPackages(scrap);
