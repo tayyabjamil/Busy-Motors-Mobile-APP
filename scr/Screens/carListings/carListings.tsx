@@ -941,7 +941,7 @@ const Listings = () => {
                 <Text style={styles.filterSectionTitle}>Mileage</Text>
                 <View style={styles.filterSliderContainer}>
                   <Text style={styles.filterSliderLabel}>
-                    {tempDistance || 10} km
+                    {tempDistance || 10} Miles
                   </Text>
                   <Slider
                     style={styles.filterSlider}

@@ -332,6 +332,8 @@ const Details = ({ route }) => {
     });
   };
 
+
+  console.log('car', car);
   return (
     <SafeAreaView style={styles.container}>
 
@@ -401,7 +403,7 @@ const Details = ({ route }) => {
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.expiry}>
-                  Expiry: {formatDate(car?.date_added)}
+                  Expiry: {formatDate(car?.motExpiryDate)}
                 </Text>
               </View>
             </View>
@@ -590,9 +592,10 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 14,
-    fontFamily: Fonts.semiBold,
+    fontFamily: Fonts.bold,
     color: Colors.gray,
     width: '65%',
+    fontWeight:'bold'
   },
   motContainer: {
     flexDirection: 'row',
