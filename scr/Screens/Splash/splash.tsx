@@ -1,4 +1,4 @@
-import { Image, SafeAreaView, StyleSheet,Platform } from 'react-native';
+import { Image, View, StyleSheet,Platform } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import { wp } from '../../Helper/Responsive';
 import { useSelector } from 'react-redux';
@@ -11,6 +11,13 @@ Sound.setCategory('Playback');
 const Splash = () => {
   const token = useSelector((state: any) => state.auth.token);
   const soundRef = useRef<Sound | null>(null);
+
+  console.log('💫 [Splash] Component rendered');
+  console.log('💫 [Splash] Token from Redux:', {
+    hasToken: !!token,
+    tokenLength: token?.length || 0,
+    token: token ? `${token.substring(0, 20)}...` : 'null'
+  });
 
   useEffect(() => {
     let isMounted = true; // prevent crash if component unmounts early
@@ -50,6 +57,11 @@ const Splash = () => {
   }, [token]);
 
   const navigate = () => {
+    console.log('💫 [Splash] Navigating...', {
+      hasToken: !!token,
+      destination: token ? 'MainStack' : 'AuthStack'
+    });
+
     if (navigationRef.isReady()) {
       navigationRef.dispatch(
         CommonActions.reset({
@@ -61,12 +73,12 @@ const Splash = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Image
         source={require('../../assets/splashLogo.png')}
         style={styles.logo}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

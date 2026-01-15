@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,46 +7,105 @@ import {
   StyleSheet,
   ScrollView,
   Linking,
-  SafeAreaView,
   Platform,
   Alert,
   Modal,
-  TextInput,
-  ActivityIndicator,
   KeyboardAvoidingView,
-  Dimensions,
 } from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {hp, wp} from '../../Helper/Responsive';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { hp, wp } from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
 import Banner from '../../Components/Banner';
-import {Fonts} from '../../Helper/Fonts';
-import {useDispatch, useSelector} from 'react-redux';
+import { Fonts } from '../../Helper/Fonts';
+import { useDispatch, useSelector } from 'react-redux';
 import WebView from 'react-native-webview';
-import {resetQuoteState, sendQuoteRequest} from '../../redux/slices/qouteSlice';
+import { resetQuoteState, sendQuoteRequest } from '../../redux/slices/qouteSlice';
 import Toast from 'react-native-simple-toast';
-import {navigationRef} from '../../navigationRef';
+import { navigationRef } from '../../navigationRef';
+import { logout } from '../../redux/slices/authSlice';
 
 const defaultCarImage = require('../../assets/car2.png');
-const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
-const Details = ({route}: any) => {
+// Map of make names to brand logo images
+const makeToImageMap: {[key: string]: any} = {
+  'aston martin': require('../../assets/cars/astonmartin.png'),
+  'astonmartin': require('../../assets/cars/astonmartin.png'),
+  'baic': require('../../assets/cars/baic.png'),
+  'bmw': require('../../assets/cars/bmw.png'),
+  'bugatti': require('../../assets/cars/bugatti.png'),
+  'chevrolet': require('../../assets/cars/chevrolet.png'),
+  'citroen': require('../../assets/cars/citroen.png'),
+  'dacia': require('../../assets/cars/dacia.png'),
+  'daihatsu': require('../../assets/cars/daihatsu.png'),
+  'dodge': require('../../assets/cars/dodge.png'),
+  'dongfeng': require('../../assets/cars/dongfeng.png'),
+  'ford': require('../../assets/cars/ford.png'),
+  'honda': require('../../assets/cars/honda.png'),
+  'hyundai': require('../../assets/cars/hyundai.png'),
+  'kia': require('../../assets/cars/kia.png'),
+  'lamborghini': require('../../assets/cars/lamborghini.png'),
+  'lotus': require('../../assets/cars/lotus.png'),
+  'mazda': require('../../assets/cars/mazda.png'),
+  'mclaren': require('../../assets/cars/mclaren.png'),
+  'mercedes': require('../../assets/cars/mercedes-benz.png'),
+  'mercedes-benz': require('../../assets/cars/mercedes-benz.png'),
+  'mercedesbenz': require('../../assets/cars/mercedes-benz.png'),
+  'mg': require('../../assets/cars/mg.png'),
+  'mini': require('../../assets/cars/mini.png'),
+  'nissan': require('../../assets/cars/nissan.png'),
+  'opel': require('../../assets/cars/opel.png'),
+  'proton': require('../../assets/cars/proton.png'),
+  'rolls royce': require('../../assets/cars/rollsroyce.png'),
+  'rollsroyce': require('../../assets/cars/rollsroyce.png'),
+  'rolls-royce': require('../../assets/cars/rollsroyce.png'),
+  'saic': require('../../assets/cars/saic.png'),
+  'skoda': require('../../assets/cars/skoda.png'),
+  'suzuki': require('../../assets/cars/suzuki.png'),
+  'tesla': require('../../assets/cars/tesla.png'),
+  'vauxhall': require('../../assets/cars/vauxhall.png'),
+  'volkswagen': require('../../assets/cars/volkswagen.png'),
+  'volvo': require('../../assets/cars/volvo.png'),
+  'xpeng': require('../../assets/cars/xpeng.png'),
+};
+
+// Function to get car image and determine if it's a logo
+const getCarImageData = (make: string, carImage: string) => {
+  const normalizedMake = make?.toLowerCase().trim();
+
+  // If car has a valid image from API, use it with cover
+  if (carImage && carImage !== 'N/A') {
+    return { source: { uri: carImage }, isLogo: false };
+  }
+
+  // Check if we have a local brand logo for this make
+  if (normalizedMake && makeToImageMap[normalizedMake]) {
+    return { source: makeToImageMap[normalizedMake], isLogo: true };
+  }
+  
+  // Fallback to default car image (treat as logo/contain)
+  return { source: defaultCarImage, isLogo: true };
+};
+
+const Details = ({ route }) => {
   const dispatch = useDispatch();
-  const {car} = route.params;
-  const insets = useSafeAreaInsets();
+  const car = route?.params?.car || null;
+
+  if (!car) {
+    return null;   // or a loader, or fallback UI
+  }
 
   // Get active subscriptions from RevenueCat (global check)
   const activeSubscriptions = useSelector(
-    (state: any) => state?.subscription?.activeSubscriptions || [],
+    state => state?.subscription?.activeSubscriptions || [],
   );
 
   // Check if user has any active subscriptions
   const hasActiveSubscription = activeSubscriptions.length > 0;
 
-  const {userData} = useSelector((state: any) => state.user);
-  const token = useSelector((state: any) => state.auth?.token);
-  const qoute = useSelector((state: any) => state?.quote);
+  const { userData } = useSelector(state => state.user);
+  const token = useSelector(state => state.auth?.token);
+  const qoute = useSelector(state => state?.quote);
   const [showWebView, setShowWebView] = useState(false);
   const [webViewUrl, setWebViewUrl] = useState('');
   const [message, setMessage] = useState('');
@@ -55,22 +114,7 @@ const Details = ({route}: any) => {
     messageError: '',
     amountError: '',
   });
-  const [showMessageBottomSheet, setShowMessageBottomSheet] = useState(false);
-  
-  // Dummy data for missing fields
-  const carData = {
-    name: car?.make && car?.model ? `${car.make} ${car.model}` : 'dummy Classic Mustang',
-    price: car?.price || 'dummy $35,000',
-    maxSpeed: car?.maxSpeed || 'dummy 200 M/h',
-    age: car?.age || car?.yearOfManufacture ? `${new Date().getFullYear() - parseInt(car.yearOfManufacture)} years` : 'dummy 4 years',
-    fuel: car?.fuelType || 'dummy Diesel',
-    power: car?.engineCapacity + ' cc' || '',
-    motStatus: car?.motStatus || 'N/A',
-    transmission: car?.transmission || 'dummy Automatic',
-    description: car?.description || 'dummy Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
-  };
-
-  console.log('car', car);
+  // const isSubscribed = true; // <--- temporarily hardcoded
 
   useEffect(() => {
     if (qoute?.success) {
@@ -87,7 +131,7 @@ const Details = ({route}: any) => {
       return;
     }
     let hasError = false;
-    let newErrors = {messageError: '', amountError: ''};
+    let newErrors = { messageError: '', amountError: '' };
 
     if (!message.trim()) {
       newErrors.messageError = 'Please enter a message';
@@ -105,7 +149,7 @@ const Details = ({route}: any) => {
     }
     // Dispatch action
     dispatch(
-      (sendQuoteRequest as any)({
+      sendQuoteRequest({
         listingId: car?._id,
         userId: userData?.userId,
         amount,
@@ -117,7 +161,7 @@ const Details = ({route}: any) => {
 
   const handlePlaceBid = () => {
     if (!amount.trim()) {
-      setError(prev => ({...prev, amountError: 'Please enter an amount'}));
+      setError(prev => ({ ...prev, amountError: 'Please enter an amount' }));
       return;
     }
 
@@ -126,35 +170,134 @@ const Details = ({route}: any) => {
     Toast.show(`Bid placed: ₹${amount}`, Toast.SHORT);
   };
 
-  const handleCall = (phoneNumber: string) => {
+  const handleGuestSignIn = () => {
+    dispatch(logout());
+    navigationRef.current?.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'AuthStack',
+          state: {
+            routes: [{name: 'Login'}],
+          },
+        },
+      ],
+    });
+  };
+
+  const handleCall = phoneNumber => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to contact the seller and access all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: handleGuestSignIn,
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleTextMessage = (phoneNumber: string) => {
+  const handleTextMessage = phoneNumber => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to contact the seller and access all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: handleGuestSignIn,
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     Linking.openURL(`sms:${phoneNumber}`);
   };
 
-  const handleWhatsApp = (phoneNumber: string) => {
+  const handleWhatsApp = phoneNumber => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to contact the seller and access all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: handleGuestSignIn,
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     Linking.openURL(`https://wa.me/${phoneNumber}`);
   };
 
   const handleMotHistory = () => {
+    // Check if user is guest
+    if (userData?.is_guest) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to access MOT history and all features.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: handleGuestSignIn,
+          },
+        ]
+      );
+      return;
+    }
+
+    // Check if user has subscription
     if (!hasActiveSubscription) {
       showSubscriptionAlert();
       return;
     }
+
     setWebViewUrl(
       `https://www.check-mot.service.gov.uk/results?registration=${car?.registrationNumber}`,
     );
@@ -172,20 +315,15 @@ const Details = ({route}: any) => {
         },
         {
           text: 'Subscribe Now',
-          onPress: () => {
-            if (navigationRef.isReady()) {
-              (navigationRef as any).navigate('Subscriptions');
-            }
-          },
+          onPress: () => navigationRef.navigate('Subscriptions'),
           style: 'default',
         },
       ],
-      {cancelable: true},
+      { cancelable: true },
     );
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
+  const formatDate = dateString => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -194,153 +332,87 @@ const Details = ({route}: any) => {
     });
   };
 
-  const handleMessageSeller = () => {
-    setShowMessageBottomSheet(true);
-  };
 
-  const handleGetNow = () => {
-    // Handle Get Now action
-    Toast.show('Get Now clicked', Toast.SHORT);
-  };
-
-  const specifications = [
-    {
-      label: 'Max Speed',
-      value: carData.maxSpeed,
-      icon: require('../../assets/speedometer.png'),
-    },
-    {
-      label: 'Mot Status',
-      value: carData?.motStatus || 'N/A',
-      icon: require('../../assets/dashboard.png'),
-    },
-    {
-      label: 'Age',
-      value: carData.age,
-      icon: require('../../assets/timer.png'),
-    },
-    {
-      label: 'Fuel',
-      value: carData.fuel,
-      icon: require('../../assets/Fuel.png'),
-    },
-    {
-      label: 'Engine Capacity',
-      value: carData.power,
-      icon: require('../../assets/dashboard.png'),
-    },
-    {
-      label: 'Postcode',
-      value: car?.postcode
-        ? car.postcode.toString().substring(0, 3).toUpperCase() + '..'
-        : 'N/A',
-      icon: require('../../assets/dashboard.png'),
-    },
-  ];
-
+  console.log('car', car);
   return (
-    <View style={styles.mainContainer}>
-      <Header navigation={navigationRef} showNotification={false} {...({textData: 'Car Details'} as any)} />
+    <SafeAreaView style={styles.container}>
+
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}>
+                  <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Car Details'} />
+
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
-        {/* Car Image */}
-        <View style={styles.imageContainer}>
-          <Image
-            source={
-              car?.displayImage && car?.displayImage !== 'N/A'
-                ? {uri: car?.displayImage}
-                : defaultCarImage
-            }
-            style={styles.carImage}
-            resizeMode="cover"
-          />
-        </View>
-
-        {/* Car Name and Price Section */}
-        <View style={styles.titleSection}>
-          <View style={styles.titleRow}>
-            <Text style={styles.carName}>{carData.name}</Text>
-            <TouchableOpacity style={styles.heartButton}>
-              <Image
-                source={require('../../assets/heart.png')}
-                style={styles.heartIcon}
-              />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.carPrice}>{carData.price}</Text>
-        </View>
-
-        {/* Specifications Grid */}
-        <View style={styles.specsContainer}>
-          {specifications.map((spec, index) => (
-            <View key={index} style={styles.specCard}>
-              <Image
-                source={spec.icon}
-                style={[
-                  styles.specIcon,
-                  spec.label === 'Fuel' && styles.fuelIcon,
-                ]}
-                tintColor={spec.label === 'Fuel' ? Colors.black : undefined}
-              />
-              <Text style={styles.specLabel}>{spec.label}</Text>
-              <Text style={styles.specValue}>{spec.value}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Car Details Description */}
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionTitle}>Car details</Text>
-          <Text style={styles.descriptionText}>{carData.description}</Text>
-        </View>
-
-        {/* Bottom Spacing for Buttons */}
-        <View style={styles.bottomSpacing} />
-      </ScrollView>
-
-      {/* Bottom Action Buttons - Fixed at Bottom */}
-      <View
         style={[
-          styles.bottomButtonsWrapper,
-          {paddingBottom: Math.max(insets.bottom, hp(1))},
+          styles.container,
         ]}>
-        <View style={styles.bottomButtonsContainer}>
-          <TouchableOpacity
-            style={styles.messageButton}
-            onPress={handleMessageSeller}
-            activeOpacity={0.8}>
-            <Text style={styles.messageButtonText}>Message seller</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.getNowButton}
-            onPress={handleGetNow}
-            activeOpacity={0.8}>
-            <Text style={styles.getNowButtonText}>Get now</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+    
+        <View style={[styles.sidePadding]}>
+          <View style={styles.detailsContainer}>
+            {(() => {
+              const imageData = getCarImageData(car?.make, car?.carImage);
+              return (
+                <Image
+                  source={imageData.source}
+                  style={styles.carImage}
+                  resizeMode={imageData.isLogo ? 'contain' : 'cover'}
+                />
+              );
+            })()}
 
-      {/* Message Seller Bottom Sheet */}
-      <Modal
-        visible={showMessageBottomSheet}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowMessageBottomSheet(false)}>
-        <TouchableOpacity
-          style={styles.bottomSheetOverlay}
-          activeOpacity={1}
-          onPress={() => setShowMessageBottomSheet(false)}>
-          <View
-            style={styles.bottomSheetContent}
-            onStartShouldSetResponder={() => true}>
-            <View style={styles.bottomSheetHandle} />
-            <Text style={styles.bottomSheetTitle}>Contact Seller</Text>
-            <Text style={styles.bottomSheetSubtitle}>
-              You can contact the seller using any of the following options:
+            <Text style={styles.carTitle}>
+              {car?.make || 'Model Not Available'}
             </Text>
-            <View style={styles.contactOptionsContainer}>
+
+            {[
+              ['Registration :', car?.registrationNumber],
+              ['Year :', car?.yearOfManufacture],
+              ['Postcode :', car?.postcode],
+              ['Colour :', car?.color],
+              ['Model :', car?.model],
+              ['Fuel Type :', car?.fuelType],
+            ].map(([label, value], index) => {
+              // Show only first 3 characters for postcode with ellipsis
+              const displayValue = label === 'Postcode :'
+                ? (value?.toString() && value.toString().length > 3
+                  ? value.toString().substring(0, 3).toUpperCase() + '...'
+                  : (value?.toString().toUpperCase() || 'N/A'))
+                : (value?.toString().toUpperCase() || 'N/A');
+
+              return (
+                <View key={index} style={styles.infoRow}>
+                  <Text style={styles.label}>{label}</Text>
+                  <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                    {displayValue}
+                  </Text>
+                </View>
+              );
+            })}
+            <View style={styles.motContainer}>
+              <Image
+                source={require('../../assets/Union.png')}
+                style={styles.motImage}
+              />
+              <View style={styles.textContainer}>
+                <View style={styles.rowText}>
+                  <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
+                  <TouchableOpacity
+                    style={styles.motHistoryButton}
+                    onPress={() => handleMotHistory()}>
+                    <Text style={styles.motHistoryText}>MOT history</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.expiry}>
+                  Expiry: {formatDate(car?.motExpiryDate)}
+                </Text>
+              </View>
+            </View>
+            {!hasActiveSubscription && <Banner navigation={navigationRef} />}
+          </View>
+
+          <View style={styles.contactContainer}>
+            <Text style={styles.contactTitle}>Contact Seller Via</Text>
+            <View style={styles.contactIcons}>
               {[
                 ['Call', require('../../assets/apple.png'), handleCall],
                 [
@@ -351,326 +423,273 @@ const Details = ({route}: any) => {
                 ['Text', require('../../assets/messages.png'), handleTextMessage],
               ].map(([text, icon, action], index) => {
                 const isSold = car?.isSold;
-                const opacityStyle = {opacity: isSold ? 0.3 : 1};
+                const opacityStyle = { opacity: isSold ? 0.3 : 1 };
 
                 return (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.bottomSheetContactButton,
-                      opacityStyle,
-                    ]}
-                    onPress={() => {
-                      if (!isSold) {
-                        setShowMessageBottomSheet(false);
-                        action('+' + car?.phoneNumber);
-                      }
-                    }}
-                    activeOpacity={isSold ? 1 : 0.7}
-                    disabled={isSold}>
-                    <Image source={icon} style={styles.bottomSheetIcon} />
-                    <Text style={styles.bottomSheetContactText}>{text}</Text>
-                  </TouchableOpacity>
+                  <View key={index}>
+                    <TouchableOpacity
+                      style={[
+                        styles.contactButton,
+                        styles[`${text.toLowerCase()}Button`],
+                        opacityStyle,
+                      ]}
+                      onPress={() => {
+                        if (!isSold) {
+                          action('+' + car?.phoneNumber);
+                        }
+                      }}
+                      activeOpacity={isSold ? 1 : 0.7}
+                      disabled={isSold}>
+                      <Image source={icon} style={[styles.icon, opacityStyle]} />
+                    </TouchableOpacity>
+                    <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
+                  </View>
                 );
               })}
             </View>
           </View>
-        </TouchableOpacity>
-      </Modal>
+          {/* {!car?.isSold && (
+          <View style={styles.messageBox}>
+            <TextInput
+              placeholder="Write your message..."
+              style={[styles.textArea, {height: hp(15)}]}
+              multiline
+              placeholderTextColor={Colors.gray}
+              numberOfLines={4}
+              textAlignVertical="top"
+              value={message}
+              onChangeText={text => {
+                setMessage(text);
+                setError(prev => ({...prev, messageError: ''}));
+              }}
+            />
+            {error.messageError ? (
+              <Text style={styles.errorText}>{error.messageError}</Text>
+            ) : null}
 
-      {/* MOT History WebView Modal */}
-      <Modal
-        visible={showWebView}
-        animationType="slide"
-        onRequestClose={() => setShowWebView(false)}>
-        <SafeAreaView style={styles.webViewContainer}>
-          <View
-            style={[
-              styles.webViewHeader,
-              Platform.OS === 'ios' && styles.webViewHeaderIOS,
-            ]}>
-            <TouchableOpacity
-              onPress={() => setShowWebView(false)}
-              style={[
-                styles.closeButton,
-                Platform.OS === 'ios' && styles.closeButtonIOS,
-              ]}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+            <View style={styles.amountRow}>
+              <TextInput
+                style={styles.amountInputCompact}
+                keyboardType="numeric"
+                placeholderTextColor={Colors.gray}
+                placeholder="Enter Amount"
+                value={amount}
+                onChangeText={text => {
+                  setAmount(text);
+                  setError(prev => ({...prev, amountError: ''}));
+                }}
+              />
+
+              <TouchableOpacity
+                style={styles.bidButton}
+                onPress={() => handleSendQoute()}>
+                <Text style={styles.bidButtonText}>Place a Bid latest</Text>
+              </TouchableOpacity>
+            </View>
+            {error.amountError ? (
+              <Text style={styles.errorText}>{error.amountError}</Text>
+            ) : null}
           </View>
-          <WebView
-            source={{uri: webViewUrl}}
-            style={styles.webView}
-            startInLoadingState={true}
-            onError={syntheticEvent => {
-              console.error('WebView error:', syntheticEvent.nativeEvent);
-            }}
-          />
-        </SafeAreaView>
-      </Modal>
-    </View>
+        )} */}
+        </View>
+        <Modal
+          visible={showWebView}
+          animationType="slide"
+          onRequestClose={() => setShowWebView(false)}>
+          <SafeAreaView style={styles.webViewContainer}>
+            <View
+              style={[
+                styles.webViewHeader,
+                Platform.OS === 'ios' && styles.webViewHeaderIOS,
+              ]}>
+              <TouchableOpacity
+                onPress={() => setShowWebView(false)}
+                style={[
+                  styles.closeButton,
+                  Platform.OS === 'ios' && styles.closeButtonIOS,
+                ]}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <WebView
+              source={{ uri: webViewUrl }}
+              style={styles.webView}
+              startInLoadingState={true}
+              onError={syntheticEvent => {
+                console.error('WebView error:', syntheticEvent.nativeEvent);
+              }}
+            />
+
+          </SafeAreaView>
+        </Modal>
+      </ScrollView>
+    </KeyboardAvoidingView>
+    </SafeAreaView>
+
   );
 };
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  scrollView: {
+  container: {
     flex: 1,
   },
-  scrollContent: {
-    paddingBottom: hp(10),
+  sidePadding: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
   },
-  imageContainer: {
-    width: '100%',
-    height: hp(30),
-    paddingHorizontal: wp(5),
-    paddingTop: hp(2),
-    paddingBottom: hp(1),
+  detailsContainer: {
     backgroundColor: Colors.white,
+    padding: 20,
+    borderRadius: wp(3),
+    marginBottom: 20,
   },
   carImage: {
     width: '100%',
-    height: '100%',
-    borderRadius: wp(4),
-    overflow: 'hidden',
-    backgroundColor: '#f8f8f8',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    height: 200,
   },
-  titleSection: {
-    paddingHorizontal: wp(5),
-    paddingTop: hp(2),
-    paddingBottom: hp(1),
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: hp(1),
-  },
-  carName: {
+  carTitle: {
     fontSize: wp(6),
     fontFamily: Fonts.bold,
+    color: Colors.primary,
+    marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    paddingTop:15
+  },
+  carTagContainer: {
+    backgroundColor: Colors.primary,
+    borderRadius: wp(10),
+    margin: hp(2),
+
+    alignSelf: 'center',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  scrapText: {
+    textTransform: 'capitalize',
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    textAlign: 'center',
+    fontFamily: Fonts.regular,
+    color: Colors.white,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    alignSelf: 'center',
+    marginBottom: hp(1),
+  },
+  headerContainer: {
+    paddingTop: hp(4),
+  },
+  label: {
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: 'black',
+    width: '35%',
+    textAlign: 'left',
+    fontWeight:'bold'
+  },
+  value: {
+    fontSize: 14,
+    fontFamily: Fonts.bold,
     color: Colors.black,
-    flex: 1,
+    width: '65%',
   },
-  heartButton: {
-    padding: wp(1),
+  motContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#f5f5f5',
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(4),
+    borderRadius: wp(3),
+    marginBottom: 20,
+    width: wp(80),
+    marginTop: 10,
   },
-  heartIcon: {
+  motImage: {
     width: wp(6),
     height: wp(6),
     resizeMode: 'contain',
   },
-  carPrice: {
-    fontSize: wp(7),
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-    marginTop: hp(0.5),
+  textContainer: {
+    flex: 1,
+    marginLeft: wp(2),
   },
-  specsContainer: {
+  rowText: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: wp(4),
-    paddingTop: hp(2),
-    justifyContent: 'space-between',
-  },
-  specCard: {
-    width: (SCREEN_WIDTH - wp(8) - wp(4)) / 3,
-    backgroundColor: '#f8f8f8',
-    borderRadius: wp(3),
-    padding: wp(3),
     alignItems: 'center',
-    marginBottom: hp(2),
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    justifyContent: 'space-between',
+    width: '100%',
   },
-  specIcon: {
-    width: wp(8),
-    height: wp(8),
-    resizeMode: 'contain',
-    marginBottom: hp(1),
-  },
-  fuelIcon: {
-    tintColor: Colors.black,
-  },
-  specLabel: {
-    fontSize: wp(3),
-    fontFamily: Fonts.regular,
-    color: Colors.gray,
-    marginBottom: hp(0.5),
-    textAlign: 'center',
-  },
-  specValue: {
+  title: {
     fontSize: wp(3.5),
     fontFamily: Fonts.semiBold,
-    color: Colors.black,
-    textAlign: 'center',
+    color: 'black',
+    flex: 1,
   },
-  descriptionContainer: {
-    paddingHorizontal: wp(5),
-    paddingTop: hp(2),
+  viewText: {
+    fontFamily: Fonts.semiBold,
+    fontSize: wp(3.2),
+    color: '#3b4d6c',
+    marginLeft: wp(2),
   },
-  descriptionTitle: {
+  expiry: {
+    fontSize: wp(3),
+    fontFamily: Fonts.regular,
+    color: '#3b4d6c',
+  },
+
+  contactContainer: {
+    backgroundColor: Colors.white,
+    padding: wp(3),
+    borderRadius: wp(3),
+    marginBottom: hp(2),
+  },
+  contactTitle: {
     fontSize: wp(5),
     fontFamily: Fonts.bold,
     color: Colors.black,
-    marginBottom: hp(1.5),
-  },
-  descriptionText: {
-    fontSize: wp(4),
-    fontFamily: Fonts.regular,
-    color: Colors.gray,
-    lineHeight: hp(2.5),
-  },
-  bottomSpacing: {
-    height: hp(10),
-  },
-  bottomButtonsWrapper: {
-    backgroundColor: Colors.white,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-  },
-  bottomButtonsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(4),
-    paddingTop: hp(1),
-    paddingBottom: hp(0.8),
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.lightGray,
-    gap: wp(2.5),
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: -2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
-  },
-  messageButton: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    borderRadius: wp(2.5),
-    paddingVertical: hp(1),
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: hp(5),
-  },
-  messageButtonText: {
-    fontSize: wp(3.5),
-    fontFamily: Fonts.semiBold,
-    color: Colors.primary,
-  },
-  getNowButton: {
-    flex: 1,
-    backgroundColor: Colors.primary,
-    borderRadius: wp(2.5),
-    paddingVertical: hp(1),
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: hp(5),
-  },
-  getNowButtonText: {
-    fontSize: wp(3.5),
-    fontFamily: Fonts.semiBold,
-    color: Colors.white,
-  },
-  // Bottom Sheet Styles
-  bottomSheetOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  bottomSheetContent: {
-    backgroundColor: Colors.white,
-    borderTopLeftRadius: wp(5),
-    borderTopRightRadius: wp(5),
-    paddingTop: hp(2),
-    paddingBottom: Platform.OS === 'ios' ? hp(4) : hp(2),
-    paddingHorizontal: wp(5),
-    maxHeight: hp(50),
-  },
-  bottomSheetHandle: {
-    width: wp(15),
-    height: hp(0.5),
-    backgroundColor: Colors.lightGray,
-    borderRadius: wp(1),
-    alignSelf: 'center',
     marginBottom: hp(2),
-  },
-  bottomSheetTitle: {
-    fontSize: wp(5.5),
-    fontFamily: Fonts.bold,
-    color: Colors.black,
-    marginBottom: hp(1),
     textAlign: 'center',
+    fontWeight: 'bold',
   },
-  bottomSheetSubtitle: {
-    fontSize: wp(4),
-    fontFamily: Fonts.regular,
-    color: Colors.gray,
-    marginBottom: hp(3),
-    textAlign: 'center',
-    lineHeight: hp(2.5),
-  },
-  contactOptionsContainer: {
-    gap: hp(2),
-  },
-  bottomSheetContactButton: {
+  contactIcons: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    borderRadius: wp(3),
-    padding: wp(4),
-    gap: wp(3),
+    justifyContent: 'space-around',
   },
-  bottomSheetIcon: {
-    width: wp(8),
-    height: wp(8),
+  contactButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  icon: {
+    width: wp(10),
+    height: wp(10),
     resizeMode: 'contain',
   },
-  bottomSheetContactText: {
-    fontSize: wp(4.5),
-    fontFamily: Fonts.semiBold,
-    color: Colors.black,
+  contactText: {
+    marginTop: hp(1),
+    fontSize: wp(3.5),
+    fontFamily: Fonts.regular,
+    color: Colors.gray,
+    textAlign: 'center',
   },
-  // WebView Modal Styles
+  motHistoryButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    borderRadius: wp(5),
+    marginLeft: wp(2),
+  },
+  motHistoryText: {
+    color: Colors.white,
+    fontSize: wp(3),
+    fontFamily: Fonts.semiBold,
+  },
   webViewContainer: {
     flex: 1,
     backgroundColor: Colors.white,
@@ -698,6 +717,96 @@ const styles = StyleSheet.create({
   },
   webView: {
     flex: 1,
+  },
+  messageBox: {
+    backgroundColor: Colors.white,
+    padding: 20,
+    borderRadius: wp(3),
+    marginBottom: hp(2),
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: hp(2),
+    justifyContent: 'space-between',
+  },
+
+  amountInputCompact: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    backgroundColor: '#f9f9f9',
+    marginRight: wp(2),
+  },
+
+  bidButton: {
+    borderColor: Colors.lightGray,
+    borderWidth: wp(0.2),
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(4),
+    borderRadius: wp(3),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  bidButtonText: {
+    color: Colors.primary,
+    fontSize: wp(3.8),
+    fontFamily: Fonts.bold,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: wp(3.2),
+    marginTop: hp(0.5),
+    marginBottom: hp(1),
+  },
+  messageLabel: {
+    fontSize: wp(4.5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.darkGray,
+    marginBottom: hp(1),
+  },
+
+  textArea: {
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    height: hp(15),
+    backgroundColor: '#f9f9f9',
+  },
+  amountInput: {
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
+    borderRadius: wp(3),
+    padding: wp(3),
+    fontSize: wp(4),
+    fontFamily: Fonts.regular,
+    color: Colors.black,
+    backgroundColor: '#f9f9f9',
+  },
+
+  sendButton: {
+    marginTop: hp(2),
+    borderWidth: wp(0.2),
+    borderColor: Colors.primary,
+    paddingVertical: hp(1.5),
+    borderRadius: wp(5),
+    alignItems: 'center',
+  },
+
+  sendButtonText: {
+    color: Colors.primary,
+    fontSize: wp(4),
+    fontFamily: Fonts.bold,
   },
 });
 

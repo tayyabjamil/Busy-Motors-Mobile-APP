@@ -33,6 +33,7 @@
     "react-native-image-crop-picker": "^0.50.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-maps": "1.18.0",
+    "react-native-network-logger": "^2.0.1",
     "react-native-pager-view": "^6.7.0",
     "react-native-permissions": "^5.2.5",
     "react-native-purchases": "^8.11.7",

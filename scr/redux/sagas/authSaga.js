@@ -16,6 +16,9 @@ import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
 // Worker saga for login
 function* handleLogin(action) {
   try {
+    console.log('🔐 [authSaga] handleLogin started');
+    console.log('🔐 [authSaga] Login payload:', JSON.stringify(action.payload, null, 2));
+
     // Only call attemptLogin if this is NOT a confirmed attempt
     // if (!action.payload.isConfirmed) {
     //   const attemptResponse = yield call(attemptLogin, action.payload);
@@ -28,11 +31,15 @@ function* handleLogin(action) {
 
     // Proceed with normal login (either no confirmation needed or this is a confirmed attempt)
     const loginResponse = yield call(login, action.payload);
+    console.log('✅ [authSaga] Login API response:', JSON.stringify(loginResponse, null, 2));
+
     yield put(loginSuccess(loginResponse));
+    console.log('✅ [authSaga] loginSuccess action dispatched');
 
     // yield put(checkSubscriptionRequest({email: action.payload.email}));
   } catch (error) {
-    console.log('@error in saga in login', error);
+    console.log('❌ [authSaga] Login error:', error);
+    console.log('❌ [authSaga] Error response:', error.response?.data);
     yield put(
       loginFailure(
         error.response?.data?.message || error.message || 'Login failed',
@@ -43,10 +50,17 @@ function* handleLogin(action) {
 
 function* handleGuestLogin(action) {
   try {
+    console.log('👤 [authSaga] Guest login started');
+    console.log('👤 [authSaga] Guest payload:', JSON.stringify(action.payload, null, 2));
+
     const response = yield call(guestLoginApi, action.payload);
+    console.log('✅ [authSaga] Guest login API response:', JSON.stringify(response, null, 2));
+
     yield put(guestLoginSuccess(response));
+    console.log('✅ [authSaga] guestLoginSuccess action dispatched');
   } catch (error) {
-    console.log('@GuestLogin Error:', error);
+    console.log('❌ [authSaga] Guest login error:', error);
+    console.log('❌ [authSaga] Error response:', error.response?.data);
     yield put(
       guestLoginFailure(
         error.response?.data?.message || error.message || 'Guest login failed',

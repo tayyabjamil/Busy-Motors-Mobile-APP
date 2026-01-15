@@ -26,6 +26,13 @@ const QuoteMessages = () => {
   const [apiError, setApiError] = useState(null);
   const [carListings, setCarListings] = useState([]);
 
+  console.log('💬 [QuoteMessages] Component rendered');
+  console.log('💬 [QuoteMessages] Token from Redux:', {
+    hasToken: !!token,
+    tokenLength: token?.length || 0,
+    token: token ? `${token.substring(0, 20)}...` : 'null'
+  });
+
   useEffect(() => {
     dispatch(getQuoteRequest({userId: userData?.userId, token}));
     fetchCarListings();
@@ -33,10 +40,20 @@ const QuoteMessages = () => {
   }, [userData]);
 
   const fetchCarListings = async () => {
+    console.log('💬 [QuoteMessages] fetchCarListings called');
+    console.log('💬 [QuoteMessages] Token check:', {
+      hasToken: !!token,
+      tokenValue: token ? `${token.substring(0, 20)}...` : 'null'
+    });
+
     try {
       if (!token) {
+        console.error('❌ [QuoteMessages] TOKEN NOT FOUND!');
+        console.error('❌ [QuoteMessages] This is the error the user is seeing');
         throw new Error('Token not found');
       }
+
+      console.log('✅ [QuoteMessages] Token exists, making API call...');
 
       const response = await api.get('/car/get-all-listing', {
         headers: {

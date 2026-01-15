@@ -5,9 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ImageBackground,
   Image,
-  Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Colors from '../../Helper/Colors';
@@ -16,10 +14,13 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-simple-toast';
 import CountryPicker from 'react-native-country-picker-modal';
 import api from '../../redux/api';
 import {ScrollView} from 'react-native-gesture-handler';
+import { navigationRef } from '../../navigationRef';
+import Header from '../../Components/Header';
 
 const ForgotPassword = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
@@ -74,23 +75,10 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
     }
   };
   return (
-    <ImageBackground
-      source={require('../../assets/background.jpeg')}
-      style={styles.background}
-      resizeMode="cover">
+    <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
+
+        <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Forgot Password'} />
       <ScrollView>
-        <View style={styles.leftSection}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.4}>
-            <Image
-              source={require('../../assets/left-arrow.png')}
-              style={styles.iconBack}
-              tintColor={Colors?.backIconColor}
-            />
-          </TouchableOpacity>
-        </View>
         <View style={styles.container}>
           <Image
             source={require('../../assets/logo.png')}
@@ -148,23 +136,22 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </ImageBackground>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: Colors.white,
+
   },
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     paddingHorizontal: wp(5),
     marginTop: hp(15),
-  },
-  backButton: {
-    marginRight: wp(1),
+    backgroundColor: Colors.white,
   },
   leftSection: {
     flexDirection: 'row',

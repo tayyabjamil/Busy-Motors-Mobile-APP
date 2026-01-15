@@ -7,7 +7,7 @@ import {
   Image,
   Modal,
   Platform,
-  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import Colors from '../../Helper/Colors';
@@ -20,6 +20,19 @@ import {RequestLocationPermission} from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import {getDistance} from 'geolib'; // Import geolib for distance calculation
 import {getUserRequest} from '../../redux/slices/carListingsSlice';
+
+const defaultCarImage = require('../../assets/cars/ford.png');
+
+// Function to get car image - use uploaded image if available, otherwise fallback
+const getCarImageSource = (carImage?: string, displayImage?: string) => {
+  if (displayImage) {
+    return { uri: displayImage };
+  }
+  if (carImage) {
+    return { uri: carImage };
+  }
+  return defaultCarImage;
+};
 
 const MapListings = () => {
   const navigation = useNavigation();
@@ -121,12 +134,24 @@ const MapListings = () => {
   //   });
   // };
   const updateRegion = distance => {
-    const delta = distance / 50;
-    setRegion(prev => ({
-      ...prev,
-      latitudeDelta: delta,
-      longitudeDelta: delta,
-    }));
+    const milesValue = kilometersToMiles(distance);
+    
+    // If nationwide (100 miles), zoom out to show all of UK
+    if (milesValue >= 100) {
+      setRegion({
+        latitude: 54.5, // Center of UK
+        longitude: -2.5,
+        latitudeDelta: 10, // Wide view to show all UK
+        longitudeDelta: 10,
+      });
+    } else {
+      const delta = distance / 50;
+      setRegion(prev => ({
+        ...prev,
+        latitudeDelta: delta,
+        longitudeDelta: delta,
+      }));
+    }
   };
   // Handle slider value change
   const handleSliderComplete = value => {
@@ -135,22 +160,22 @@ const MapListings = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
-      ]}>
+    <View style={styles.container}>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="dark-content"
+      />
       {/* Map Section */}
       <View style={styles.sliderContainer} pointerEvents="box-none">
         <Text style={styles.label}>Distance</Text>
         <Text style={styles.distanceText}>
-          {Math.min(kilometersToMiles(distance), 100).toFixed(0)} miles
-          {/* {kilometersToMiles(distance).toFixed(0)} miles */}
+          {kilometersToMiles(distance) >= 100 ? 'Nationwide' : `${kilometersToMiles(distance).toFixed(0)} miles`}
         </Text>
         <Slider
           style={styles.slider}
           minimumValue={1}
-          maximumValue={1000}
+          maximumValue={161}
           step={1}
           value={distance}
           minimumTrackTintColor={Colors.primary}
@@ -213,35 +238,15 @@ const MapListings = () => {
               </TouchableOpacity>
 
               <Image
-                source={require('../../assets/landcruser.png')}
+                source={getCarImageSource(selectedCar?.carImage, selectedCar?.displayImage)}
                 style={styles.carImage}
+                resizeMode="contain"
               />
             </View>
-
-            {/* Features Section */}
-            <View>
-              <View style={styles.footer}>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../../assets/pin.png')}
-                    style={styles.footerIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.footerText}>{distanceCalculate}</Text>
-                </View>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../../assets/timer.png')}
-                    style={styles.footerIcon}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.footerText}>{timeAgo}</Text>
-                </View>
-              </View>
-              <View style={styles.featuresContainer}>
+            <View style={styles.featuresContainer}>
                 <View style={styles.featureCard}>
                   <Image
-                    source={require('../../assets/license_plate.png')}
+                    source={require('../../assets/dashboard.png')}
                     style={styles.registericon}
                     tintColor={'#3A58E891'}
                     resizeMode="contain"
@@ -275,11 +280,32 @@ const MapListings = () => {
                   </Text>
                 </View>
               </View>
+            {/* Features Section */}
+            <View>
+              <View style={styles.footer}>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/pin.png')}
+                    style={styles.footerIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.footerText}>{distanceCalculate}</Text>
+                </View>
+                <View style={{alignItems: 'center'}}>
+                  <Image
+                    source={require('../../assets/timer.png')}
+                    style={styles.footerIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.footerText}>{timeAgo}</Text>
+                </View>
+              </View>
+              
             </View>
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -287,7 +313,7 @@ const styles = StyleSheet.create({
   container: {flex: 1},
   sliderContainer: {
     position: 'absolute',
-    top: 50,
+    top: Platform.OS === 'ios' ? 60 : StatusBar.currentHeight ? StatusBar.currentHeight + 20 : 40,
     left: 20,
     right: 20,
     backgroundColor: 'white',
@@ -312,8 +338,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 20,
   },
-  mapContainer: {flex: 1},
-  map: {width: '100%', height: '100%'},
+  mapContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
 
   // Modal Styles
   modalOverlay: {
@@ -321,8 +351,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   icon: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     marginVertical: hp(1),
     alignSelf: 'center',
   },
@@ -333,10 +363,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   registericon: {
-    width: 40,
-    height: 40,
+    width: 20,
+    height: 20,
     marginVertical: hp(0.5),
-    marginRight: 10,
+    alignSelf:'center'
   },
   modalContent: {
     backgroundColor: '#FFF',
@@ -354,6 +384,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
+    marginBottom:20
   },
 
   headerTitleStyle: {
@@ -380,16 +411,14 @@ const styles = StyleSheet.create({
   // Features Section
   featuresContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent:'space-evenly',
     margin: hp(2),
-    borderColor: 'grey',
-    borderWidth: 0.5,
-    borderRadius: 10,
+    marginBottom:hp(1)
   },
   featureCard: {
     alignItems: 'center',
-    paddingVertical: wp(4),
-    paddingHorizontal: wp(4),
+    paddingVertical: wp(1.5),
+    paddingHorizontal: wp(2),
     ...(Platform.OS === 'android'
       ? {elevation: 0}
       : {
@@ -398,26 +427,35 @@ const styles = StyleSheet.create({
           shadowOffset: {width: 0, height: 2},
           shadowRadius: 4,
         }),
+    borderWidth:1,
+    borderRadius:5,
+    shadowColor: Colors.black,
+    shadowOpacity: 0.15,
+    shadowRadius: wp(2),
+    shadowOffset: { width: 0, height: hp(1) },
+    elevation: 5,
+    borderColor:'white',
+    backgroundColor:'white'
   },
   featureTitle: {
-    fontSize: 16,
-    fontFamily: Fonts.bold,
-    color: '#333',
+    fontSize: wp(3.8), 
+    color: Colors.darkGray ,
+    fontWeight:'700'
   },
   featureSubText: {
-    fontFamily: Fonts.regular,
-    fontSize: 12,
-    color: '#555',
+    fontSize: wp(3), 
+    color: Colors.darkGray, 
+    fontFamily: Fonts.bold 
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: hp(3),
+   
   },
   footerText: {
     marginTop: wp(2),
     fontFamily: Fonts.regular,
-    fontSize: wp(3),
+    fontSize: wp(3.5),
     color: Colors.black,
   },
   crossContainer: {

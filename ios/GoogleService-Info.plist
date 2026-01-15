@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBeePc_ecfZ2jbKFNtPQMBF2B3OYhGggrQ</string>
+	<string>AIzaSyABz9fACDycMH77wVAz0G60Xk6cBFe6h14</string>
 	<key>GCM_SENDER_ID</key>
-	<string>460048555297</string>
+	<string>534181441032</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.carscrape.rniap</string>
 	<key>PROJECT_ID</key>
-	<string>scrapcar-bf8b0</string>
+	<string>busymors</string>
 	<key>STORAGE_BUCKET</key>
-	<string>scrapcar-bf8b0.firebasestorage.app</string>
+	<string>busymors.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:460048555297:ios:70a3610c9c8003ad943260</string>
+	<string>1:534181441032:ios:f61cd81513dc9d240eabbd</string>
 </dict>
 </plist>

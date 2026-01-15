@@ -9,9 +9,9 @@ import {
   Pressable,
   Modal,
   ActivityIndicator,
-  SafeAreaView,
   Platform,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../../redux/slices/authSlice';
@@ -36,12 +36,10 @@ const Profile = () => {
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {
-    loading: userLoading,
     userData,
     error: userError,
   } = useSelector((state: any) => state.user);
   const {
-    loading: updateLoading,
     success: updateSuccess,
     error: updateError,
     message,
@@ -201,35 +199,19 @@ const Profile = () => {
       Toast.show('Something went wrong while deleting profile', Toast.LONG);
     }
   };
-  if (userLoading || updateLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
-
-  // if (userError || updateError) {
-  //   return (
-  //     <View style={styles.errorContainer}>
-  //       <Text style={styles.errorText}>Error: {userError || updateError}</Text>
-  //     </View>
-  //   );
-  // }
   const handleImageSelection = async document => {
     setShowImage(document);
   };
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      style={{backgroundColor: Colors.white}}>
+    
       <SafeAreaView
         style={[
           styles.container,
-          {paddingTop: Platform.OS === 'ios' ? hp(2) : 0},
         ]}>
-        <Header navigation={navigation} textData={'User Profile'} />
+          <Header navigation={navigation} showBackButton showNotification={false}textData={'User Profile'} />
+          <ScrollView
+      showsVerticalScrollIndicator={false}>
+        <View style={styles.sidePadding}>
         <View style={styles.profileSection}>
           <View style={styles.profileContainer}>
             <Image
@@ -400,18 +382,18 @@ const Profile = () => {
             </View>
           </View>
         </Modal>
+        </View>
+        </ScrollView>
       </SafeAreaView>
-    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp(5),
-    backgroundColor: Colors.white,
-    margin: Platform.OS === 'ios' ? 20 : 5,
-    marginTop:0
+  },
+   sidePadding: {  
+  paddingHorizontal: wp(5),
   },
   headerTitleStyle: {
     flexDirection: 'row',
@@ -446,7 +428,8 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom:hp(2),
+    marginTop: hp(4)
   },
   profileContainer: {
     alignItems: 'center',
@@ -456,6 +439,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.4,
     borderColor: 'lightgray',
     borderRadius: 60,
+    backgroundColor: Colors.white,
   },
   profileImage: {
     width: wp(18),
@@ -668,16 +652,6 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: '#FF3B30',
     fontFamily: Fonts.bold,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: Colors.primary,
   },
   errorContainer: {
     flex: 1,

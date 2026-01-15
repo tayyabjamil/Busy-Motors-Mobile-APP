@@ -11,6 +11,7 @@ import ForegroundNotification from './scr/Components/ForgroundNotification';
 import {navigationRef} from './scr/navigationRef';
 import Sound from 'react-native-sound';
 import Purchases from 'react-native-purchases';
+import NetworkLoggerOverlay from './scr/Components/NetworkLoggerOverlay';
 
 export default function App() {
   const [notificationData, setNotificationData] = useState<{
@@ -79,20 +80,36 @@ export default function App() {
 
   useNotifications();
 
+  useEffect(() => {
+    console.log('🚀 [App] App component mounted');
+  }, []);
+
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <GestureHandlerRootView style={{flex: 1}}>
-          {notificationData && (
-            <ForegroundNotification
-              title={notificationData.title}
-              message={notificationData.body}
-              onPress={notificationData.onPress}
-              onClose={() => setNotificationData(null)}
-            />
-          )}
-          <AppNavigation />
-        </GestureHandlerRootView>
+      <PersistGate
+        loading={null}
+        persistor={persistor}
+        onBeforeLift={() => {
+          console.log('📦 [App] PersistGate: State rehydration starting...');
+        }}
+      >
+        {(bootstrapped) => {
+          console.log('📦 [App] PersistGate: Bootstrapped =', bootstrapped);
+          return (
+            <GestureHandlerRootView style={{flex: 1}}>
+              {notificationData && (
+                <ForegroundNotification
+                  title={notificationData.title}
+                  message={notificationData.body}
+                  onPress={notificationData.onPress}
+                  onClose={() => setNotificationData(null)}
+                />
+              )}
+              <AppNavigation />
+              {__DEV__ && <NetworkLoggerOverlay />}
+            </GestureHandlerRootView>
+          );
+        }}
       </PersistGate>
     </Provider>
   );

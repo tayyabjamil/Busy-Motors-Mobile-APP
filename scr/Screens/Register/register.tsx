@@ -24,6 +24,7 @@ import Colors from '../../Helper/Colors';
 import {wp} from '../../Helper/Responsive';
 import {Fonts} from '../../Helper/Fonts';
 import Header from '../../Components/Header';
+import { navigationRef } from '../../navigationRef';
 
 const Register = ({navigation}: {navigation: any}) => {
   const [firstName, setFirstName] = useState('');
@@ -132,16 +133,12 @@ const Register = ({navigation}: {navigation: any}) => {
   };
 
   return (
-    <ImageBackground
-      source={require('../../assets/background.jpeg')}
-      style={styles.background}
-      resizeMode="cover">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
+
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <Header navigation={navigation} />
             {/* <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image
                 source={require('../../assets/arrow.png')}
@@ -314,7 +311,6 @@ const Register = ({navigation}: {navigation: any}) => {
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-    </ImageBackground>
   );
 };
 
@@ -333,7 +329,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    marginTop: 30,
+    paddingTop: 30,
+    backgroundColor: Colors.white,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -341,7 +338,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   form: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: Colors.white,
   },
   title: {
     fontSize: 26,

@@ -8,6 +8,7 @@ import {
   Linking,
   ScrollView,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -18,16 +19,15 @@ import Header from '../../Components/Header';
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <Header navigation={navigation} showBackButton textData={'Dashboard'} showNotification={true} />
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}>
-      <View style={styles.innerContainer}>
         {/* Dashboard Items */}
-        <View style={styles.headerContainer}>
-        <Header navigation={navigation} textData={'Dashboard'} showNotification={true} />
-        </View>
-        <TouchableOpacity style={styles.card}>
+      
+        <View style={styles.sidePadding}>
+        {/* <TouchableOpacity style={styles.card}>
           <Image
             source={require('../../assets/pie-chart.png')}
             style={styles.icon}
@@ -39,27 +39,10 @@ const Dashboard = ({navigation}: {navigation: any}) => {
               Call History and relevant stats
             </Text>
           </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('QuoteMessages')}>
+        </TouchableOpacity> */}
+        <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.card}>
           <Image
-            source={require('../../assets/comment.png')}
-            style={[styles.icon, {height: hp('3.0%')}]}
-          />
-
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Messages</Text>
-            <Text style={styles.cardSubtitle}>
-              Contact Support or view messages
-            </Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.card}>
-          <Image
-            source={require('../../assets/bell.png')}
+            source={require('../../assets/bellEmpty.png')}
             style={styles.icon}
           />
 
@@ -72,7 +55,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
           style={styles.card}
           onPress={() => navigation.navigate('Savage')}>
           <Image
-            source={require('../../assets/favourite.png')}
+            source={require('../../assets/heart.png')}
             style={styles.icon}
           />
 
@@ -100,7 +83,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         <TouchableOpacity
           style={styles.card}
           onPress={() =>
-            Linking.openURL('https://scrape4you.onrender.com/terms')
+            Linking.openURL('https://busymotorsltd.co.uk/terms')
           }>
           <Image
             source={require('../../assets/comment.png')}
@@ -118,7 +101,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         <TouchableOpacity
           style={styles.card}
           onPress={() =>
-            Linking.openURL('https://scrape4you.onrender.com/privacy-policy')
+            Linking.openURL('https://busymotorsltd.co.uk/privacy-policy')
           }>
           <Image
             source={require('../../assets/comment.png')}
@@ -132,24 +115,18 @@ const Dashboard = ({navigation}: {navigation: any}) => {
             </Text>
           </View>
         </TouchableOpacity>
-      </View>
+        </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
   },
-  innerContainer: {
-    flex: 1,
-    margin: 20,
-    marginTop:0,
-  },
-  headerContainer:{
-    paddingBottom:10,
+   sidePadding: {  
+  paddingHorizontal: wp(5),
   },
   icon: {
     width: wp('6%'),
@@ -188,6 +165,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingTop:hp(2.5),
   },
   scrollContent: {
     flexGrow: 1,

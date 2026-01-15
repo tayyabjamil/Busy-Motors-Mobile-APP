@@ -1,83 +1,90 @@
 import {
-  ActivityIndicator,
   FlatList,
-  Platform,
-  SafeAreaView,
+  Image,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import Colors from '../../Helper/Colors';
-import {wp} from '../../Helper/Responsive';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import { hp, wp } from '../../Helper/Responsive';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import CarList from '../../Components/CarList';
 import Header from '../../Components/Header';
-import {getFavListingsRequest} from '../../redux/slices/favouriteListingSlice';
+import { getFavListingsRequest } from '../../redux/slices/favouriteListingSlice';
 import { toggleFavoriteRequest } from '../../redux/slices/favouriteSlice';
 import Toast from 'react-native-simple-toast';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Savage = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
-  const {loading, error, data} = useSelector((state: any) => state.favListings);
-   const {favoriteItems} = useSelector((state: any) => state?.favourite);
+  const { error, data } = useSelector((state: any) => state.favListings);
+  const { favoriteItems } = useSelector((state: any) => state?.favourite);
 
   useEffect(() => {
     if (isFocused) {
       dispatch(getFavListingsRequest(token));
     }
   }, [isFocused]);
-  const handleToggle=(item)=>{
+  const handleToggle = (item) => {
     const isFavorite = favoriteItems.includes(item._id);
-    dispatch(toggleFavoriteRequest({ carId: item._id, token })); 
+    dispatch(toggleFavoriteRequest({ carId: item._id, token }));
     if (isFavorite) {
       dispatch(getFavListingsRequest(token));
       Toast.show(`${item.make} removed from Favorites`);
     } else {
       Toast.show(`${item.make} added to Favorites`);
     }
-  }  
-  const filteredData = data?.filter((item) => favoriteItems.includes(item._id));
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>Loading Listings...</Text>
-      </View>
-    );
   }
+  const filteredData = data?.filter((item) => favoriteItems.includes(item._id));
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
+      <SafeAreaView style={styles.errorContainer} edges={['top', 'left', 'right']}>
         <Text style={styles.errorText}>Error: {error}</Text>
-      </View>
+      </SafeAreaView>
     );
   }
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Header navigation={navigation} textData={'Favorites'}/>
-      <Text style={styles.saved}>Your Saved Favorites</Text>
+      <Header navigation={navigation} showBackButton textData={'Favorites'} />
+
       {filteredData?.length > 0 ? (
-        <FlatList
-          data={filteredData}
-          renderItem={({ item, index }) => (
-            <CarList item={item} itemIndex={index} onPress={() => handleToggle(item)} />
-          )}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item) => item._id}
-        />
-      ) : (
-        <View style={styles.noDataContainer}>
-          <Text style={styles.noDataText}>No favorite listings found.</Text>
+        <View style={styles.pageSidePadding}>
+          <Text style={[styles.saved]}>Your Saved Favorites</Text>
+          <FlatList
+            data={filteredData}
+            renderItem={({ item }) => (
+              <CarList removeLogo={true} item={item} onPress={() => handleToggle(item)} />
+            )}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(item) => item._id}
+          />
         </View>
-      )}
+
+      ) : <View style={styles.noDataContainer}>
+        <Image
+          source={{
+            uri: 'https://cdn-icons-png.flaticon.com/512/4076/4076549.png',
+          }}
+          style={styles.noDataImage}
+          resizeMode="contain"
+        />
+
+        <Text style={styles.noDataEmoji}>💔</Text>
+
+        <Text style={styles.noDataTitle}>No Favorites Yet</Text>
+
+        <Text style={styles.noDataSubtitle}>
+          You haven’t saved any cars.Start exploring and tap the heart to favorite!
+        </Text>
+      </View>}
+
     </SafeAreaView>
   );
 };
@@ -87,35 +94,57 @@ export default Savage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp(5),
-    backgroundColor: '#F5F5F5',
-    margin: Platform.OS === 'ios' ? 20 : 5,
-    marginTop:0
   },
-  saved:{
-    paddingLeft:4,
-    fontSize:15,
-    fontWeight:'700',
-    paddingTop:8
+  pageSidePadding: {
+    paddingHorizontal: wp(6),
+  },
+  saved: {
+    paddingLeft: 4,
+    fontSize: 15,
+    fontWeight: '700',
+    paddingTop: 18,
+    paddingBottom: 6,
   },
   noDataContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: wp(5),
+    paddingVertical: hp(5),
   },
-  noDataText: {
-    fontSize: 16,
-    color: Colors.darkGray,
+
+  noDataImage: {
+    width: wp(40),
+    height: wp(40),
+    opacity: 0.8,
+    alignSelf: 'center',
+    marginBottom: hp(2),
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+
+  noDataEmoji: {
+    fontSize: wp(10),
+    marginTop: hp(1),
+    marginBottom: hp(1),
+    textAlign: 'center',
+    color: '#333',
   },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: Colors.primary,
+
+  noDataTitle: {
+    fontSize: wp(5.5),
+    fontWeight: '700',
+    marginTop: hp(1),
+    marginBottom: hp(1),
+    color: '#333',
+    textAlign: 'center',
+  },
+
+  noDataSubtitle: {
+    fontSize: wp(3.8),
+    textAlign: 'center',
+    marginTop: hp(0.5),
+    color: '#666',
+    lineHeight: hp(3),
+    maxWidth: wp(80),
   },
   errorContainer: {
     flex: 1,

@@ -1,8 +1,8 @@
-import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
-import {hp, wp} from '../Helper/Responsive';
-import {useSelector} from 'react-redux';
+import { hp, wp } from '../Helper/Responsive';
+import { useSelector } from 'react-redux';
 import Toast from 'react-native-simple-toast';
 import { Text } from 'react-native-gesture-handler';
 
@@ -10,33 +10,36 @@ export default function Header({
   textData,
   navigation,
   showNotification,
+  showBackButton = false,
 }: {
-  navigation: any;
-  showNotification: any;
+  navigation?: any;
+  showNotification?: any;
+  showBackButton?: boolean;
+  textData?: string;
 }) {
-  const {userData} = useSelector((state: any) => state.user);
+  const { userData } = useSelector((state: any) => state.user);
   return (
     <View style={styles.headerContainer}>
       {/* Left Side: Back Button */}
       <View style={styles.leftSection}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.4}>
-          <Image
-            source={require('../assets/left-arrow.png')}
-            style={styles.iconBack}
-            tintColor={Colors?.backIconColor}
-          />
-        </TouchableOpacity>
+        {showBackButton && navigation && (
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../assets/back.png')}
+              style={styles.iconBack}
+            />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.midSection} >
-        <Text style={styles.textData}>{textData}</Text>
+        <Text style={styles.textData}> {textData}</Text>
       </View>
       <View style={styles.rightSection} />
       {showNotification && (
         <TouchableOpacity
-        style={styles.bellContainer}
+          style={styles.bellContainer}
           onPress={() => {
             if (userData?.is_guest) {
               Toast.show(
@@ -62,29 +65,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingBottom:5
   },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: wp(2),
+    width: wp(12),
   },
   backButton: {
-  marginRight: wp(1),
-  backgroundColor: 'white',
-  padding: 16,
-  borderRadius: 100,
-  borderColor: 'white',
-  borderWidth: 1,
-  elevation: 5, 
-  shadowColor: '#000', 
-  shadowOpacity: 0.2,
-  shadowOffset: { width: 0, height: 2 },
-  shadowRadius: 2,
-},
+    marginRight: wp(1),
+    backgroundColor: 'white',
+    padding: 8,
+    marginLeft: 15,
+    borderRadius: 100,
+    borderColor: 'white',
+    borderWidth: 1,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 2,
+  },
   iconBack: {
-    width: 20,
-    height: 20,
+    width: wp(5),
+    height: wp(5),
     resizeMode: 'contain',
   },
   titleText: {
@@ -105,20 +110,20 @@ const styles = StyleSheet.create({
   rightSection: {
     width: wp(30),
   },
-  midSection:{
-    marginLeft:50,
+  midSection: {
+    marginLeft: 50,
   },
-  textData:{
-    fontSize:22,
-    fontWeight:'600'
+  textData: {
+    fontSize: 20,
+    fontWeight: '500'
   },
   bellIcon: {
     width: wp(6),
     height: wp(6),
     resizeMode: 'contain',
   },
-  bellContainer:{
-    position:'absolute',
-    right:7
+  bellContainer: {
+    position: 'absolute',
+    right: 25
   }
 });

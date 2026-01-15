@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {Image, Linking, Platform} from 'react-native';
+import {Image, View, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -32,6 +31,7 @@ import {navigationRef} from './navigationRef';
 import Splash from './Screens/Splash/splash';
 import Colors from './Helper/Colors';
 import CustomTabBar from './Components/CustomTabBar';
+import { hp } from './Helper/Responsive';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -104,7 +104,11 @@ const AppNavigation = () => {
   const authState = useSelector((state) => state.auth);
 
   const {token} = authState;
-  console.log(token);
+  console.log('🗺️ [Navigation] Current auth state:', {
+    hasToken: !!token,
+    tokenLength: token?.length || 0,
+    token: token ? `${token.substring(0, 20)}...` : 'null'
+  });
   // const token = useSelector(state => state.auth.token);
   const dispatch = useDispatch();
   const {userData} = useSelector(state => state?.user);
@@ -115,8 +119,18 @@ const AppNavigation = () => {
       console.log('🔍 Checking RevenueCat subscriptions on login...');
       const customerInfo = await Purchases.getCustomerInfo();
       const activeSubs = customerInfo.activeSubscriptions || [];
+      
+      // DEBUG: Log full customer info to see what RevenueCat returns
+      console.log('📊 ========== REVENUECAT DEBUG ==========');
+      console.log('📊 activeSubscriptions:', activeSubs);
+      console.log('📊 activeSubscriptions count:', activeSubs.length);
+      console.log('📊 allPurchasedProductIdentifiers:', customerInfo.allPurchasedProductIdentifiers);
+      console.log('📊 entitlements.active:', Object.keys(customerInfo.entitlements?.active || {}));
+      console.log('📊 Full entitlements:', JSON.stringify(customerInfo.entitlements?.active, null, 2));
+      console.log('📊 ========================================');
+      
       dispatch(setActiveSubscriptions(activeSubs));
-      console.log('✅ RevenueCat subscriptions found on login:', activeSubs);
+      console.log('✅ RevenueCat subscriptions saved to Redux:', activeSubs);
     } catch (error) {
       console.log('❌ Error checking RevenueCat subscriptions on login:', error);
     }
@@ -231,7 +245,7 @@ const AppNavigation = () => {
   // };
 
   return (
-    <SafeAreaView style={{flex: 1}}> 
+    <View style={{flex: 1}}> 
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
@@ -241,7 +255,7 @@ const AppNavigation = () => {
         <Stack.Screen name="AuthStack" component={AuthStack} />
       </Stack.Navigator>
     </NavigationContainer>
-          </SafeAreaView>
+          </View>
   );
 };
 
