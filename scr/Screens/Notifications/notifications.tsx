@@ -141,14 +141,8 @@ const Notifications = () => {
     return date.toLocaleDateString();
   };
 
-  const renderItem = ({item}: {item: Notification}) => (
-    <View style={[styles.notificationCard, !item.read && styles.unreadCard]}>
-      <View style={styles.iconContainer}>
-        <Image
-          source={require('../../assets/bellEmpty.png')}
-          style={styles.notificationIcon}
-        />
-      </View>
+  const renderItem = ({item, index}: {item: Notification; index: number}) => (
+    <View style={[styles.notificationCard, index > 0 && styles.borderTop]}>
       <View style={styles.notificationText}>
         <View style={styles.row}>
           <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
@@ -225,47 +219,23 @@ const Notifications = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.white,
   },
   list: {
     paddingHorizontal: wp(4),
     paddingBottom: hp(2),
-    marginTop: 10,
     flexGrow: 1,
   },
   notificationCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#FFF',
-    padding: wp(4),
-    borderRadius: wp(3),
-    marginBottom: hp(1.5),
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: {width: 0, height: 2},
-    elevation: 3,
-    position: 'relative',
+    backgroundColor: Colors.white,
+    paddingVertical: hp(2),
+    paddingHorizontal: wp(2),
   },
-  unreadCard: {
-    backgroundColor: '#F8FBFF',
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.primary,
-  },
-  iconContainer: {
-    width: wp(11),
-    height: wp(11),
-    borderRadius: wp(5.5),
-    backgroundColor: '#F0F4F8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: wp(3),
-  },
-  notificationIcon: {
-    width: wp(5),
-    height: wp(5),
-    resizeMode: 'contain',
-    tintColor: Colors.primary,
+  borderTop: {
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
   },
   notificationText: {
     flex: 1,

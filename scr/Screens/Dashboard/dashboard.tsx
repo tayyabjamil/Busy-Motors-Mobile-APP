@@ -27,7 +27,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         {/* Dashboard Items */}
       
         <View style={styles.sidePadding}>
-        <TouchableOpacity style={styles.card}>
+        {/* <TouchableOpacity style={styles.card}>
           <Image
             source={require('../../assets/pie-chart.png')}
             style={styles.icon}
@@ -39,8 +39,8 @@ const Dashboard = ({navigation}: {navigation: any}) => {
               Call History and relevant stats
             </Text>
           </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.card}>
+        </TouchableOpacity> */}
+        <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.card}>
           <Image
             source={require('../../assets/bellEmpty.png')}
             style={styles.icon}
@@ -83,7 +83,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         <TouchableOpacity
           style={styles.card}
           onPress={() =>
-            Linking.openURL('https://scrape4you.onrender.com/terms')
+            Linking.openURL('https://busymotorsltd.co.uk/terms')
           }>
           <Image
             source={require('../../assets/comment.png')}
@@ -101,7 +101,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         <TouchableOpacity
           style={styles.card}
           onPress={() =>
-            Linking.openURL('https://scrape4you.onrender.com/privacy-policy')
+            Linking.openURL('https://busymotorsltd.co.uk/privacy-policy')
           }>
           <Image
             source={require('../../assets/comment.png')}
