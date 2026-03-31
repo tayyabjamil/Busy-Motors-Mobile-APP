@@ -345,6 +345,7 @@ const Listings = () => {
         },
       });
       console.log('@response', response.data);
+      console.log('@first item tag:', response.data?.[0]?.tag, '| keys:', Object.keys(response.data?.[0] || {}));
       setCarListings(response.data);
     } catch (err) {
       if (err.response) {
@@ -840,6 +841,10 @@ const Listings = () => {
   const resetFilters = () => {
     setTempActiveFilters(['Scrap', 'Salvage']);
     setTempDistance(null);
+    setActiveFilters(['Scrap', 'Salvage']);
+    setDistance(null);
+    setActiveDistanceFilter(null);
+    setIsFilterModalVisible(false);
   };
   const kilometersToMiles = km => {
     return km * 0.621371;

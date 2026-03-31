@@ -1,4 +1,3 @@
-// Create a new file subscriptionSlice.js
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
@@ -6,7 +5,7 @@ const initialState = {
   subscriptionData: null,
   error: null,
   response: null,
-  activeSubscriptions: [], // Add this for RevenueCat active subscriptions
+  activeSubscriptions: [],
 };
 
 const subscriptionSlice = createSlice({
@@ -34,7 +33,6 @@ const subscriptionSlice = createSlice({
         error: action.payload,
       };
     },
-    // Add new actions for RevenueCat active subscriptions
     setActiveSubscriptions: (state, action) => {
       state.activeSubscriptions = action.payload;
     },

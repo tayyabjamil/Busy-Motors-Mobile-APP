@@ -14,7 +14,7 @@ import {
   Linking,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {guestLoginRequest, loginRequest} from '../../redux/slices/authSlice';
+import {loginRequest} from '../../redux/slices/authSlice';
 import Colors from '../../Helper/Colors';
 import {
   widthPercentageToDP as wp,
@@ -35,8 +35,6 @@ const Login = ({navigation}: {navigation: any}) => {
   // const {loading, loginResponse, token, loginSuccess} = useSelector(
   //   (state: any) => state.auth,
   // );
-  const guestLoading = useSelector((state: any) => state.auth.guestLoading);
-
   const authState = useSelector((state: any) => state.auth);
   const {loading, loginResponse, token} = authState;
   const [email, setEmail] = useState('');
@@ -176,25 +174,6 @@ const Login = ({navigation}: {navigation: any}) => {
     }
   };
 
-  const handleGuestLogin = async () => {
-    try {
-      // setGuestLoading(true); // ✅ Show loader on button
-      const deviceId = await DeviceInfo.getUniqueId();
-      
-      // Get FCM token safely
-      let fcm_token = null;
-      try {
-        fcm_token = await getMessaging().getToken();
-      } catch (tokenError) {
-        console.log('FCM Token Error in handleGuestLogin:', tokenError);
-      }
-
-      dispatch(guestLoginRequest({deviceId, fcm_token}));
-    } catch (error) {
-      console.log('❌ Guest login error', error);
-    }
-  };
-
   return (
     <ImageBackground
       source={require('../../assets/background.jpeg')}
@@ -273,18 +252,6 @@ const Login = ({navigation}: {navigation: any}) => {
           disabled={loading}>
           <Text style={[styles.LoginButtonText, {color: Colors?.white}]}>
             {loading ? 'Please wait...' : 'Log In'}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.loginButtonGuest,
-            { marginTop: hp(2)},
-            guestLoading ,
-          ]}
-          disabled={guestLoading}
-          onPress={handleGuestLogin}>
-          <Text style={[styles.LoginButtonText, {color: Colors.primary, fontSize: wp(3.5),fontFamily: Fonts.medium}]}>
-            {guestLoading ? 'Please wait...' : ' Login as Guest'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -425,14 +392,6 @@ const styles = StyleSheet.create({
     height: 55,
     justifyContent: 'center',
   },
-  loginButtonGuest: {
-    // backgroundColor: '#007BFF',
-    padding: hp(2),
-    marginTop: hp(5),
-    borderRadius: wp(2),
-    alignItems: 'center',
-  },
-
   buttonText: {
     color: Colors?.black,
     fontSize: wp(4),

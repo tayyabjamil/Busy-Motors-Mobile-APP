@@ -19,8 +19,9 @@ import { useNavigation } from '@react-navigation/native';
 import { Fonts } from '../../Helper/Fonts';
 import Purchases from 'react-native-purchases';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkSubscriptionRequest, setActiveSubscriptions, updateActiveSubscriptions } from '../../redux/slices/subcriptionsSlice';
+import { checkSubscriptionRequest, checkSubscriptionSuccess, setActiveSubscriptions, updateActiveSubscriptions } from '../../redux/slices/subcriptionsSlice';
 import Header from '../../Components/Header';
+import { saveSubscriptionAPI, fetchUserDetails } from '../../redux/api';
 
 const { width: wp, height: hp } = Dimensions.get('window');
 
@@ -34,6 +35,7 @@ const SubscriptionScreen = () => {
   const routes = [
     { key: 'scrap', title: 'Scrap' },
     { key: 'salvage', title: 'Salvage' },
+    { key: 'all', title: 'All' },
   ];
 
   const [email, setEmail] = useState('tayyabjamil999@gmail.com');
@@ -42,13 +44,14 @@ const SubscriptionScreen = () => {
   const [loading, setLoading] = useState(false);
   const [salvagePackages, setSalvagePackages] = useState([]);
   const [scrapPackages, setScrapPackages] = useState([]);
+  const [allPackages, setAllPackages] = useState([]);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const {
     userData,
   } = useSelector((state) => state.user);
   const { cancelSuccess, updateSuccess } = useSelector(
-    state => state?.cancelSubscription,
+    state => state?.cancelSubscription || {},
   );
   const activeSubscriptions = useSelector(
     state => state?.subscription?.activeSubscriptions || [],
@@ -85,27 +88,33 @@ const SubscriptionScreen = () => {
     }
   };
 
-  // Check for active subscriptions and save to Redux store
+  // Check for active subscriptions and save to backend
   useEffect(() => {
     const checkActiveSubscriptions = async () => {
       try {
         const customerInfo = await Purchases.getCustomerInfo();
         const activeSubs = customerInfo.activeSubscriptions || [];
         dispatch(setActiveSubscriptions(activeSubs));
-        console.log('✅ Active subscriptions found:', activeSubs);
-        console.log('📊 Full customer info:', {
-          originalAppUserId: customerInfo.originalAppUserId,
-          activeSubscriptions: customerInfo.activeSubscriptions,
-          allPurchasedProductIdentifiers: customerInfo.allPurchasedProductIdentifiers,
-          entitlements: customerInfo.entitlements.active
-        });
+
+        if (activeSubs.length === 0) return;
+
+        const userDetails = await fetchUserDetails(token);
+        const backendSubs = userDetails?.is_subscribed || [];
+        const isSynced = activeSubs.every(id => backendSubs.includes(id));
+
+        if (!isSynced) {
+          const response = await saveSubscriptionAPI(token, { is_subscribed: activeSubs });
+          if (response?.message === 'Subscription saved successfully') {
+            dispatch(checkSubscriptionSuccess(response));
+          }
+        }
       } catch (error) {
         console.log('❌ Error checking active subscriptions:', error);
       }
     };
 
-    checkActiveSubscriptions();
-  }, [dispatch]);
+    if (token) checkActiveSubscriptions();
+  }, [dispatch, token]);
 
   // Fetch RevenueCat products (or use dummy data for testing)
   useEffect(() => {
@@ -114,29 +123,20 @@ const SubscriptionScreen = () => {
         console.log('🔄 Fetching RevenueCat offerings...');
         const allOfferings = await Purchases.getOfferings();
 
-        if (allOfferings.current) {
-          const packages = allOfferings.current.availablePackages;
+        console.log('🔍 All offering keys:', Object.keys(allOfferings.all));
+        const scrap = allOfferings.all['scrap']?.availablePackages || [];
+        const salvage = allOfferings.all['salvage']?.availablePackages || [];
+        console.log('🔍 Scrap packages:', scrap.map(p => p.product.identifier));
+        console.log('🔍 Salvage packages:', salvage.map(p => p.product.identifier));
+        const allPackages = [...scrap, ...salvage];
 
-          // Filter salvage packages - look for 'salvage' in the identifier
-          const salvage = packages.filter(pkg =>
-            pkg.product.identifier.toLowerCase().includes('salvage')
-          );
+        setAllPackages(allPackages);
+        setSalvagePackages(salvage);
+        setScrapPackages(scrap);
 
-          // Filter scrap packages - look for 'scrap' in the identifier and exclude salvage
-          const scrap = packages.filter(pkg =>
-            pkg.product.identifier.toLowerCase().includes('scrap') &&
-            !pkg.product.identifier.toLowerCase().includes('salvage')
-          );
-
-          setSalvagePackages(salvage);
-          setScrapPackages(scrap);
-
-          console.log('✅ Salvage Packages:', salvage.map(p => p.product.title));
-          console.log('✅ Scrap Packages:', scrap.map(p => p.product.title));
-          console.log('🔍 All Package Identifiers:', packages.map(p => p.product.identifier));
-        } else {
-          console.log('❌ No current offering found');
-        }
+        console.log('✅ Salvage Packages:', salvage.map(p => p.product.title));
+        console.log('✅ Scrap Packages:', scrap.map(p => p.product.title));
+        console.log('🔍 All Package Identifiers:', allPackages.map(p => p.product.identifier));
       } catch (error) {
         console.log('❌ Error fetching offerings:', error);
       }
@@ -150,11 +150,20 @@ const SubscriptionScreen = () => {
     try {
       setIsPurchasing(true);
       console.log('🛒 Starting purchase for:', selectedIdentifier);
+
+      // Ensure the user is identified in RevenueCat before purchasing
+      if (userData?.email) {
+        await Purchases.logIn(userData.email);
+      }
       
       const allOfferings = await Purchases.getOfferings();
-      const availablePackages = allOfferings.current?.availablePackages || [];
+      const allPackages = [
+        ...(allOfferings.all['scrap']?.availablePackages || []),
+        ...(allOfferings.all['salvage']?.availablePackages || []),
+        ...(allOfferings.current?.availablePackages || []),
+      ];
 
-      const selectedPackage = availablePackages.find(
+      const selectedPackage = allPackages.find(
         pkg => pkg.product.identifier === selectedIdentifier
       );
 
@@ -177,6 +186,9 @@ const SubscriptionScreen = () => {
 
       // Update active subscriptions in Redux store
       dispatch(updateActiveSubscriptions(customerInfo.activeSubscriptions || []));
+
+      // Save subscription to backend
+      await saveSubscriptionAPI(token, { is_subscribed: customerInfo.activeSubscriptions || [] });
 
       // Wait a moment and refresh to ensure we have the latest data
       setTimeout(async () => {
@@ -216,7 +228,6 @@ const SubscriptionScreen = () => {
     const sharedProps = {
       onSelectSubscription: handlePurchase,
       selectedSubscription: subscriptionSelected,
-      currentIndex: index,
       setSelectedActiveSubscription: setSelectedActiveSubscription,
       activeSubscriptions: activeSubscriptions,
     };
@@ -226,6 +237,8 @@ const SubscriptionScreen = () => {
         return <ScrapRoute {...sharedProps} products={scrapPackages} />;
       case 'salvage':
         return <SalvageRoute {...sharedProps} products={salvagePackages} />;
+      case 'all':
+        return <ScrapRoute {...sharedProps} products={allPackages} />;
       default:
         return null;
     }
@@ -234,9 +247,10 @@ const SubscriptionScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header
-        textData={"Unlock All Features"}
+        textData={`${routes[index].title} Subscription`}
         navigation={navigation}
         showBackButton={true}
+        textColor="#5484ef"
       />
       <TabView
         navigationState={{ index, routes }}
@@ -326,13 +340,9 @@ const SalvageRoute = ({
   onSelectSubscription,
   products = [],
   selectedSubscription,
-  currentIndex,
   setSelectedActiveSubscription,
   activeSubscriptions = [],
 }) => {
-  const { subscriptions = [] } = useSelector(
-    state => state?.subscription?.subscriptionData || {},
-  );
 
   const handleSubscriptionSelect = (packageIdentifier) => {
     setSelectedActiveSubscription(false);
@@ -384,12 +394,12 @@ const SalvageRoute = ({
               if (!aIsWeekly && bIsWeekly) return 1;
               return 0;
             })
-            .map((pkg, index) => {
+            .map((pkg, i) => {
               const isActive = isSubscriptionActive(pkg.product.identifier);
               console.log(`🎯 SALVAGE - Package ${pkg.product.identifier} active:`, isActive);
               return (
                 <TouchableOpacity
-                  key={pkg.identifier}
+                  key={`salvage-${pkg.product.identifier}-${i}`}
                   onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
                   style={[
                     styles.optionSelected,
@@ -444,13 +454,9 @@ const ScrapRoute = ({
   products = [],
   onSelectSubscription,
   selectedSubscription,
-  currentIndex,
   setSelectedActiveSubscription,
   activeSubscriptions = [],
 }) => {
-  const { subscriptions = [] } = useSelector(
-    state => state?.subscription?.subscriptionData || {},
-  );
 
   const handleSubscriptionSelect = (packageIdentifier) => {
     setSelectedActiveSubscription(false);
@@ -493,11 +499,11 @@ const ScrapRoute = ({
               if (!aIsWeekly && bIsWeekly) return 1;
               return 0;
             })
-            .map((pkg, index) => {
+            .map((pkg, i) => {
               const isActive = isSubscriptionActive(pkg.product.identifier);
               return (
                 <TouchableOpacity
-                  key={pkg.identifier}
+                  key={`scrap-${pkg.product.identifier}-${i}`}
                   onPress={() => handleSubscriptionSelect(pkg.product.identifier)}
                   style={[
                     styles.optionSelected,

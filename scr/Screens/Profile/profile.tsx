@@ -15,6 +15,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../../redux/slices/authSlice';
+import Purchases from 'react-native-purchases';
 import {fetchUserRequest} from '../../redux/slices/userDetail';
 import {
   updateProfileRequest,
@@ -168,8 +169,13 @@ const Profile = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setModalVisible(false);
+    try {
+      await Purchases.logOut();
+    } catch (error) {
+      console.log('RevenueCat logOut error:', error);
+    }
     dispatch(logout());
     navigationRef.current?.reset({
       index: 0,

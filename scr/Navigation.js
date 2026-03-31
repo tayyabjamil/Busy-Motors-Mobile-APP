@@ -15,23 +15,17 @@ import {useDispatch, useSelector} from 'react-redux';
 import Savage from './Screens/Savage/Savage';
 import {axiosHeader} from './Services/apiHeader';
 import {fetchUserRequest} from './redux/slices/userDetail';
-import {checkSubscriptionRequest} from './redux/slices/subcriptionsSlice';
 import {setActiveSubscriptions} from './redux/slices/subcriptionsSlice';
 import Purchases from 'react-native-purchases';
-import DeviceInfo from 'react-native-device-info';
-import {logout} from './redux/slices/authSlice';
 import forgotPassword from './Screens/ForgotPassword/forgotPassword';
 import getOTP from './Screens/GetOTP/getOTP';
 import resetPassword from './Screens/ResetPassword/resetPassword';
 import quoteMessages from './Screens/QuoteMessage/quoteMessages';
-import {getMessaging} from '@react-native-firebase/messaging';
-import {DeepLinkingRoute} from './Components/DeepLinkingRoute';
 import Details from './Screens/CarDetails/carDeatils';
 import {navigationRef} from './navigationRef';
 import Splash from './Screens/Splash/splash';
 import Colors from './Helper/Colors';
 import CustomTabBar from './Components/CustomTabBar';
-import { hp } from './Helper/Responsive';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -114,8 +108,13 @@ const AppNavigation = () => {
   const {userData} = useSelector(state => state?.user);
   
   // Function to check RevenueCat subscriptions
-  const checkRevenueCatSubscriptions = async () => {
+  const checkRevenueCatSubscriptions = async (email) => {
     try {
+      if (email) {
+        console.log('🔑 Logging in to RevenueCat with user ID:', email);
+        await Purchases.logIn(email);
+        await Purchases.setEmail(email);
+      }
       console.log('🔍 Checking RevenueCat subscriptions on login...');
       const customerInfo = await Purchases.getCustomerInfo();
       const activeSubs = customerInfo.activeSubscriptions || [];
@@ -157,18 +156,20 @@ const AppNavigation = () => {
   //   }
   // }, [userData, token]);
 
-  // Existing useEffect for subscription check
+  // Set axios header and fetch user data when token is available
   useEffect(() => {
     if (token) {
       axiosHeader(token);
       dispatch(fetchUserRequest(token));
-      if (userData?.email) {
-        dispatch(checkSubscriptionRequest({email: userData.email}));
-        // Also check RevenueCat subscriptions
-        checkRevenueCatSubscriptions();
-      }
     }
   }, [token]);
+
+  // Once userData is loaded, identify the user in RevenueCat and check subscriptions
+  useEffect(() => {
+    if (token && userData?.email) {
+      checkRevenueCatSubscriptions(userData.email);
+    }
+  }, [token, userData?.email]);
 
   // const linking = {
   //   prefixes: ['carscrape://'],

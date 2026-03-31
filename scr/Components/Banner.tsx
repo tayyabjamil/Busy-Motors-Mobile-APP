@@ -192,31 +192,19 @@ const Banner = ({navigation}: {navigation: any}) => {
 
   // Render different banners based on subscription status
   if (isSubscriptionActive) {
-    // Active subscription banner - Clean and elegant
     return (
       <View style={styles.activeBannerContainer}>
-        {/* Background accent */}
-        <View style={styles.activeAccentBar} />
-        
-        <View style={styles.activeLeftSection}>
+        <View>
           {(loading || revenueCatLoading) ? (
-            <ActivityIndicator size="small" color={Colors.white} />
+            <ActivityIndicator size="small" color={Colors.primary} />
           ) : (
-            <>
-              <Text style={styles.activeGreeting}>
-                Hi, {userData?.first_name || 'User'} 👋
-              </Text>
-              <View style={styles.activeBadgeContainer}>
-                <View style={styles.activeBadge}>
-                  <Text style={styles.activeBadgeText}>{subscriptionType}</Text>
-                </View>
-                <Text style={styles.activeStatus}>Active Member</Text>
-              </View>
-            </>
+            <Text style={styles.activeGreeting}>
+              Hi, {userData?.first_name || 'User'}
+            </Text>
           )}
         </View>
         <TouchableOpacity
-          style={styles.activeBellContainer}
+          style={styles.statusRow}
           onPress={() => {
             if (userData?.is_guest) {
               Toast.show('Please log in to access notifications', Toast.LONG);
@@ -224,6 +212,9 @@ const Banner = ({navigation}: {navigation: any}) => {
               navigation.navigate('Notifications');
             }
           }}>
+          <TouchableOpacity style={styles.activeStatusBadge} onPress={() => navigation.navigate('Subscriptions')}>
+            <Text style={styles.activeStatus}>{subscriptionName} · Active</Text>
+          </TouchableOpacity>
           <Image
             source={require('../assets/bellEmpty.png')}
             style={styles.activeBellIcon}
@@ -268,76 +259,39 @@ const styles = StyleSheet.create({
   // ============ ACTIVE SUBSCRIPTION BANNER ============
   activeBannerContainer: {
     flexDirection: 'row',
-    backgroundColor: '#1A3A5C',
-    borderRadius: BorderRadius.xl,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    ...Shadows.large,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  activeAccentBar: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 5,
-    backgroundColor: '#27AE60',
-    borderTopLeftRadius: BorderRadius.xl,
-    borderBottomLeftRadius: BorderRadius.xl,
-  },
-  activeLeftSection: {
-    flex: 1,
-    paddingLeft: Spacing.sm,
   },
   activeGreeting: {
     fontSize: wp(4.5),
     fontFamily: Fonts.bold,
     fontWeight: '700',
-    color: Colors.white,
-    marginBottom: Spacing.sm,
+    color: Colors.textPrimary,
   },
-  activeBadgeContainer: {
+  statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
   },
-  activeBadge: {
-    backgroundColor: 'rgba(39, 174, 96, 0.3)',
+  activeStatusBadge: {
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.round,
-    borderWidth: 1,
-    borderColor: 'rgba(39, 174, 96, 0.5)',
-  },
-  activeBadgeText: {
-    fontSize: wp(3),
-    fontFamily: Fonts.bold,
-    fontWeight: '600',
-    color: '#27AE60',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   activeStatus: {
     fontSize: wp(3),
     fontFamily: Fonts.medium,
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  activeBellContainer: {
-    padding: Spacing.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: BorderRadius.round,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    color: Colors.white,
   },
   activeBellIcon: {
     width: wp(5.5),
     height: wp(5.5),
     resizeMode: 'contain',
-    tintColor: Colors.white,
+    tintColor: Colors.textPrimary,
   },
 
   // ============ SIMPLE BANNER (NON-SUBSCRIBER) ============

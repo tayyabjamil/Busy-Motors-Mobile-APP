@@ -13,21 +13,20 @@ import Sound from 'react-native-sound';
 import Purchases from 'react-native-purchases';
 import NetworkLoggerOverlay from './scr/Components/NetworkLoggerOverlay';
 
+const API_KEY = Platform.select({
+  ios: 'appl_czoNDoTtKaWVrkOrwjVvLpsPdQC',
+  // android: 'your_revenuecat_android_api_key',
+});
+
+// Configure RevenueCat immediately — before any component mounts
+Purchases.configure({apiKey: API_KEY as string});
+
 export default function App() {
   const [notificationData, setNotificationData] = useState<{
     title: string;
     body: string;
     onPress: () => void;
   } | null>(null);
-
-  const API_KEY = Platform.select({
-    ios: 'appl_ddZHtOMnsNUHTMWzjGfiSlKHzVL',
-    // android: 'your_revenuecat_android_api_key',
-  });
-
-  useEffect(() => {
-    Purchases.configure({apiKey: API_KEY});
-  }, []);
 
   useEffect(() => {
     let unsubscribeFn = () => {};

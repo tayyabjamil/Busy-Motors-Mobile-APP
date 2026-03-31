@@ -8,7 +8,7 @@ startNetworkLogging();
 // https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
 const api = axios.create({
-  baseURL: 'https://scrape4you.onrender.com', // Production URL
+  baseURL: 'https://c781-39-37-173-154.ngrok-free.app/api', // ngrok tunnel URL
   timeout: 30000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
@@ -49,7 +49,9 @@ export const login = async userData => {
   } catch (error) {
     console.log('❌ [API] Login Error:', error.response?.data || error.message);
     console.log('❌ [API] Error status:', error.response?.status);
-    // Re-throw the error so saga can handle it
+    if (error.response?.status === 401 || error.response?.data?.message === 'Invalid credentials') {
+      throw new Error('Invalid email or password');
+    }
     throw error;
   }
 };
@@ -232,88 +234,7 @@ export const updateViewCount = async (carId, token) => {
   }
 };
 
-export const checkSubscription = async email => {
-  try {
-    const response = await api.post('/stripe/check-subscription', {
-      email: email,
-    });
-    // console.log('====================================latest');
-    // console.log(response.data?.subscriptions);
-    // console.log('====================================');
-    if (response.data) {
-      return response.data;
-    }
-    return;
-    // throw new Error(response.data?.message || 'Subscription check failed');
-  } catch (error) {
-    console.log(
-      'Check Subscription Error:',
-      error.response?.data || error?.message,
-    );
-    // throw new Error(
-    //   error.response?.data?.message || 'Failed to check subscription status',
-    // );
-    return;
-  }
-};
-
-export const cancelSubscription = async (subscriptionId, token) => {
-  try {
-    const response = await api.post(
-      '/stripe/cancel-subscription',
-      {subscriptionID: subscriptionId},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    return response.data;
-  } catch (error) {
-    console.log(
-      'Cancel Subscription Error:',
-      error.response?.data || error?.message,
-    );
-    throw new Error(
-      error.response?.data?.message || 'Failed to cancel subscription',
-    );
-  }
-};
-// Update Subcription
-export const updateSubscription = async (subscription, token) => {
-  try {
-    const response = await api.put(
-      '/auth/update-subscription',
-      {
-        subscription,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    if (response?.status === 200) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log(
-      'Update Subscription Error:',
-      error.response?.data || error?.message,
-    );
-    const errorMessage =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
-      'Failed to update subscription';
-    console.log(errorMessage);
-    throw new Error(
-      error?.response?.data?.message || 'Failed to update subscription',
-    );
-  }
-};
+// Stripe endpoints removed - using RevenueCat for subscriptions
 
 //Send a Qoute
 export const sendQuoteAPI = async ({
@@ -381,6 +302,20 @@ export const getNotificationsAPI = async (page = 1, limit = 20, token) => {
   } catch (error) {
     console.log('Get Notifications API Error:', error.response?.data || error.message);
     throw new Error(error.response?.data?.message || 'Failed to fetch notifications');
+  }
+};
+
+export const saveSubscriptionAPI = async (token, subscriptionData) => {
+  try {
+    const response = await api.post('/auth/save-subscription', subscriptionData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log('Save Subscription API Error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Failed to save subscription');
   }
 };
 

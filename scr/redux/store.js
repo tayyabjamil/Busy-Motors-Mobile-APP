@@ -9,9 +9,6 @@ import carListingsReducer from './slices/carListingsSlice';
 import userProfileUpdateReducer from './slices/userProfileUpdateSlice';
 import favoritesReducer from './slices/favouriteSlice';
 import favListingsReducer from './slices/favouriteListingSlice';
-import subscriptionReducer from './slices/subcriptionsSlice';
-import cancelSubscriptionReducer from './slices/canceleSubcriptionsSlice';
-import updateSubscriptionReducer from './slices/updateSubcriptionSlice';
 
 import getQuoteDataReducer from './slices/qouteDataSlice';
 import getQuoteSaga from './sagas/qouteDataSaga';
@@ -21,10 +18,9 @@ import quoteSaga from './sagas/qouteSaga';
 
 import notificationsReducer from './slices/notificationsSlice';
 
-import cancelSubscriptionSaga from './sagas/cancelSubcriptionsSaga';
-import updateSubscriptionSaga from './sagas/updateSubcriptionSaga';
-
 import viewCountReducer from './slices/viewCount';
+import subscriptionReducer from './slices/subcriptionsSlice';
+import subscriptionSaga from './sagas/subcriptionsSaga';
 import authSaga from './sagas/authSaga';
 import userSaga from './sagas/carListingsSaga';
 import userDetailSaga from './sagas/userDetailSaga';
@@ -32,7 +28,6 @@ import userProfileUpdateSage from './sagas/userProfileUpdateSage';
 import favouriteSaga from './sagas/favouriteSaga';
 import favListingsSaga from './sagas/favListingsSaga';
 import viewCountSaga from './sagas/viewCountSaga';
-import subscriptionSaga from './sagas/subcriptionsSaga';
 const sagaMiddleware = createSagaMiddleware();
 
 const persistConfig = {
@@ -46,12 +41,9 @@ const persistConfig = {
     'favourite',
     'favListings',
     'viewCount',
-    'subscription',
-    'cancelSubscription',
-    'updateSubscription',
     'qoute',
     'getQuoteData',
-  ], // Add the new slice to the whitelist
+  ],
 };
 
 const rootReducer = combineReducers({
@@ -62,12 +54,10 @@ const rootReducer = combineReducers({
   favourite: favoritesReducer,
   favListings: favListingsReducer,
   viewCount: viewCountReducer,
-  subscription: subscriptionReducer,
-  cancelSubscription: cancelSubscriptionReducer,
-  updateSubscription: updateSubscriptionReducer,
   quote: qouteReducer,
   quoteData: getQuoteDataReducer,
   notifications: notificationsReducer,
+  subscription: subscriptionReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -89,11 +79,9 @@ sagaMiddleware.run(userDetailSaga);
 sagaMiddleware.run(userProfileUpdateSage);
 sagaMiddleware.run(favouriteSaga);
 sagaMiddleware.run(favListingsSaga);
-sagaMiddleware.run(viewCountSaga); // Run the new saga
-sagaMiddleware.run(subscriptionSaga); // Run the new saga
-sagaMiddleware.run(cancelSubscriptionSaga);
-sagaMiddleware.run(updateSubscriptionSaga);
+sagaMiddleware.run(viewCountSaga);
 sagaMiddleware.run(quoteSaga);
 sagaMiddleware.run(getQuoteSaga);
+sagaMiddleware.run(subscriptionSaga);
 
 export {store, persistor};
