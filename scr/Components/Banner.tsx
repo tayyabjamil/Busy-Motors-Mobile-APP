@@ -195,7 +195,7 @@ const Banner = ({navigation}: {navigation: any}) => {
     return (
       <View style={styles.activeBannerContainer}>
         <View>
-          {(loading || revenueCatLoading) ? (
+          {loading ? (
             <ActivityIndicator size="small" color={Colors.primary} />
           ) : (
             <Text style={styles.activeGreeting}>
@@ -229,17 +229,10 @@ const Banner = ({navigation}: {navigation: any}) => {
     <View style={styles.bannerContainer}>
       {/* Left Section: Text and Price */}
       <View style={styles.leftSection}>
-        {(loading || revenueCatLoading) ? (
-          <View style={styles.loadingWrapper}>
-            <ActivityIndicator size="small" color={Colors.accent} />
-            <Text style={styles.loadingText}>Loading...</Text>
-          </View>
-        ) : (
           <>
             <Text style={styles.greetingText}>Start from £50/week</Text>
             <Text style={styles.originalPrice}>£180/Monthly</Text>
           </>
-        )}
       </View>
 
       {/* Right Section: Button */}
@@ -247,7 +240,7 @@ const Banner = ({navigation}: {navigation: any}) => {
         <TouchableOpacity
           style={styles.getNowButton}
           onPress={handleGetNow}
-          disabled={loading || revenueCatLoading}>
+          disabled={loading}>
           <Text style={styles.getNowText}>Get Now</Text>
         </TouchableOpacity>
       </View>

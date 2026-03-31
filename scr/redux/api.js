@@ -8,7 +8,7 @@ startNetworkLogging();
 // https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
 const api = axios.create({
-  baseURL: 'https://c781-39-37-173-154.ngrok-free.app/api', // ngrok tunnel URL
+  baseURL: 'https://2676-39-37-173-154.ngrok-free.app/api', // ngrok tunnel URL
   timeout: 30000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
@@ -115,6 +115,8 @@ export const getUser = async token => {
         Authorization: `Bearer ${token}`,
         'device-id': deviceId,
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
       },
     });
 
