@@ -25,6 +25,7 @@ import {wp} from '../../Helper/Responsive';
 import {Fonts} from '../../Helper/Fonts';
 import Header from '../../Components/Header';
 import { navigationRef } from '../../navigationRef';
+import Config from 'react-native-config';
 
 const Register = ({navigation}: {navigation: any}) => {
   const [firstName, setFirstName] = useState('');
@@ -282,7 +283,7 @@ const Register = ({navigation}: {navigation: any}) => {
                   style={{color: Colors.primary, textDecorationLine: 'underline'}}
                   onPress={() =>
                     Linking.openURL(
-                      'https://scrape4you.onrender.com/privacy-policy',
+                      `${Config.API_BASE_URL}/privacy-policy`,
                     )
                   }>
                   Privacy Policy

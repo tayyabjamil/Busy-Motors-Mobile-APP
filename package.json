@@ -5,6 +5,12 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "android:staging": "ENVFILE=.env.staging react-native run-android",
+    "android:prod": "ENVFILE=.env.production react-native run-android",
+    "ios:staging": "ENVFILE=.env.staging react-native run-ios",
+    "ios:prod": "ENVFILE=.env.production react-native run-ios",
+    "start:staging": "ENVFILE=.env.staging react-native start",
+    "start:prod": "ENVFILE=.env.production react-native start",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
@@ -24,6 +30,7 @@
     "geolib": "^3.3.4",
     "react": "19.1.1",
     "react-native": "0.82.1",
+    "react-native-config": "^1.6.1",
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-device-info": "^14.0.4",
     "react-native-geolocation-service": "^5.3.1",

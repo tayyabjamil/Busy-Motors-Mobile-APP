@@ -1,14 +1,14 @@
 import axios from 'axios';
 import DeviceInfo from 'react-native-device-info';
 import { startNetworkLogging } from 'react-native-network-logger';
+import Config from 'react-native-config';
 
 // Start network logging for all requests
 startNetworkLogging();
 
-// https://scrape4you.onrender.com/auth/register
 // Set up the base Axios instance
 const api = axios.create({
-  baseURL: 'https://2676-39-37-173-154.ngrok-free.app/api', // ngrok tunnel URL
+  baseURL: Config.API_URL,
   timeout: 30000, // Timeout in milliseconds
   headers: {
     'Content-Type': 'application/json',
@@ -282,10 +282,8 @@ export const getQuotesAPI = async (userId, token) => {
   }
 };
 
-// Get Notifications List with Pagination (Using localhost for testing)
-// TODO: Change NOTIFICATIONS_BASE_URL to production when ready
-const NOTIFICATIONS_BASE_URL = 'http://192.168.1.14:5000'; // Local testing
-// const NOTIFICATIONS_BASE_URL = 'https://scrape4you.onrender.com'; // Production
+// Get Notifications List with Pagination
+const NOTIFICATIONS_BASE_URL = Config.API_BASE_URL;
 
 export const getNotificationsAPI = async (page = 1, limit = 20, token) => {
   console.log('🔍 [API] NOTIFICATIONS_BASE_URL', `${NOTIFICATIONS_BASE_URL}/notifications/list?page=${page}&limit=${limit}`);

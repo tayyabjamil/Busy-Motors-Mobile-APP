@@ -30,6 +30,7 @@ import Header from '../../Components/Header';
 import {Fonts} from '../../Helper/Fonts';
 import {navigationRef} from '../../navigationRef';
 import axios from 'axios';
+import Config from 'react-native-config';
 import {selectImage} from '../../Functions/MediaManager';
 
 const Profile = () => {
@@ -187,7 +188,7 @@ const Profile = () => {
   const deleteProfile = async () => {
     try {
       const response = await axios.delete(
-        `https://scrape4you.onrender.com/auth/delete-agent/${userData?.userId}`,
+        `${Config.API_BASE_URL}/auth/delete-agent/${userData?.userId}`,
       );
       if (response.status === 200) {
         setDeleteModalVisible(false);
@@ -215,6 +216,11 @@ const Profile = () => {
           styles.container,
         ]}>
           <Header navigation={navigation} showBackButton showNotification={false}textData={'User Profile'} />
+          {Config.APP_ENV === 'staging' && (
+            <View style={styles.stagingBanner}>
+              <Text style={styles.stagingText}>STAGING</Text>
+            </View>
+          )}
           <ScrollView
       showsVerticalScrollIndicator={false}>
         <View style={styles.sidePadding}>
@@ -397,6 +403,17 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  stagingBanner: {
+    backgroundColor: 'orange',
+    paddingVertical: 4,
+    alignItems: 'center',
+  },
+  stagingText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
    sidePadding: {  
   paddingHorizontal: wp(5),

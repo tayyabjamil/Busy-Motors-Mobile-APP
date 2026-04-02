@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkSubscriptionRequest, checkSubscriptionSuccess, setActiveSubscriptions, updateActiveSubscriptions } from '../../redux/slices/subcriptionsSlice';
 import Header from '../../Components/Header';
 import { saveSubscriptionAPI, fetchUserDetails } from '../../redux/api';
+import Config from 'react-native-config';
 
 const { width: wp, height: hp } = Dimensions.get('window');
 
@@ -422,7 +423,7 @@ const SalvageRoute = ({
                     <Text
                       style={styles.linkText}
                       onPress={() =>
-                        Linking.openURL('https://scrape4you.onrender.com/terms')
+                        Linking.openURL(`${Config.API_BASE_URL}/terms`)
                       }>
                       Terms and Conditions
                     </Text>
@@ -430,7 +431,7 @@ const SalvageRoute = ({
                       style={styles.linkText}
                       onPress={() =>
                         Linking.openURL(
-                          'https://scrape4you.onrender.com/privacy-policy',
+                          `${Config.API_BASE_URL}/privacy-policy`,
                         )
                       }>
                       Privacy Policy
@@ -525,7 +526,7 @@ const ScrapRoute = ({
                     <Text
                       style={styles.linkText}
                       onPress={() =>
-                        Linking.openURL('https://scrape4you.onrender.com/terms')
+                        Linking.openURL(`${Config.API_BASE_URL}/terms`)
                       }>
                       Terms and Conditions
                     </Text>
@@ -533,7 +534,7 @@ const ScrapRoute = ({
                       style={styles.linkText}
                       onPress={() =>
                         Linking.openURL(
-                          'https://scrape4you.onrender.com/privacy-policy',
+                          `${Config.API_BASE_URL}/privacy-policy`,
                         )
                       }>
                       Privacy Policy

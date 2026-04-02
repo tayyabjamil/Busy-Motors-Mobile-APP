@@ -1,8 +1,9 @@
 import axios from "axios";
 import DeviceInfo from 'react-native-device-info';
+import Config from 'react-native-config';
 
 const axiosInstance = axios.create({
-    baseURL: 'https://scrape4you.onrender.com', // Production URL
+    baseURL: Config.API_BASE_URL,
     headers: {
         "Cache-Control": "no-cache",
         "Accept": "application/json",

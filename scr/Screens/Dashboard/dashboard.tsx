@@ -16,6 +16,7 @@ import {
 import Colors from '../../Helper/Colors';
 import {Fonts} from '../../Helper/Fonts';
 import Header from '../../Components/Header';
+import Config from 'react-native-config';
 
 const Dashboard = ({navigation}: {navigation: any}) => {
   return (
@@ -83,7 +84,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         <TouchableOpacity
           style={styles.card}
           onPress={() =>
-            Linking.openURL('https://scrape4you.onrender.com/terms')
+            Linking.openURL(`${Config.API_BASE_URL}/terms`)
           }>
           <Image
             source={require('../../assets/comment.png')}
@@ -101,7 +102,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
         <TouchableOpacity
           style={styles.card}
           onPress={() =>
-            Linking.openURL('https://scrape4you.onrender.com/privacy-policy')
+            Linking.openURL(`${Config.API_BASE_URL}/privacy-policy`)
           }>
           <Image
             source={require('../../assets/comment.png')}
