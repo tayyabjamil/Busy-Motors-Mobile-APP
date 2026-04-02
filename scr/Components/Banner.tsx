@@ -32,7 +32,7 @@ const Banner = ({navigation}: {navigation: any}) => {
 
   const [subscription, setSubscription] = useState(false);
   const [revenueCatProducts, setRevenueCatProducts] = useState<any[]>([]);
-  const [revenueCatLoading, setRevenueCatLoading] = useState(true);
+  const [, setRevenueCatLoading] = useState(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
