@@ -395,6 +395,9 @@ const Profile = () => {
           </View>
         </Modal>
         </View>
+        <Text style={styles.versionText}>
+          Version {Config.APP_VERSION}
+        </Text>
         </ScrollView>
       </SafeAreaView>
   );
@@ -403,6 +406,12 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  versionText: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: Colors.gray,
+    paddingVertical: 12,
   },
   stagingBanner: {
     backgroundColor: 'orange',
