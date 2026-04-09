@@ -11,15 +11,11 @@ import ForegroundNotification from './scr/Components/ForgroundNotification';
 import {navigationRef} from './scr/navigationRef';
 import Sound from 'react-native-sound';
 import Purchases from 'react-native-purchases';
+import Config from 'react-native-config';
 import NetworkLoggerOverlay from './scr/Components/NetworkLoggerOverlay';
 
-const API_KEY = Platform.select({
-  ios: 'appl_czoNDoTtKaWVrkOrwjVvLpsPdQC',
-  // android: 'your_revenuecat_android_api_key',
-});
-
 // Configure RevenueCat immediately — before any component mounts
-Purchases.configure({apiKey: API_KEY as string});
+Purchases.configure({apiKey: Config.REVENUECAT_KEY as string});
 
 export default function App() {
   const [notificationData, setNotificationData] = useState<{

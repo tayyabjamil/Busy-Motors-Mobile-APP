@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   Image,
   Alert,
 } from 'react-native';
@@ -22,7 +21,6 @@ const Banner = ({navigation}: {navigation: any}) => {
   const {hasSubscription, subscriptions = []} = useSelector(
     (state: any) => state?.subscription?.subscriptionData || {},
   );
-  const loading = useSelector((state: any) => state?.subscription?.loading);
   const {userData} = useSelector((state: any) => state.user);
 
   // Get active subscriptions from RevenueCat (global check)
@@ -195,13 +193,9 @@ const Banner = ({navigation}: {navigation: any}) => {
     return (
       <View style={styles.activeBannerContainer}>
         <View>
-          {loading ? (
-            <ActivityIndicator size="small" color={Colors.primary} />
-          ) : (
-            <Text style={styles.activeGreeting}>
-              Hi, {userData?.first_name || 'User'}
-            </Text>
-          )}
+          <Text style={styles.activeGreeting}>
+            Hi, {userData?.first_name || 'User'}
+          </Text>
         </View>
         <TouchableOpacity
           style={styles.statusRow}
@@ -239,8 +233,7 @@ const Banner = ({navigation}: {navigation: any}) => {
       <View style={styles.rightSection}>
         <TouchableOpacity
           style={styles.getNowButton}
-          onPress={handleGetNow}
-          disabled={loading}>
+          onPress={handleGetNow}>
           <Text style={styles.getNowText}>Get Now</Text>
         </TouchableOpacity>
       </View>
