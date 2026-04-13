@@ -294,7 +294,7 @@
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 95;
+				CURRENT_PROJECT_VERSION = 96;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				ENABLE_BITCODE = NO;
 				ENVFILE = .env;
@@ -329,7 +329,7 @@
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 95;
+				CURRENT_PROJECT_VERSION = 96;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				ENVFILE = .env.production;
 				INFOPLIST_FILE = carScrap/Info.plist;
@@ -438,7 +438,7 @@
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 95;
+				CURRENT_PROJECT_VERSION = 96;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				ENABLE_BITCODE = NO;
 				ENVFILE = .env.staging;
