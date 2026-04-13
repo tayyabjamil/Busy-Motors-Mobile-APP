@@ -26,6 +26,7 @@
 		5D4AF484C475A174692A4E61 /* libPods-carScrap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-carScrap.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = carScrap/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = carScrap/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8792F605C3BE73B2ABCE6CA6 /* Pods-carScrap.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-carScrap.staging.xcconfig"; path = "Target Support Files/Pods-carScrap/Pods-carScrap.staging.xcconfig"; sourceTree = "<group>"; };
 		C3FEA71F3AE0B96347648226 /* Pods-carScrap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-carScrap.release.xcconfig"; path = "Target Support Files/Pods-carScrap/Pods-carScrap.release.xcconfig"; sourceTree = "<group>"; };
 		E555D0253D336383C88CBAFC /* Pods-carScrap.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-carScrap.debug.xcconfig"; path = "Target Support Files/Pods-carScrap/Pods-carScrap.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -101,6 +102,7 @@
 			children = (
 				E555D0253D336383C88CBAFC /* Pods-carScrap.debug.xcconfig */,
 				C3FEA71F3AE0B96347648226 /* Pods-carScrap.release.xcconfig */,
+				8792F605C3BE73B2ABCE6CA6 /* Pods-carScrap.staging.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -294,7 +296,7 @@
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 96;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				ENABLE_BITCODE = NO;
 				ENVFILE = .env;
@@ -329,7 +331,7 @@
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 96;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				ENVFILE = .env.production;
 				INFOPLIST_FILE = carScrap/Info.plist;
@@ -431,14 +433,14 @@
 		};
 		3C0903152F8933E600ED664E /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E555D0253D336383C88CBAFC /* Pods-carScrap.debug.xcconfig */;
+			baseConfigurationReference = 8792F605C3BE73B2ABCE6CA6 /* Pods-carScrap.staging.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = carScrap/carScrap.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 96;
+				CURRENT_PROJECT_VERSION = 98;
 				DEVELOPMENT_TEAM = 3ZZTDYP4ZM;
 				ENABLE_BITCODE = NO;
 				ENVFILE = .env.staging;
