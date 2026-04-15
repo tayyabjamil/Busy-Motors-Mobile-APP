@@ -117,7 +117,9 @@ const AppNavigation = () => {
       }
       console.log('🔍 Checking RevenueCat subscriptions on login...');
       const customerInfo = await Purchases.getCustomerInfo();
-      const activeSubs = customerInfo.activeSubscriptions || [];
+      const activeSubs = (customerInfo.activeSubscriptions || []).filter(
+        id => id.toLowerCase().includes('scrap') || id.toLowerCase().includes('salvage')
+      );
       dispatch(setActiveSubscriptions(activeSubs));
       console.log('✅ RevenueCat subscriptions found on login:', activeSubs);
     } catch (error) {

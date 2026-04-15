@@ -58,12 +58,12 @@ const Listings = () => {
     latitude: null,
     longitude: null,
   });
-  const [distance, setDistance] = useState(null); // Start with null (no filtering)
+  const [distance, setDistance] = useState<number | null>(null); // Start with null (no filtering)
   const activeSubscriptions = useSelector(
     (state: any) => state?.subscription?.activeSubscriptions || [],
   );
   const hasRevenueCatSubscription = activeSubscriptions?.length > 0;
-  const [activeDistanceFilter, setActiveDistanceFilter] = useState(null);
+  const [activeDistanceFilter, setActiveDistanceFilter] = useState<boolean | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   
@@ -90,7 +90,9 @@ const Listings = () => {
     fetchRevenueCatProducts();
   }, []);
 
-  console.log('🏠 [CarListings] revenueCatProducts', activeSubscriptions);
+  console.log('🔑 [Subscriptions] activeSubscriptions:', activeSubscriptions);
+  console.log('🔑 [Subscriptions] count:', activeSubscriptions?.length);
+  console.log('🔑 [Subscriptions] revenueCatProducts:', revenueCatProducts.map((p: any) => p.product.identifier));
 
   // Get ALL active subscription types (handles multiple subscriptions)
   const getActiveSubscriptionTypes = () => {
@@ -101,20 +103,15 @@ const Listings = () => {
       return { hasScrap, hasSalvage, hasBoth: false, hasAny: false };
     }
 
-    // Check ALL active subscriptions
+    // Check ALL active subscriptions directly from identifiers
     activeSubscriptions.forEach((subscriptionId: string) => {
-      const activeProduct = revenueCatProducts.find(
-        (pkg: any) => pkg.product.identifier === subscriptionId
-      );
-
-      if (activeProduct) {
-        const identifier = activeProduct.product.identifier.toLowerCase();
-        if (identifier.includes('scrap')) {
-          hasScrap = true;
-        }
-        if (identifier.includes('salvage')) {
-          hasSalvage = true;
-        }
+      const identifier = subscriptionId.toLowerCase();
+      console.log('🔍 [Subscriptions] checking identifier:', identifier);
+      if (identifier.includes('scrap')) {
+        hasScrap = true;
+      }
+      if (identifier.includes('salvage')) {
+        hasSalvage = true;
       }
     });
 
@@ -477,8 +474,8 @@ const Listings = () => {
         },
         {latitude: item.latitude, longitude: item.longitude},
       );
-      const distanceInKm = distanceInMeters / 1000;
-      distanceMatch = distanceInKm <= distance;
+      const distanceInMiles = distanceInMeters * 0.000621371;
+      distanceMatch = distanceInMiles <= distance;
     }
 
     // 3. Apply search filter (real-time local search)
@@ -814,6 +811,10 @@ const Listings = () => {
 
   const handleSliderComplete = (value: any) => {
     setTempDistance(value);
+    setDistance(value);
+    if (currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
+      setActiveDistanceFilter(true);
+    }
   };
 
   // Open filter modal and initialize temp states with current applied values
@@ -839,9 +840,16 @@ const Listings = () => {
 
   // Reset all filters
   const resetFilters = () => {
-    setTempActiveFilters(['Scrap', 'Salvage']);
+    const defaultFilters = subscriptionTypes.hasBoth
+      ? ['Scrap', 'Salvage']
+      : subscriptionTypes.hasScrap
+      ? ['Scrap']
+      : subscriptionTypes.hasSalvage
+      ? ['Salvage']
+      : [];
+    setTempActiveFilters(defaultFilters);
     setTempDistance(null);
-    setActiveFilters(['Scrap', 'Salvage']);
+    setActiveFilters(defaultFilters);
     setDistance(null);
     setActiveDistanceFilter(null);
     setIsFilterModalVisible(false);
@@ -918,31 +926,37 @@ const Listings = () => {
               <View style={styles.filterSection}>
                 <Text style={styles.filterSectionTitle}>Type</Text>
                 <View style={styles.filterOptionsRow}>
-                  {['Scrap', 'Salvage'].map(filter => (
-                    <TouchableOpacity
-                      key={filter}
-                      style={[
-                        styles.filterOptionButton,
-                        tempActiveFilters.includes(filter) &&
-                          styles.filterOptionButtonActive,
-                      ]}
-                      onPress={() => {
-                        setTempActiveFilters(prev =>
-                          prev.includes(filter)
-                            ? prev.filter(f => f !== filter)
-                            : [...prev, filter],
-                        );
-                      }}>
-                      <Text
+                  {['Scrap', 'Salvage'].map(filter => {
+                    const isScrapFilter = filter === 'Scrap';
+                    const isAllowed = isScrapFilter ? subscriptionTypes.hasScrap : subscriptionTypes.hasSalvage;
+                    const isActive = activeFilters.includes(filter);
+                    return (
+                      <TouchableOpacity
+                        key={filter}
                         style={[
-                          styles.filterOptionText,
-                          tempActiveFilters.includes(filter) &&
-                            styles.filterOptionTextActive,
-                        ]}>
-                        {filter}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                          styles.filterOptionButton,
+                          isActive && styles.filterOptionButtonActive,
+                          !isAllowed && styles.filterOptionButtonDisabled,
+                        ]}
+                        onPress={() => {
+                          if (!isAllowed) return;
+                          const newFilters = isActive
+                            ? activeFilters.filter(f => f !== filter)
+                            : [...activeFilters, filter];
+                          setActiveFilters(newFilters);
+                          setTempActiveFilters(newFilters);
+                        }}>
+                        <Text
+                          style={[
+                            styles.filterOptionText,
+                            isActive && styles.filterOptionTextActive,
+                            !isAllowed && styles.filterOptionTextDisabled,
+                          ]}>
+                          {filter}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </View>
 
@@ -951,7 +965,7 @@ const Listings = () => {
                 <Text style={styles.filterSectionTitle}>Mileage</Text>
                 <View style={styles.filterSliderContainer}>
                   <Text style={styles.filterSliderLabel}>
-                    {tempDistance || 10} km
+                    {tempDistance || 10} mi
                   </Text>
                   <Slider
                     style={styles.filterSlider}
@@ -975,11 +989,6 @@ const Listings = () => {
                     style={styles.resetFiltersButton}
                     onPress={resetFilters}>
                     <Text style={styles.resetFiltersButtonText}>Reset Filters</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.applyFilterButton}
-                    onPress={applyFilters}>
-                    <Text style={styles.applyFilterButtonText}>Filter</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1526,6 +1535,12 @@ scrapText: {
   filterOptionTextActive: {
     color: Colors.white,
     fontFamily: Fonts.semiBold,
+  },
+  filterOptionButtonDisabled: {
+    opacity: 0.3,
+  },
+  filterOptionTextDisabled: {
+    color: Colors.textSecondary,
   },
   filterSliderContainer: {
     marginTop: hp(1),

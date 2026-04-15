@@ -16,8 +16,10 @@ export const checkGlobalSubscriptions = async (dispatch) => {
   try {
     console.log('🌍 Checking global subscriptions on app launch...');
     const customerInfo = await Purchases.getCustomerInfo();
-    const activeSubs = customerInfo.activeSubscriptions || [];
-    
+    const activeSubs = (customerInfo.activeSubscriptions || []).filter(
+      (id: string) => id.toLowerCase().includes('scrap') || id.toLowerCase().includes('salvage')
+    );
+
     console.log('✅ Global active subscriptions found:', activeSubs);
     console.log('📊 Full customer info on launch:', {
       originalAppUserId: customerInfo.originalAppUserId,

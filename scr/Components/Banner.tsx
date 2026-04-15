@@ -188,55 +188,41 @@ const Banner = ({navigation}: {navigation: any}) => {
     navigation.navigate('Subscriptions');
   };
 
-  // Render different banners based on subscription status
+  // Active subscription banner
   if (isSubscriptionActive) {
     return (
       <View style={styles.activeBannerContainer}>
         <View>
           <Text style={styles.activeGreeting}>
-            Hi, {userData?.first_name || 'User'}
+            Hi, {userData?.first_name || 'User'} 👋
+          </Text>
+          <Text style={styles.activeSubtitle}>
+            Welcome to Busy Motors
           </Text>
         </View>
         <TouchableOpacity
-          style={styles.statusRow}
-          onPress={() => {
-            if (userData?.is_guest) {
-              Toast.show('Please log in to access notifications', Toast.LONG);
-            } else {
-              navigation.navigate('Notifications');
-            }
-          }}>
-          <TouchableOpacity style={styles.activeStatusBadge} onPress={() => navigation.navigate('Subscriptions')}>
-            <Text style={styles.activeStatus}>{subscriptionName} · Active</Text>
-          </TouchableOpacity>
-          <Image
-            source={require('../assets/bellEmpty.png')}
-            style={styles.activeBellIcon}
-          />
+          style={styles.activeStatusBadge}
+          onPress={() => navigation.navigate('Subscriptions')}>
+          <Text style={styles.activeStatus}>
+            {allSubscriptionData.hasBoth ? 'Scrap & Salvage' : allSubscriptionData.hasScrap ? 'Scrap' : 'Salvage'}
+          </Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  // Promotional banner for non-subscribers - Simple and clean
+  // Promotional banner for non-subscribers
   return (
     <View style={styles.bannerContainer}>
-      {/* Left Section: Text and Price */}
       <View style={styles.leftSection}>
-          <>
-            <Text style={styles.greetingText}>Start from £50/week</Text>
-            <Text style={styles.originalPrice}>£180/Monthly</Text>
-          </>
+        <Text style={styles.greetingText}>Unlock Car Leads</Text>
+        <Text style={styles.bannerSubtitle}>
+          Access scrap & salvage listings near you
+        </Text>
       </View>
-
-      {/* Right Section: Button */}
-      <View style={styles.rightSection}>
-        <TouchableOpacity
-          style={styles.getNowButton}
-          onPress={handleGetNow}>
-          <Text style={styles.getNowText}>Get Now</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.getNowButton} onPress={handleGetNow}>
+        <Text style={styles.getNowText}>Subscribe</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -256,6 +242,12 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontWeight: '700',
     color: Colors.textPrimary,
+  },
+  activeSubtitle: {
+    fontSize: wp(3.2),
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+    marginTop: 2,
   },
   statusRow: {
     flexDirection: 'row',
@@ -310,11 +302,10 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     marginBottom: Spacing.xs,
   },
-  originalPrice: {
+  bannerSubtitle: {
     fontSize: wp(3.2),
     fontFamily: Fonts.regular,
     color: Colors.textSecondary,
-    textDecorationLine: 'line-through',
   },
   rightSection: {
     flexDirection: 'row',

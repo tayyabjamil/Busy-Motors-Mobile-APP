@@ -583,15 +583,16 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: wp(4),
-    fontFamily: Fonts.regular,
+    fontFamily: Fonts.bold,
+    fontWeight: 'bold',
     color: 'black',
     width: '35%',
     textAlign: 'left',
   },
   value: {
     fontSize: 14,
-    fontFamily: Fonts.semiBold,
-    color: Colors.gray,
+    fontFamily: Fonts.regular,
+    color: Colors.black,
     width: '65%',
   },
   motContainer: {

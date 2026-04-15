@@ -23,15 +23,48 @@ import {getUserRequest} from '../../redux/slices/carListingsSlice';
 
 const defaultCarImage = require('../../assets/cars/ford.png');
 
-// Function to get car image - use uploaded image if available, otherwise fallback
-const getCarImageSource = (carImage?: string, displayImage?: string) => {
-  if (displayImage) {
-    return { uri: displayImage };
-  }
-  if (carImage) {
-    return { uri: carImage };
-  }
-  return defaultCarImage;
+const getCarImage = (make?: string) => {
+  if (!make) return defaultCarImage;
+  const makeToImageMap: {[key: string]: any} = {
+    'aston martin': require('../../assets/cars/astonmartin.png'),
+    'astonmartin': require('../../assets/cars/astonmartin.png'),
+    'baic': require('../../assets/cars/baic.png'),
+    'bmw': require('../../assets/cars/bmw.png'),
+    'bugatti': require('../../assets/cars/bugatti.png'),
+    'chevrolet': require('../../assets/cars/chevrolet.png'),
+    'citroen': require('../../assets/cars/citroen.png'),
+    'dacia': require('../../assets/cars/dacia.png'),
+    'daihatsu': require('../../assets/cars/daihatsu.png'),
+    'dodge': require('../../assets/cars/dodge.png'),
+    'dongfeng': require('../../assets/cars/dongfeng.png'),
+    'ford': require('../../assets/cars/ford.png'),
+    'honda': require('../../assets/cars/honda.png'),
+    'hyundai': require('../../assets/cars/hyundai.png'),
+    'kia': require('../../assets/cars/kia.png'),
+    'lamborghini': require('../../assets/cars/lamborghini.png'),
+    'lotus': require('../../assets/cars/lotus.png'),
+    'mazda': require('../../assets/cars/mazda.png'),
+    'mclaren': require('../../assets/cars/mclaren.png'),
+    'mercedes': require('../../assets/cars/mercedes-benz.png'),
+    'mercedes-benz': require('../../assets/cars/mercedes-benz.png'),
+    'mg': require('../../assets/cars/mg.png'),
+    'mini': require('../../assets/cars/mini.png'),
+    'nissan': require('../../assets/cars/nissan.png'),
+    'opel': require('../../assets/cars/opel.png'),
+    'proton': require('../../assets/cars/proton.png'),
+    'rolls royce': require('../../assets/cars/rollsroyce.png'),
+    'rollsroyce': require('../../assets/cars/rollsroyce.png'),
+    'rolls-royce': require('../../assets/cars/rollsroyce.png'),
+    'saic': require('../../assets/cars/saic.png'),
+    'skoda': require('../../assets/cars/skoda.png'),
+    'suzuki': require('../../assets/cars/suzuki.png'),
+    'tesla': require('../../assets/cars/tesla.png'),
+    'vauxhall': require('../../assets/cars/vauxhall.png'),
+    'volkswagen': require('../../assets/cars/volkswagen.png'),
+    'volvo': require('../../assets/cars/volvo.png'),
+    'xpeng': require('../../assets/cars/xpeng.png'),
+  };
+  return makeToImageMap[make.toLowerCase()] || defaultCarImage;
 };
 
 const MapListings = () => {
@@ -214,6 +247,11 @@ const MapListings = () => {
                 {selectedCar?.make} {selectedCar?.model}{' '}
                 {selectedCar?.yearOfManufacture}
               </Text>
+              <Image
+                source={getCarImage(selectedCar?.make)}
+                style={styles.carImage}
+                resizeMode="contain"
+              />
 
               <TouchableOpacity
                 style={styles.crossContainer}
@@ -225,12 +263,6 @@ const MapListings = () => {
                   style={{width: wp(4.5), height: wp(4.5)}}
                 />
               </TouchableOpacity>
-
-              <Image
-                source={getCarImageSource(selectedCar?.carImage, selectedCar?.displayImage)}
-                style={styles.carImage}
-                resizeMode="contain"
-              />
             </View>
             <View style={styles.featuresContainer}>
                 <View style={styles.featureCard}>
@@ -389,12 +421,9 @@ const styles = StyleSheet.create({
     color: '#E0E0E0',
   },
   carImage: {
-    width: 150,
-    height: 100,
+    width: 50,
+    height: 50,
     resizeMode: 'contain',
-    position: 'absolute',
-    bottom: -30,
-    right: 20,
   },
 
   // Features Section

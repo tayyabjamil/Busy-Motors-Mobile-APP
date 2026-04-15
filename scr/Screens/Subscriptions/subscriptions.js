@@ -36,7 +36,6 @@ const SubscriptionScreen = () => {
   const routes = [
     { key: 'scrap', title: 'Scrap' },
     { key: 'salvage', title: 'Salvage' },
-    { key: 'all', title: 'All' },
   ];
 
   const [email, setEmail] = useState('tayyabjamil999@gmail.com');
@@ -75,7 +74,9 @@ const SubscriptionScreen = () => {
     try {
       console.log('🔄 Refreshing active subscriptions...');
       const customerInfo = await Purchases.getCustomerInfo();
-      const activeSubs = customerInfo.activeSubscriptions || [];
+      const activeSubs = (customerInfo.activeSubscriptions || []).filter(
+        id => id.toLowerCase().includes('scrap') || id.toLowerCase().includes('salvage')
+      );
       dispatch(setActiveSubscriptions(activeSubs));
       console.log('✅ Refreshed active subscriptions:', activeSubs);
       console.log('📊 Full refreshed customer info:', {
@@ -94,7 +95,9 @@ const SubscriptionScreen = () => {
     const checkActiveSubscriptions = async () => {
       try {
         const customerInfo = await Purchases.getCustomerInfo();
-        const activeSubs = customerInfo.activeSubscriptions || [];
+        const activeSubs = (customerInfo.activeSubscriptions || []).filter(
+          id => id.toLowerCase().includes('scrap') || id.toLowerCase().includes('salvage')
+        );
         dispatch(setActiveSubscriptions(activeSubs));
 
         if (activeSubs.length === 0) return;
@@ -238,8 +241,6 @@ const SubscriptionScreen = () => {
         return <ScrapRoute {...sharedProps} products={scrapPackages} />;
       case 'salvage':
         return <SalvageRoute {...sharedProps} products={salvagePackages} />;
-      case 'all':
-        return <ScrapRoute {...sharedProps} products={allPackages} />;
       default:
         return null;
     }
