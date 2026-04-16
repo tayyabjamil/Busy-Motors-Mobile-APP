@@ -194,7 +194,7 @@ const Banner = ({navigation}: {navigation: any}) => {
       <View style={styles.activeBannerContainer}>
         <View>
           <Text style={styles.activeGreeting}>
-            Hi, {userData?.first_name || 'User'} 👋
+            Hi, {userData?.first_name || 'User'} 
           </Text>
           <Text style={styles.activeSubtitle}>
             Welcome to Busy Motors
