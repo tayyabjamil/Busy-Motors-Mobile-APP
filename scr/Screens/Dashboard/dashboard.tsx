@@ -25,7 +25,6 @@ const Dashboard = ({navigation}: {navigation: any}) => {
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}>
-        {/* Dashboard Items */}
       
         <View style={styles.sidePadding}>
         <TouchableOpacity style={styles.card}>
