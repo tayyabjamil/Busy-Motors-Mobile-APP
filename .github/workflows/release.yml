@@ -69,3 +69,8 @@ jobs:
 
       - name: Build & Upload Production to TestFlight
         run: cd ios && fastlane production
+        continue-on-error: true
+
+      - name: Print production build log on failure
+        if: always()
+        run: cat ~/Library/Logs/gym/carScrap-carScrapProduction.log 2>/dev/null | tail -100 || echo "No log found"
