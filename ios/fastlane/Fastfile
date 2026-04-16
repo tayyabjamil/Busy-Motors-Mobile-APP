@@ -4,6 +4,12 @@ platform :ios do
 
   lane :staging do
     increment_build_number(xcodeproj: "carScrap.xcodeproj")
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "carScrap.xcodeproj",
+      code_sign_identity: "iPhone Distribution",
+      profile_name: "carScrap AppStore"
+    )
     build_app(
       scheme: "car scrap staging",
       export_method: "app-store",
@@ -18,6 +24,12 @@ platform :ios do
 
   lane :production do
     increment_build_number(xcodeproj: "carScrap.xcodeproj")
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "carScrap.xcodeproj",
+      code_sign_identity: "iPhone Distribution",
+      profile_name: "carScrap AppStore"
+    )
     build_app(
       scheme: "carScrapProduction",
       export_method: "app-store",
