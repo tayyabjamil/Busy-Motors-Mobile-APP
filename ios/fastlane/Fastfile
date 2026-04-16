@@ -13,7 +13,9 @@ platform :ios do
     build_app(
       scheme: "car scrap staging",
       export_method: "app-store",
-      xcargs: "ENVFILE=.env.staging"
+      xcargs: "ENVFILE=.env.staging",
+      xcpretty_args: "--no-color",
+      buildlog_path: "~/Library/Logs/gym"
     )
     upload_to_testflight(
       api_key_path: "fastlane/app_store_connect_api_key.json",

@@ -61,6 +61,11 @@ jobs:
 
       - name: Build & Upload Staging to TestFlight
         run: cd ios && fastlane staging
+        continue-on-error: true
+
+      - name: Print build log on failure
+        if: always()
+        run: cat ~/Library/Logs/gym/carScrap-car\ scrap\ staging.log 2>/dev/null | tail -100 || echo "No log found"
 
       - name: Build & Upload Production to TestFlight
         run: cd ios && fastlane production
