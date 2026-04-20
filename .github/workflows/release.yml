@@ -25,7 +25,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          ruby-version: '3.2'
           bundler-cache: true
 
       - name: Install CocoaPods
@@ -42,6 +42,7 @@ jobs:
           security unlock-keychain -p "" build.keychain
           security import /tmp/cert.p12 -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
 
       - name: Import Provisioning Profile
         env:
@@ -55,6 +56,16 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: echo "$APP_STORE_CONNECT_API_KEY" > ios/fastlane/app_store_connect_api_key.json
+
+      - name: Write .env.staging
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: echo "$ENV_STAGING" > .env.staging
+
+      - name: Write .env.production
+        env:
+          ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
+        run: echo "$ENV_PRODUCTION" > .env.production
 
       - name: Install Fastlane
         run: gem install fastlane
