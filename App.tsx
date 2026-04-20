@@ -76,7 +76,7 @@ export default function App() {
   useNotifications();
 
   useEffect(() => {
-    console.log('🚀 [App] App component mounted');
+    console.log('🚀 [App] App  mounted');
   }, []);
 
   return (
