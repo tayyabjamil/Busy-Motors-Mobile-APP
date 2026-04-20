@@ -386,7 +386,9 @@ const SalvageRoute = ({
             .filter(
               pkg =>
                 !pkg.product.identifier.toLowerCase().includes('corporate') &&
-                !pkg.product.title.toLowerCase().includes('corporate'),
+                !pkg.product.title.toLowerCase().includes('corporate') &&
+                !pkg.product.identifier.toLowerCase().includes('test') &&
+                !pkg.product.title.toLowerCase().includes('test'),
             )
             .sort((a, b) => {
               // Weekly packages first, then monthly
@@ -491,7 +493,9 @@ const ScrapRoute = ({
             .filter(
               pkg =>
                 !pkg.product.identifier.toLowerCase().includes('corporate') &&
-                !pkg.product.title.toLowerCase().includes('corporate'),
+                !pkg.product.title.toLowerCase().includes('corporate') &&
+                !pkg.product.identifier.toLowerCase().includes('test') &&
+                !pkg.product.title.toLowerCase().includes('test'),
             )
             .sort((a, b) => {
               // Weekly packages first, then monthly
