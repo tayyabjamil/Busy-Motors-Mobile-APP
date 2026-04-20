@@ -14,7 +14,6 @@ platform :ios do
       scheme: "car scrap staging",
       export_method: "app-store",
       xcargs: "ENVFILE=.env.staging",
-      xcpretty_args: "--no-color",
       buildlog_path: "~/Library/Logs/gym"
     )
     upload_to_testflight(
