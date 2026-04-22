@@ -14,6 +14,7 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Colors from '../../Helper/Colors';
@@ -47,6 +48,7 @@ const Listings = () => {
   const [error, setError] = useState(null); // Error state
   const [carListings, setCarListings] = useState([]); // Data state
   const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [refreshing, setRefreshing] = useState(false);
   const {favoriteItems} = useSelector((state: any) => state?.favourite);
   const {hasSubscription,subscriptions} = useSelector(
     (state: any) => state?.subscription?.subscriptionData || {},
@@ -316,6 +318,24 @@ const Listings = () => {
   useEffect(() => {
     getLocation();
   }, []);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setError(null);
+    try {
+      const response = await api.get('/car/get-all-listing', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      setCarListings(response.data);
+    } catch (err: any) {
+      console.log('Refresh error:', err?.message);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const fetchCarListings = async () => {
     console.log('🏠 [CarListings] fetchCarListings called');
     console.log('🏠 [CarListings] Token check:', {
@@ -1089,6 +1109,14 @@ const Listings = () => {
           showsVerticalScrollIndicator={false}
         keyExtractor={item => item?._id || Math.random().toString()}
           contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[Colors.primary]}
+              tintColor={Colors.primary}
+            />
+          }
         />
     </SafeAreaView>
   );
