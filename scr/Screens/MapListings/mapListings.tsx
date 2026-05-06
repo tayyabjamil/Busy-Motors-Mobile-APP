@@ -72,7 +72,7 @@ const MapListings = () => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
-  const [selectedCar, setSelectedCar] = useState(null);
+  const [selectedCar, setSelectedCar] = useState<any>(null);
   const {data} = useSelector((state: any) => state.carListings);
   const [distance, setDistance] = useState(5); // Distance in kilometers
   const [currentLocation, setCurrentLocation] = useState({
@@ -94,6 +94,11 @@ const MapListings = () => {
         position => {
           const {latitude, longitude} = position.coords;
           setCurrentLocation({latitude, longitude});
+          setRegion(prev => ({
+            ...prev,
+            latitude,
+            longitude,
+          }));
         },
         error => {
           console.error(error);

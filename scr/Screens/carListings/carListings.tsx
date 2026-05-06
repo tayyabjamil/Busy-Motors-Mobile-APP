@@ -477,11 +477,12 @@ const Listings = () => {
       (activeFilters.includes('Salvage') && item.tag === 'salvage') ||
       activeFilters.length === 0;
 
-    // 2. Apply distance filter ONLY if user actively filtered AND we have valid location
+    // 2. Apply distance filter ONLY if user actively filtered AND we have valid location AND distance < 100 (100 = everywhere)
     let distanceMatch = true;
     if (
       activeDistanceFilter === true &&
       distance !== null &&
+      distance < 100 &&
       currentLocation?.latitude !== null &&
       currentLocation?.longitude !== null &&
       item?.latitude &&
@@ -832,7 +833,9 @@ const Listings = () => {
   const handleSliderComplete = (value: any) => {
     setTempDistance(value);
     setDistance(value);
-    if (currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
+    if (value >= 100) {
+      setActiveDistanceFilter(null);
+    } else if (currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
       setActiveDistanceFilter(true);
     }
   };
@@ -849,8 +852,8 @@ const Listings = () => {
     setActiveFilters([...tempActiveFilters]);
     setDistance(tempDistance);
     
-    // Enable distance filter only if user set a distance and has location
-    if (tempDistance !== null && currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
+    // Enable distance filter only if user set a distance < 100 (100 = everywhere) and has location
+    if (tempDistance !== null && tempDistance < 100 && currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
       setActiveDistanceFilter(true);
     } else {
       setActiveDistanceFilter(null);
@@ -985,12 +988,12 @@ const Listings = () => {
                 <Text style={styles.filterSectionTitle}>Mileage</Text>
                 <View style={styles.filterSliderContainer}>
                   <Text style={styles.filterSliderLabel}>
-                    {tempDistance || 10} mi
+                    {(tempDistance ?? 0) >= 100 ? 'Everywhere' : `${tempDistance ?? 10} mi`}
                   </Text>
                   <Slider
                     style={styles.filterSlider}
                     minimumValue={1}
-                    maximumValue={1000}
+                    maximumValue={100}
                     step={1}
                     value={tempDistance || 10}
                     onValueChange={handleSliderChange}
@@ -1537,9 +1540,9 @@ scrapText: {
     paddingHorizontal: wp(5),
     paddingVertical: hp(1.2),
     borderRadius: wp(5),
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.primary,
     borderWidth: 1,
-    borderColor: Colors.lightGray,
+    borderColor: Colors.primary,
     marginBottom: hp(1),
   },
   brandFilterButton: {
@@ -1552,16 +1555,16 @@ scrapText: {
     height: wp(6),
   },
   filterOptionButtonActive: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.white,
     borderColor: Colors.primary,
   },
   filterOptionText: {
     fontSize: wp(3.8),
     fontFamily: Fonts.regular,
-    color: Colors.black,
+    color: Colors.white,
   },
   filterOptionTextActive: {
-    color: Colors.white,
+    color: Colors.primary,
     fontFamily: Fonts.semiBold,
   },
   filterOptionButtonDisabled: {
