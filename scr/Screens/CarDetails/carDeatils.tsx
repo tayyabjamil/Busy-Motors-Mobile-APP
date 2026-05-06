@@ -369,6 +369,7 @@ const Details = ({ route }) => {
               ['Colour :', car?.color],
               ['Model :', car?.model],
               ['Fuel Type :', car?.fuelType],
+              ['Problem :', car?.problem],
             ].map(([label, value], index) => {
               // Show only first 3 characters for postcode with ellipsis
               const displayValue = label === 'Postcode :'

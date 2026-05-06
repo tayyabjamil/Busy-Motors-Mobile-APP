@@ -60,7 +60,7 @@ const Listings = () => {
     latitude: null,
     longitude: null,
   });
-  const [distance, setDistance] = useState<number | null>(null); // Start with null (no filtering)
+  const [distance, setDistance] = useState<number | null>(10); // Default 10 miles on first open
   const activeSubscriptions = useSelector(
     (state: any) => state?.subscription?.activeSubscriptions || [],
   );
@@ -71,7 +71,7 @@ const Listings = () => {
   
   // Temporary filter states (used in modal before applying)
   const [tempActiveFilters, setTempActiveFilters] = useState(['Scrap', 'Salvage']);
-  const [tempDistance, setTempDistance] = useState<number | null>(null);
+  const [tempDistance, setTempDistance] = useState<number | null>(10);
   
   // RevenueCat products for subscription details
   const [revenueCatProducts, setRevenueCatProducts] = useState<any[]>([]);
@@ -394,6 +394,8 @@ const Listings = () => {
         position => {
           const {latitude, longitude} = position.coords;
           setCurrentLocation({latitude, longitude});
+          // Auto-enable distance filter with the default/current distance on first load
+          setActiveDistanceFilter(true);
         },
         error => {
           console.log('Location error:', error);
@@ -988,7 +990,7 @@ const Listings = () => {
                 <Text style={styles.filterSectionTitle}>Mileage</Text>
                 <View style={styles.filterSliderContainer}>
                   <Text style={styles.filterSliderLabel}>
-                    {(tempDistance ?? 0) >= 100 ? 'Everywhere' : `${tempDistance ?? 10} mi`}
+                    {(tempDistance ?? 10) >= 100 ? 'Everywhere' : `${tempDistance ?? 10} mi`}
                   </Text>
                   <Slider
                     style={styles.filterSlider}
