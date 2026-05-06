@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Colors from '../../Helper/Colors';
@@ -68,7 +69,7 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
           error?.message || // Fallback to Axios error message
           'An error occurred. Please try again.'; // Final fallback
 
-        Toast.show(errorMessage, Toast.LONG);
+        Alert.alert('OTP Failed', errorMessage);
       } finally {
         setLoading(false);
       }
