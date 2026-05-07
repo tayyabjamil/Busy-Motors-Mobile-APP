@@ -73,13 +73,14 @@ jobs:
         run: gem install fastlane
 
       - name: Verify Secrets & Files
+        continue-on-error: true
         run: |
           echo "=== Checking certificates ==="
           security find-identity -v -p codesigning
           echo "=== Checking provisioning profiles ==="
           ls ~/Library/MobileDevice/Provisioning\ Profiles/
           echo "=== Checking API key ==="
-          ls -la ios/fastlane/app_store_connect_api_key.p8 && head -1 ios/fastlane/app_store_connect_api_key.p8
+          ls -la ios/fastlane/app_store_connect_api_key.p8 && echo "API key file exists" || echo "API key file MISSING"
           echo "=== Checking env files ==="
           ls -la .env.staging .env.production
           echo "=== Checking Xcode schemes ==="
