@@ -1,4 +1,4 @@
-package com.scrap4yourmobile
+package com.busymotors.app
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -1,4 +1,4 @@
-package com.scrap4yourmobile
+package com.busymotors.app
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

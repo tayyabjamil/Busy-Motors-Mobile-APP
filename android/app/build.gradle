@@ -80,11 +80,11 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.scrap4yourmobile"
+    namespace "com.busymotors.app"
     defaultConfig {
         missingDimensionStrategy 'react-native-purchases', 'play'
         missingDimensionStrategy 'store', 'play'
-        applicationId "com.scrap4yourmobile"
+        applicationId "com.busymotors.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 3
