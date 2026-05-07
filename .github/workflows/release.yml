@@ -57,7 +57,7 @@ jobs:
       - name: Write App Store Connect API Key
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-        run: echo "$APP_STORE_CONNECT_API_KEY" > ios/fastlane/app_store_connect_api_key.json
+        run: echo "$APP_STORE_CONNECT_API_KEY" > ios/fastlane/app_store_connect_api_key.p8
 
       - name: Write .env.staging
         env:
