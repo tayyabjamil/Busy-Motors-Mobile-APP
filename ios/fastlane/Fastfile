@@ -22,7 +22,7 @@ platform :ios do
       path: "carScrap.xcodeproj",
       team_id: "3ZZTDYP4ZM",
       code_sign_identity: "Apple Distribution",
-      profile_path: profile
+      profile_uuid: lane_context[SharedValues::SIGH_UUID]
     )
     build_app(
       workspace: "carScrap.xcworkspace",
@@ -58,7 +58,7 @@ platform :ios do
       path: "carScrap.xcodeproj",
       team_id: "3ZZTDYP4ZM",
       code_sign_identity: "Apple Distribution",
-      profile_path: profile
+      profile_uuid: lane_context[SharedValues::SIGH_UUID]
     )
     build_app(
       workspace: "carScrap.xcworkspace",
