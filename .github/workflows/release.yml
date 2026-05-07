@@ -94,7 +94,7 @@ jobs:
 
       - name: Print build log on failure
         if: always()
-        run: cat ~/Library/Logs/gym/carScrap-car\ scrap\ staging.log 2>/dev/null | tail -100 || echo "No log found"
+        run: cat ~/Library/Logs/gym/carScrap-car\ scrap\ staging.log 2>/dev/null || echo "No log found"
 
       - name: Build & Upload Production to TestFlight
         env:
@@ -104,4 +104,4 @@ jobs:
 
       - name: Print production build log on failure
         if: always()
-        run: cat ~/Library/Logs/gym/carScrap-carScrapProduction.log 2>/dev/null | tail -100 || echo "No log found"
+        run: cat ~/Library/Logs/gym/carScrap-carScrapProduction.log 2>/dev/null || echo "No log found"
