@@ -12,11 +12,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
 
       - name: Install JS dependencies
@@ -70,7 +72,22 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
+      - name: Verify Secrets & Files
+        run: |
+          echo "=== Checking certificates ==="
+          security find-identity -v -p codesigning
+          echo "=== Checking provisioning profiles ==="
+          ls ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo "=== Checking API key ==="
+          cat ios/fastlane/app_store_connect_api_key.json
+          echo "=== Checking env files ==="
+          ls -la .env.staging .env.production
+          echo "=== Checking Xcode schemes ==="
+          cd ios && xcodebuild -workspace carScrap.xcworkspace -list
+
       - name: Build & Upload Staging to TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY_PATH: ${{ github.workspace }}/ios/fastlane/app_store_connect_api_key.json
         run: cd ios && fastlane staging
         continue-on-error: true
 
@@ -79,6 +96,8 @@ jobs:
         run: cat ~/Library/Logs/gym/carScrap-car\ scrap\ staging.log 2>/dev/null | tail -100 || echo "No log found"
 
       - name: Build & Upload Production to TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY_PATH: ${{ github.workspace }}/ios/fastlane/app_store_connect_api_key.json
         run: cd ios && fastlane production
         continue-on-error: true
 
