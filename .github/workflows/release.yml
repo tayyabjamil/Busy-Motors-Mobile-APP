@@ -70,7 +70,7 @@ jobs:
         run: echo "$ENV_PRODUCTION" > .env.production
 
       - name: Install Fastlane
-        run: gem install fastlane
+        run: cd ios && bundle install
 
       - name: Verify Secrets & Files
         continue-on-error: true
@@ -89,7 +89,7 @@ jobs:
       - name: Build & Upload Staging to TestFlight
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-        run: cd ios && fastlane staging
+        run: cd ios && bundle exec fastlane staging
         continue-on-error: true
 
       - name: Print build log on failure
@@ -99,7 +99,7 @@ jobs:
       - name: Build & Upload Production to TestFlight
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-        run: cd ios && fastlane production
+        run: cd ios && bundle exec fastlane production
         continue-on-error: true
 
       - name: Print production build log on failure
