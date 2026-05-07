@@ -79,7 +79,7 @@ jobs:
           echo "=== Checking provisioning profiles ==="
           ls ~/Library/MobileDevice/Provisioning\ Profiles/
           echo "=== Checking API key ==="
-          cat ios/fastlane/app_store_connect_api_key.json
+          ls -la ios/fastlane/app_store_connect_api_key.p8 && head -1 ios/fastlane/app_store_connect_api_key.p8
           echo "=== Checking env files ==="
           ls -la .env.staging .env.production
           echo "=== Checking Xcode schemes ==="
