@@ -780,8 +780,8 @@ const Listings = () => {
           </View>
           <View style={styles.separator} />
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Model:</Text>
-            <Text style={styles.value}>{item.model || 'N/A'}</Text>
+            <Text style={styles.label}>Make:</Text>
+            <Text style={styles.value}>{item.make || 'N/A'}</Text>
           </View>
         </View>
 
@@ -952,8 +952,6 @@ const Listings = () => {
                 <Text style={styles.filterSectionTitle}>Type</Text>
                 <View style={styles.filterOptionsRow}>
                   {['Scrap', 'Salvage'].map(filter => {
-                    const isScrapFilter = filter === 'Scrap';
-                    const isAllowed = isScrapFilter ? subscriptionTypes.hasScrap : subscriptionTypes.hasSalvage;
                     const isActive = activeFilters.includes(filter);
                     return (
                       <TouchableOpacity
@@ -961,10 +959,8 @@ const Listings = () => {
                         style={[
                           styles.filterOptionButton,
                           isActive && styles.filterOptionButtonActive,
-                          !isAllowed && styles.filterOptionButtonDisabled,
                         ]}
                         onPress={() => {
-                          if (!isAllowed) return;
                           const newFilters = isActive
                             ? activeFilters.filter(f => f !== filter)
                             : [...activeFilters, filter];
@@ -975,7 +971,6 @@ const Listings = () => {
                           style={[
                             styles.filterOptionText,
                             isActive && styles.filterOptionTextActive,
-                            !isAllowed && styles.filterOptionTextDisabled,
                           ]}>
                           {filter}
                         </Text>

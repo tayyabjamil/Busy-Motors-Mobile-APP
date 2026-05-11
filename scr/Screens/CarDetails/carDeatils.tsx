@@ -369,6 +369,7 @@ const Details = ({ route }) => {
               ['Colour :', car?.color],
               ['Model :', car?.model],
               ['Fuel Type :', car?.fuelType],
+              ['Transmission :', car?.transmissionType],
               ['Problem :', car?.problem],
             ].map(([label, value], index) => {
               // Show only first 3 characters for postcode with ellipsis
@@ -434,7 +435,7 @@ const Details = ({ route }) => {
                       ]}
                       onPress={() => {
                         if (!isSold) {
-                          action('+' + car?.phoneNumber);
+                          action(car?.phoneNumber);
                         }
                       }}
                       activeOpacity={isSold ? 1 : 0.7}
@@ -587,8 +588,9 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontWeight: 'bold',
     color: 'black',
-    width: '35%',
+    width: '40%',
     textAlign: 'left',
+    // paddingRight: wp(6),
   },
   value: {
     fontSize: 14,
