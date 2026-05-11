@@ -34,7 +34,6 @@ const Register = ({navigation}: {navigation: any}) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [callingCode] = useState('44'); // UK calling code
 
   const [errorMessage, setErrorMessages] = useState<any>({
     firstNameError: '',
@@ -115,12 +114,10 @@ const Register = ({navigation}: {navigation: any}) => {
   };
   const generateRandomPhone = () => {
     const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // 10 digit
-    return `${callingCode}${randomNumber}`;
+    return `${randomNumber}`;
   };
   const apiCall = () => {
-    const phoneNumber = phone
-      ? `${callingCode}${phone}`
-      : generateRandomPhone();
+    const phoneNumber = phone ? phone : generateRandomPhone();
 
     const userData = {
       first_name: firstName,
@@ -213,12 +210,8 @@ const Register = ({navigation}: {navigation: any}) => {
               )}
               <Text style={styles.label}>Phone Number</Text>
               <View style={styles.phoneContainer}>
-                <View style={styles.countryPicker}>
-                  <Text style={styles.callingCode}>+{callingCode}</Text>
-                </View>
-
                 <TextInput
-                  style={styles.phoneInput}
+                  style={[styles.phoneInput, {borderLeftWidth: 0}]}
                   placeholder="07123 456789"
                   value={phone}
                   onChangeText={text => {
