@@ -27,32 +27,28 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
   const [error, setError] = useState('');
   const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('');
-  const [callingCode, setCallingCode] = useState('');
-  const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleForgotPassword = async () => {
     if (!phone) {
       setError('Please enter a phone number');
       return;
-    } else if (phone.length < 7) {
-      setError('Please enter a valid phone number');
+    } else if (phone.length !== 11) {
+      setError('Please enter a valid 11-digit UK phone number');
       return;
     } else {
       setError('');
 
       try {
         setLoading(true);
-        const phoneNumber = `${callingCode}${phone}`;
         const responce = await api.post('/auth/request-otp', {
-          phone: phoneNumber,
+          phone: phone,
         });
         if (responce?.data?.success) {
           setLoading(false);
           Toast.show(responce?.data?.message, Toast.LONG);
           navigation.navigate('getOTP', {
-            phone: phoneNumber,
+            phone: phone,
           });
         } else {
           setLoading(false);
