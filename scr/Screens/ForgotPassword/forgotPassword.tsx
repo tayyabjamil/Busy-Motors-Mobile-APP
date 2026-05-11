@@ -27,8 +27,8 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
   const dispatch = useDispatch();
   const [error, setError] = useState('');
   const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('GB');
-  const [callingCode, setCallingCode] = useState('44');
+  const [countryCode, setCountryCode] = useState('');
+  const [callingCode, setCallingCode] = useState('');
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -94,28 +94,8 @@ const ForgotPassword = ({navigation}: {navigation: any}) => {
 
           <Text style={styles.label}>Phone Number</Text>
           <View style={styles.phoneContainer}>
-            <TouchableOpacity
-              onPress={() => setVisible(true)}
-              style={styles.countryPicker}>
-              <CountryPicker
-                withFilter
-                withFlag
-                withCallingCode
-                withModal
-                withAlphaFilter
-                countryCode={countryCode}
-                onSelect={country => {
-                  setCountryCode(country.cca2);
-                  setCallingCode(country.callingCode[0]);
-                }}
-                visible={visible}
-                onClose={() => setVisible(false)}
-              />
-              <Text style={styles.callingCode}>+{callingCode}</Text>
-            </TouchableOpacity>
-
             <TextInput
-              style={styles.phoneInput}
+              style={[styles.phoneInput, {borderLeftWidth: 0}]}
               placeholder="Phone Number"
               value={phone}
               onChangeText={text => {
