@@ -103,8 +103,7 @@ const GetOTP = ({navigation, route}: {navigation: any; route: any}) => {
               has been sent to your phone number
             </Text>
 
-            <Text style={styles.label}>OTP</Text>
-            <View style={styles.container}>
+            <View style={styles.otpSection}>
               {/* OTP Boxes */}
               <View style={styles.otpBoxContainer} onTouchStart={focusInput}>
                 {[0, 1, 2, 3, 4, 5].map(i => (
@@ -132,17 +131,18 @@ const GetOTP = ({navigation, route}: {navigation: any; route: any}) => {
                 }}
                 autoFocus
               />
-            </View>
-            {error && <Text style={styles.errorText}>{error}</Text>}
 
-            <TouchableOpacity
-              style={[styles.verifyButton, loading && styles.disabledButton]}
-              onPress={handleVerifyOTP}
-              disabled={loading}>
-              <Text style={styles.verifyButtonText}>
-                {loading ? 'Verifying...' : 'Verify OTP'}
-              </Text>
-            </TouchableOpacity>
+              {error && <Text style={styles.errorText}>{error}</Text>}
+
+              <TouchableOpacity
+                style={[styles.verifyButton, loading && styles.disabledButton]}
+                onPress={handleVerifyOTP}
+                disabled={loading}>
+                <Text style={styles.verifyButtonText}>
+                  {loading ? 'Verifying...' : 'Verify OTP'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -238,13 +238,17 @@ const styles = StyleSheet.create({
     height: '100%',
     opacity: 0,
   },
+  otpSection: {
+    position: 'relative',
+    paddingHorizontal: wp(3),
+  },
   verifyButton: {
     backgroundColor: '#007BFF',
     padding: hp(2),
-    marginTop: hp(4),
+    marginTop: hp(3),
     borderRadius: wp(2),
     alignItems: 'center',
-    margin: 40,
+    marginHorizontal: wp(5),
   },
   verifyButtonText: {
     color: Colors?.white,

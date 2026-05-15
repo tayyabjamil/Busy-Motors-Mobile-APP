@@ -367,6 +367,7 @@ const Details = ({ route }) => {
               ['Year :', car?.yearOfManufacture],
               ['Postcode :', car?.postcode],
               ['Colour :', car?.color],
+              ['Make :', car?.make],
               ['Model :', car?.model],
               ['Fuel Type :', car?.fuelType],
               ['Transmission :', car?.transmissionType],

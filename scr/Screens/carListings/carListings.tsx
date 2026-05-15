@@ -780,8 +780,8 @@ const Listings = () => {
           </View>
           <View style={styles.separator} />
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Make:</Text>
-            <Text style={styles.value}>{item.make || 'N/A'}</Text>
+            <Text style={styles.label}>Model:</Text>
+            <Text style={styles.value}>{item.model || 'N/A'}</Text>
           </View>
         </View>
 

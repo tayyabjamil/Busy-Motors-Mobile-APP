@@ -204,7 +204,17 @@ const Banner = ({navigation}: {navigation: any}) => {
           style={styles.activeStatusBadge}
           onPress={() => navigation.navigate('Subscriptions')}>
           <Text style={styles.activeStatus}>
-            {allSubscriptionData.hasBoth ? 'Scrap & Salvage' : allSubscriptionData.hasScrap ? 'Scrap' : 'Salvage'}
+            {allSubscriptionData.hasBoth
+              ? 'Scrap & Salvage'
+              : allSubscriptionData.hasScrap
+              ? 'Scrap'
+              : allSubscriptionData.hasSalvage
+              ? 'Salvage'
+              : activeSubscriptions.some((id: string) => id.toLowerCase().includes('scrap'))
+              ? 'Scrap'
+              : activeSubscriptions.some((id: string) => id.toLowerCase().includes('salvage'))
+              ? 'Salvage'
+              : 'Premium'}
           </Text>
         </TouchableOpacity>
       </View>
