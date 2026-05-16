@@ -17,6 +17,8 @@ import {
   RefreshControl,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../../Helper/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import {hp, wp} from '../../Helper/Responsive';
@@ -685,6 +687,15 @@ const Listings = () => {
 
     let isSubscriptionActive = hasRevenueCatSubscription || subscriptions;
 
+    const motDueRaw = item.motDue || item.mot_due || item.motExpiry;
+    const motDueDate = motDueRaw
+      ? new Date(motDueRaw).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).toUpperCase()
+      : null;
+
     return (
       <View style={styles.listingCardContainer}>
         <Pressable
@@ -722,99 +733,127 @@ const Listings = () => {
       }}
       style={styles.listingCard}
     >
-        {!item.isSold && (
-          <TouchableOpacity style={styles.heartTagContainer} onPress={() => handleToggleFavorite(item, isFavorite)}>
+      {/* Top Row: Heart | Registration | Brand Logo */}
+      <View style={styles.cardTopRow}>
+        {!item.isSold ? (
+          <TouchableOpacity onPress={() => handleToggleFavorite(item, isFavorite)}>
             <Image
               source={isFavorite ? require('../../assets/heart.png') : require('../../assets/simpleHeart.png')}
               style={styles.heartIcon}
             />
           </TouchableOpacity>
+        ) : (
+          <View style={styles.heartIconPlaceholder} />
         )}
-      {/* SOLD overlay */}
-      {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
 
-      {/* Car Image */}
-      {!item.isSold && (
-        <View style={styles.carImageContainer}>
-          <Image
-            source={getCarImage(item?.make)}
-            resizeMode="contain"
-            style={styles.carImage}
-          />
-        </View>
-      )}
+        {item.isSold ? (
+          <Text style={styles.soldText}>SOLD</Text>
+        ) : (
+          <Text style={styles.regNumber} numberOfLines={1}>
+            {item.registrationNumber || 'N/A'}
+          </Text>
+        )}
 
-      {/* Car Details */}
-      <View style={[styles.detailsContainer, item.isSold && { opacity: 0.5 }]}>
-        {/* Car Title */}
-               <View
-          style={styles.titleContainer}>
-        <Text  style={[styles.carTitle, {flexShrink: 1, marginRight: 10}]} numberOfLines={1}>
-          {item.make} {item.model} ({item.yearOfManufacture})
+        <Image
+          source={getCarImage(item?.make)}
+          resizeMode="contain"
+          style={styles.brandLogo}
+        />
+      </View>
+
+      {/* Title + Tag Row */}
+      <View style={[styles.titleTagRow, item.isSold && {opacity: 0.5}]}>
+        <Text style={styles.carTitle} numberOfLines={1}>
+          {item.make?.toUpperCase()} {item.model?.toUpperCase()} ({item.yearOfManufacture})
         </Text>
-         <View
-             style={styles.scrapTag}>
-             <Text style={styles.scrapText}>
-               {item.tag || 'Unknown'}
-             </Text>
-           </View>
-           </View>
+        <View style={styles.scrapTag}>
+          <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
+        </View>
+      </View>
 
-        {/* Info Boxes */}
+      {/* Info Grid */}
+      <View style={[item.isSold && {opacity: 0.5}]}>
         <View style={styles.infoBox}>
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Registration:</Text>
+            <MaterialCommunityIcons name="card-text-outline" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+            <Text style={styles.label}>REG</Text>
             <Text style={styles.value}>{item.registrationNumber || 'N/A'}</Text>
           </View>
           <View style={styles.separator} />
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Year:</Text>
-            <Text style={styles.value}>{item.yearOfManufacture || 'N/A'}</Text>
+            <MaterialIcons name="warning" size={wp(5)} color="#F59E0B" style={styles.infoIcon} />
+            <Text style={styles.label}>PROBLEMS</Text>
+            <Text style={styles.value} numberOfLines={1}>{item.problem?.toUpperCase() || 'N/A'}</Text>
           </View>
         </View>
 
         <View style={styles.infoBox}>
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Fuel Type:</Text>
-            <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
+            <MaterialCommunityIcons name="car" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+            <Text style={styles.label}>MAKE</Text>
+            <Text style={styles.value}>{item.make || 'N/A'}</Text>
           </View>
           <View style={styles.separator} />
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Model:</Text>
+            <MaterialCommunityIcons name="car-side" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+            <Text style={styles.label}>MODEL</Text>
             <Text style={styles.value}>{item.model || 'N/A'}</Text>
           </View>
         </View>
 
         <View style={styles.infoBox}>
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Postcode:</Text>
-            <Text style={styles.value}>
-              {item.postcode?.toString().length > 3
-                ? item.postcode.toString().substring(0, 3).toUpperCase() + '...'
-                : item.postcode?.toString().toUpperCase() || 'N/A'}
-            </Text>
+            <MaterialCommunityIcons name="cog" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+            <Text style={styles.label}>TRANSMISSION</Text>
+            <Text style={styles.value}>{item.transmissionType || item.transmission || 'N/A'}</Text>
           </View>
           <View style={styles.separator} />
           <View style={styles.infoColumn}>
-            <Text style={styles.label}>Colour:</Text>
-            <Text style={styles.value}>{item.color || 'N/A'}</Text>
+            <MaterialCommunityIcons name="gas-station" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+            <Text style={styles.label}>FUEL TYPE</Text>
+            <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
           </View>
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <View style={{ alignItems: 'center' }}>
-            <Image source={require('../../assets/pin.png')} style={[styles.icon, item.isSold && { opacity: 0.5 }]} />
-            <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{distance}</Text>
+        <View style={styles.infoBox}>
+          <View style={styles.infoColumn}>
+            <MaterialCommunityIcons name="palette" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+            <Text style={styles.label}>COLOUR</Text>
+            <Text style={styles.value}>{item.color || 'N/A'}</Text>
           </View>
-          <View style={{ alignItems: 'center' }}>
-            <Image source={require('../../assets/timer.png')} style={[styles.icon, item.isSold && { opacity: 0.5 }]} />
-            <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{timeAgo}</Text>
+          <View style={styles.separator} />
+          <View style={styles.infoColumn}>
+            <MaterialIcons name="location-on" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+            <Text style={styles.label}>POSTCODE</Text>
+            <Text style={styles.value}>{item.postcode?.toString().toUpperCase() || 'N/A'}</Text>
           </View>
-          <View style={{ alignItems: 'center' }}>
-            <Image source={require('../../assets/eye.png')} style={[styles.icon, item.isSold && { opacity: 0.5 }]} />
-            <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{item?.views?.length}</Text>
+        </View>
+
+        {/* MOT DUE Row */}
+        {motDueDate && (
+          <View style={styles.motDueRow}>
+            <Image source={require('../../assets/timer.png')} style={styles.motIcon} />
+            <View>
+              <Text style={styles.motLabel}>MOT DUE</Text>
+              <Text style={styles.motDate}>{motDueDate}</Text>
+            </View>
           </View>
+        )}
+      </View>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <View style={styles.footerItem}>
+          <Image source={require('../../assets/pin.png')} style={[styles.footerItemIcon, item.isSold && {opacity: 0.5}]} />
+          <Text style={[styles.footerText, item.isSold && {opacity: 0.5}]}>{distance}</Text>
+        </View>
+        <View style={styles.footerItem}>
+          <Image source={require('../../assets/timer.png')} style={[styles.footerItemIcon, item.isSold && {opacity: 0.5}]} />
+          <Text style={[styles.footerText, item.isSold && {opacity: 0.5}]}>{timeAgo}</Text>
+        </View>
+        <View style={styles.footerItem}>
+          <Image source={require('../../assets/eye.png')} style={[styles.footerItemIcon, item.isSold && {opacity: 0.5}]} />
+          <Text style={[styles.footerText, item.isSold && {opacity: 0.5}]}>{item?.views?.length}</Text>
         </View>
       </View>
     </Pressable>
@@ -1303,93 +1342,99 @@ const styles = StyleSheet.create({
     marginBottom: hp(3),
     paddingHorizontal: wp(5),
   },
+  filterBarContainer: {
+    flexDirection: 'row',
+    paddingVertical: hp(1),
+    gap: wp(2),
+  },
+  filterChip: {
+    paddingHorizontal: wp(5),
+    paddingVertical: hp(0.8),
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.white,
+  },
+  filterChipActive: {
+    backgroundColor: Colors.primary,
+  },
+  filterChipText: {
+    fontSize: wp(3.5),
+    fontFamily: Fonts.medium,
+    color: Colors.primary,
+  },
+  filterChipTextActive: {
+    color: Colors.white,
+  },
   //render item
   listingCardContainer: {
     marginBottom: 0,
     position: 'relative',
   },
-listingCard: {
+  listingCard: {
     backgroundColor: Colors.white,
     borderRadius: 20,
     borderWidth: 0.2,
     marginTop: 10,
-    paddingTop: hp(4),
-    paddingHorizontal: wp(3.5),
-    paddingBottom: hp(0.5),
+    padding: wp(4),
     shadowColor: Colors.black,
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: wp(2),
-    shadowOffset: { width: 0, height: hp(1) },
-    elevation: 5,
-    borderColor: 'white',
+    shadowOffset: {width: 0, height: hp(0.5)},
+    elevation: 3,
+    borderColor: '#E8E8E8',
   },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    alignSelf: 'center',
-    marginBottom: hp(1),
-  },
-  label: {
-  fontSize: wp(3.5), 
-  color: Colors.darkGray ,
-  fontWeight:'700'
-  },
-  value: {
-    fontSize: wp(3.5), 
-    color: Colors.darkGray, 
-    fontFamily: Fonts.bold 
-  },
-  heartIcon: {
-    width: wp(7),
-    height: wp(7),
-  },
-  heartTagContainer: {
-    position: 'absolute',
-    top: hp(3),
-    left: wp(6),
-  },
-  carImageContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 20,
-    zIndex: 1,
-    resizeMode: 'contain',
-  },
-  carImage: {
-    width: 70,
-    height: 70,
-  },
-  detailsContainer: {
-    padding: wp(2.5),
-  },
-scrapText: {
-     color: 'black', 
-    fontSize: 15,
-    fontWeight:'500'
-  },
-  scrapTag:{
-      backgroundColor: '#1e1e1b10',
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 100,
-      marginTop:30
-    },
-  
-  carTitle: {
-     fontSize: wp(4),
-    fontFamily: Fonts.bold,
-    fontWeight:'600',
-    color: Colors.primary,
-    paddingVertical: hp(1),
-    paddingTop:40
-  },
-   titleContainer:{
+  cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginVertical:3,
-    paddingTop:8
+    marginBottom: hp(1),
+  },
+  heartIcon: {
+    width: wp(6),
+    height: wp(6),
+  },
+  heartIconPlaceholder: {
+    width: wp(6),
+    height: wp(6),
+  },
+  regNumber: {
+    fontSize: wp(5.5),
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
+    color: Colors.darkGray,
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: wp(2),
+  },
+  brandLogo: {
+    width: 50,
+    height: 50,
+  },
+  titleTagRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: hp(1.5),
+  },
+  carTitle: {
+    fontSize: wp(3.8),
+    fontFamily: Fonts.bold,
+    fontWeight: '600',
+    color: Colors.primary,
+    flex: 1,
+    marginRight: wp(2),
+  },
+  scrapTag: {
+    backgroundColor: '#1e1e1b10',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 100,
+  },
+  scrapText: {
+    color: 'black',
+    fontSize: 13,
+    fontWeight: '500',
   },
   infoBox: {
     flexDirection: 'row',
@@ -1399,24 +1444,76 @@ scrapText: {
     marginBottom: hp(1),
     alignItems: 'center',
   },
-  infoColumn: { flex: 1, paddingHorizontal: wp(1) },
-  details: {
-    fontSize: wp(3.5),
-    color: Colors.textGray,
+  infoColumn: {flex: 1, paddingHorizontal: wp(1)},
+  infoIcon: {
+    marginBottom: 4,
   },
-    separator: {
+  label: {
+    fontSize: wp(2.8),
+    color: Colors.gray,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  value: {
+    fontSize: wp(3.5),
+    color: Colors.darkGray,
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  separator: {
     width: 1,
     backgroundColor: '#D1D1D1',
     marginHorizontal: wp(2),
     height: '100%',
   },
+  motDueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE8E8',
+    borderRadius: wp(3),
+    padding: wp(3),
+    marginBottom: hp(1),
+    gap: wp(3),
+  },
+  motIcon: {
+    width: wp(5),
+    height: wp(5),
+    resizeMode: 'contain',
+    tintColor: Colors.red,
+  },
+  motLabel: {
+    fontSize: wp(2.8),
+    color: Colors.red,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  motDate: {
+    fontSize: wp(3.5),
+    color: Colors.red,
+    fontFamily: Fonts.bold,
+    fontWeight: '700',
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: hp(1),
+    paddingTop: hp(1),
+    borderTopWidth: 0.5,
+    borderTopColor: Colors.lightGray,
+  },
+  footerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(1),
+  },
+  footerItemIcon: {
+    width: wp(4),
+    height: wp(4),
+    resizeMode: 'contain',
+    tintColor: Colors.gray,
   },
   footerText: {
-    marginTop: wp(2),
     fontFamily: Fonts.regular,
     fontSize: wp(3),
     color: Colors.gray,
@@ -1479,10 +1576,11 @@ scrapText: {
 
   soldText: {
     color: '#FF3B30',
-    fontSize: wp(4.5),
-    paddingHorizontal: wp(2),
-    paddingVertical: wp(1),
+    fontSize: wp(5.5),
     fontFamily: Fonts.bold,
+    fontWeight: '700',
+    flex: 1,
+    textAlign: 'center',
   },
   // Filter Modal Styles
   filterModalOverlay: {

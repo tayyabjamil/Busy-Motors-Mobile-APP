@@ -13,6 +13,8 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { hp, wp } from '../../Helper/Responsive';
 import Colors from '../../Helper/Colors';
 import Header from '../../Components/Header';
@@ -70,10 +72,15 @@ const makeToImageMap: {[key: string]: any} = {
 };
 
 // Function to get car image and determine if it's a logo
-const getCarImageData = (make: string, carImage: string) => {
+const getCarImageData = (make: string, carImage: string, displayImage?: string) => {
   const normalizedMake = make?.toLowerCase().trim();
 
-  // If car has a valid image from API, use it with cover
+  // If car has a valid displayImage, use it first
+  if (displayImage && displayImage !== 'N/A') {
+    return { source: { uri: displayImage }, isLogo: false };
+  }
+
+  // If car has a valid carImage from API, use it with cover
   if (carImage && carImage !== 'N/A') {
     return { source: { uri: carImage }, isLogo: false };
   }
@@ -82,7 +89,7 @@ const getCarImageData = (make: string, carImage: string) => {
   if (normalizedMake && makeToImageMap[normalizedMake]) {
     return { source: makeToImageMap[normalizedMake], isLogo: true };
   }
-  
+
   // Fallback to default car image (treat as logo/contain)
   return { source: defaultCarImage, isLogo: true };
 };
@@ -332,6 +339,17 @@ const Details = ({ route }) => {
     });
   };
 
+  const infoRows = [
+    { iconLib: 'MaterialIcons',          iconName: 'warning',           label: 'Problems',     value: car?.problem,            iconColor: '#F59E0B' },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'card-text-outline', label: 'Reg',          value: car?.registrationNumber, iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'car',               label: 'Make',         value: car?.make,               iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'car-side',          label: 'Model',        value: car?.model,              iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'cog',               label: 'Transmission', value: car?.transmissionType,   iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'gas-station',       label: 'Fuel Type',    value: car?.fuelType,           iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'palette',           label: 'Colour',       value: car?.color,              iconColor: Colors.primary },
+    { iconLib: 'MaterialIcons',          iconName: 'location-on',       label: 'Postcode',     value: car?.postcode,           iconColor: Colors.primary },
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
 
@@ -344,48 +362,46 @@ const Details = ({ route }) => {
         style={[
           styles.container,
         ]}>
-    
+
         <View style={[styles.sidePadding]}>
           <View style={styles.detailsContainer}>
+            {/* Header: image centered, make name below */}
             {(() => {
-              const imageData = getCarImageData(car?.make, car?.carImage);
+              const imageData = getCarImageData(car?.make, car?.carImage, car?.displayImage);
               return (
                 <Image
                   source={imageData.source}
-                  style={styles.carImage}
+                  style={[styles.centeredImage, !imageData.isLogo && styles.carPhoto]}
                   resizeMode={imageData.isLogo ? 'contain' : 'cover'}
                 />
               );
             })()}
+            <Text style={styles.carMakeName}>{car?.make?.toUpperCase() || ''}</Text>
 
-            <Text style={styles.carTitle}>
-              {car?.make || 'Model Not Available'}
-            </Text>
+            {/* Info rows with icons */}
+            {infoRows.map(({ iconLib, iconName, iconColor, label, value }, index) => {
+              let displayValue: string;
+              if (label === 'Postcode') {
+                const raw = value?.toString() || '';
+                displayValue = raw.length > 3
+                  ? raw.substring(0, 3).toUpperCase() + '...'
+                  : (raw.toUpperCase() || 'N/A');
+              } else {
+                displayValue = value?.toString().toUpperCase() || 'N/A';
+              }
 
-            {[
-              ['Registration :', car?.registrationNumber],
-              ['Year :', car?.yearOfManufacture],
-              ['Postcode :', car?.postcode],
-              ['Colour :', car?.color],
-              ['Make :', car?.make],
-              ['Model :', car?.model],
-              ['Fuel Type :', car?.fuelType],
-              ['Transmission :', car?.transmissionType],
-              ['Problem :', car?.problem],
-            ].map(([label, value], index) => {
-              // Show only first 3 characters for postcode with ellipsis
-              const displayValue = label === 'Postcode :'
-                ? (value?.toString() && value.toString().length > 3
-                  ? value.toString().substring(0, 3).toUpperCase() + '...'
-                  : (value?.toString().toUpperCase() || 'N/A'))
-                : (value?.toString().toUpperCase() || 'N/A');
+              const IconComponent = iconLib === 'MaterialIcons' ? MaterialIcons : MaterialCommunityIcons;
 
               return (
-                <View key={index} style={styles.infoRow}>
-                  <Text style={styles.label}>{label}</Text>
-                  <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
-                    {displayValue}
-                  </Text>
+                <View key={index}>
+                  {index > 0 && <View style={styles.rowDivider} />}
+                  <View style={styles.infoRow}>
+                    <IconComponent name={iconName} size={wp(6)} color={iconColor} style={styles.rowIcon} />
+                    <Text style={styles.label}>{label}</Text>
+                    <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                      {displayValue}
+                    </Text>
+                  </View>
                 </View>
               );
             })}
@@ -544,60 +560,64 @@ const styles = StyleSheet.create({
     borderRadius: wp(3),
     marginBottom: 20,
   },
-  carImage: {
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: hp(2),
+  },
+  centeredImage: {
     width: '100%',
-    height: 200,
-  },
-  carTitle: {
-    fontSize: wp(6),
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  carTagContainer: {
-    backgroundColor: Colors.primary,
-    borderRadius: wp(10),
-    margin: hp(2),
-
+    height: wp(50),
     alignSelf: 'center',
-    position: 'absolute',
-    top: 0,
-    right: 0,
+    marginBottom: hp(1.5),
   },
-  scrapText: {
-    textTransform: 'capitalize',
-    paddingHorizontal: 20,
-    paddingVertical: 5,
+  carPhoto: {
+    borderRadius: wp(3),
+  },
+  cardHeaderText: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: wp(5.5),
+    fontFamily: Fonts.bold,
+    fontWeight: 'bold',
+    color: Colors.black,
+  },
+  carMakeName: {
+    fontSize: wp(5),
+    fontFamily: Fonts.semiBold,
+    color: Colors.primary,
     textAlign: 'center',
-    fontFamily: Fonts.regular,
-    color: Colors.white,
+    marginBottom: hp(1.5),
+  },
+  rowDivider: {
+    height: 0.5,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 0,
+  },
+  rowIcon: {
+    marginRight: wp(3),
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
-    alignSelf: 'center',
-    marginBottom: hp(1),
+    paddingVertical: hp(1.2),
   },
   headerContainer: {
     paddingTop: hp(4),
   },
   label: {
-    fontSize: wp(4),
-    fontFamily: Fonts.bold,
-    fontWeight: 'bold',
-    color: 'black',
-    width: '40%',
-    textAlign: 'left',
-    // paddingRight: wp(6),
+    fontSize: wp(3.8),
+    fontFamily: Fonts.semiBold,
+    color: Colors.black,
+    flex: 1,
   },
   value: {
-    fontSize: 14,
+    fontSize: wp(3.5),
     fontFamily: Fonts.regular,
-    color: Colors.black,
-    width: '65%',
+    color: Colors.gray,
+    textAlign: 'right',
+    maxWidth: '45%',
   },
   motContainer: {
     flexDirection: 'row',

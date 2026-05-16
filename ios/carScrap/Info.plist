@@ -51,6 +51,8 @@
 		<string>PublicSans-Medium.ttf</string>
 		<string>PublicSans-Regular.ttf</string>
 		<string>PublicSans-SemiBold.ttf</string>
+		<string>MaterialIcons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
