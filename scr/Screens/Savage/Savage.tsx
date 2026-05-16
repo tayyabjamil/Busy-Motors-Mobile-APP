@@ -55,17 +55,16 @@ const Savage = () => {
       <Header navigation={navigation} showBackButton textData={'Favorites'} />
 
       {filteredData?.length > 0 ? (
-        <View style={styles.pageSidePadding}>
-          <Text style={[styles.saved]}>Your Saved Favorites</Text>
-          <FlatList
-            data={filteredData}
-            renderItem={({ item }) => (
-              <CarList removeLogo={true} item={item} onPress={() => handleToggle(item)} />
-            )}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item) => item._id}
-          />
-        </View>
+        <FlatList
+          data={filteredData}
+          renderItem={({ item }) => (
+            <CarList item={item} onPress={() => handleToggle(item)} />
+          )}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={<Text style={styles.saved}>Your Saved Favorites</Text>}
+        />
 
       ) : <View style={styles.noDataContainer}>
         <Image
@@ -95,8 +94,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  pageSidePadding: {
-    paddingHorizontal: wp(6),
+  listContent: {
+    paddingHorizontal: wp(5),
+    paddingBottom: 20,
   },
   saved: {
     paddingLeft: 4,
