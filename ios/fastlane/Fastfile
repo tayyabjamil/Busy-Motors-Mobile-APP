@@ -29,7 +29,8 @@ platform :ios do
       scheme: "car scrap staging",
       export_method: "app-store",
       xcargs: "ENVFILE=.env.staging",
-      buildlog_path: "~/Library/Logs/gym"
+      buildlog_path: "~/Library/Logs/gym",
+      clean: true
     )
     upload_to_testflight(
       api_key: api_key,
@@ -64,7 +65,8 @@ platform :ios do
       workspace: "carScrap.xcworkspace",
       scheme: "carScrapProduction",
       export_method: "app-store",
-      xcargs: "ENVFILE=.env.production"
+      xcargs: "ENVFILE=.env.production",
+      clean: true
     )
     upload_to_testflight(
       api_key: api_key,

@@ -90,7 +90,6 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: cd ios && bundle exec fastlane staging
-        continue-on-error: true
 
       - name: Print build log on failure
         if: always()
@@ -100,7 +99,6 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: cd ios && bundle exec fastlane production
-        continue-on-error: true
 
       - name: Print production build log on failure
         if: always()
