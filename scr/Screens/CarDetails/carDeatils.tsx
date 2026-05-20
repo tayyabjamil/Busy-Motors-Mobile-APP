@@ -365,14 +365,17 @@ const Details = ({ route }) => {
 
         <View style={[styles.sidePadding]}>
           <View style={styles.detailsContainer}>
-            {/* Header: image centered, make name below */}
+            {/* Header: car brand logo */}
             {(() => {
-              const imageData = getCarImageData(car?.make, car?.carImage, car?.displayImage);
+              const normalizedMake = car?.make?.toLowerCase().trim();
+              const logoSource = (normalizedMake && makeToImageMap[normalizedMake])
+                ? makeToImageMap[normalizedMake]
+                : defaultCarImage;
               return (
                 <Image
-                  source={imageData.source}
-                  style={[styles.centeredImage, !imageData.isLogo && styles.carPhoto]}
-                  resizeMode={imageData.isLogo ? 'contain' : 'cover'}
+                  source={logoSource}
+                  style={styles.centeredImage}
+                  resizeMode="contain"
                 />
               );
             })()}
@@ -392,13 +395,15 @@ const Details = ({ route }) => {
 
               const IconComponent = iconLib === 'MaterialIcons' ? MaterialIcons : MaterialCommunityIcons;
 
+              const isProblems = label === 'Problems';
+
               return (
                 <View key={index}>
                   {index > 0 && <View style={styles.rowDivider} />}
-                  <View style={styles.infoRow}>
-                    <IconComponent name={iconName} size={wp(6)} color={iconColor} style={styles.rowIcon} />
-                    <Text style={styles.label}>{label}</Text>
-                    <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
+                  <View style={[styles.infoRow, isProblems && styles.infoRowWrap]}>
+                    <IconComponent name={iconName} size={wp(6)} color={iconColor} style={[styles.rowIcon, isProblems && styles.rowIconTop]} />
+                    <Text style={[styles.label, isProblems && styles.labelTop]}>{label}</Text>
+                    <Text style={[styles.value, isProblems && styles.valueWrap]} numberOfLines={isProblems ? undefined : 1} ellipsizeMode={isProblems ? undefined : 'tail'}>
                       {displayValue}
                     </Text>
                   </View>
@@ -603,6 +608,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: hp(1.2),
   },
+  infoRowWrap: {
+    alignItems: 'flex-start',
+  },
+  rowIconTop: {
+    marginTop: wp(0.5),
+  },
+  labelTop: {
+    marginTop: wp(0.3),
+  },
+  valueWrap: {
+    maxWidth: '55%',
+    textAlign: 'right',
+    flexShrink: 1,
+  },
   headerContainer: {
     paddingTop: hp(4),
   },
@@ -613,9 +632,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   value: {
-    fontSize: wp(3.5),
-    fontFamily: Fonts.regular,
-    color: Colors.gray,
+    fontSize: wp(3.8),
+    fontFamily: Fonts.bold,
+    fontWeight: '600',
+    color: Colors.black,
     textAlign: 'right',
     maxWidth: '45%',
   },

@@ -1,0 +1,79 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pod install)",
+      "Bash(xcodebuild:*)",
+      "Bash(open:*)",
+      "Bash(npx react-native run-ios:*)",
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(npm run ios:*)",
+      "Bash(xcrun simctl:*)",
+      "Bash(osascript:*)",
+      "Bash(find:*)",
+      "Bash(pod deintegrate:*)",
+      "Bash(pod cache:*)",
+      "Bash(pbcopy)",
+      "Bash(agvtool what-version:*)",
+      "Bash(agvtool what-marketing-version:*)",
+      "Bash(agvtool new-marketing-version:*)",
+      "Bash(sips -s format png /Users/affanmahboob/Desktop/carScrapTayyab/scr/assets/splashLogo.png --out /Users/affanmahboob/Desktop/carScrapTayyab/scr/assets/splashLogo.png)",
+      "Bash(sips -s format png /Users/affanmahboob/Desktop/carScrapTayyab/scr/assets/logo.png --out /Users/affanmahboob/Desktop/carScrapTayyab/scr/assets/logo.png)",
+      "WebSearch",
+      "WebFetch(domain:carimagesapi.com)",
+      "Bash(find /Users/affanmahboob/Desktop/carScrapTayyab -type f \\(-name .env* -o -name *.config.js -o -name *.env.local \\))",
+      "Read(//Users/affanmahboob/.claude/**)",
+      "Bash(npm --version)",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__read_multiple_files",
+      "mcp__filesystem__write_file",
+      "mcp__filesystem__edit_file",
+      "mcp__filesystem__create_directory",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__move_file",
+      "mcp__filesystem__search_files",
+      "mcp__filesystem__get_file_info",
+      "mcp__filesystem__list_allowed_directories",
+      "mcp__github__get_file_contents",
+      "mcp__github__list_commits",
+      "mcp__github__list_issues",
+      "mcp__github__get_issue",
+      "mcp__github__create_issue",
+      "mcp__github__list_pull_requests",
+      "mcp__github__get_pull_request",
+      "mcp__github__get_pull_request_files",
+      "mcp__github__get_pull_request_status",
+      "mcp__github__list_workflows",
+      "mcp__github__list_workflow_runs",
+      "mcp__github__get_workflow_run",
+      "mcp__github__list_workflow_run_logs",
+      "mcp__github__search_repositories",
+      "mcp__github__search_code"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/affanmahboob/Desktop/carScrapTayyab"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

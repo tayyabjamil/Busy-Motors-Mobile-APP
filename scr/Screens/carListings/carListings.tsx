@@ -36,6 +36,7 @@ import Slider from '@react-native-community/slider';
 import {fetchUserRequest} from '../../redux/slices/userDetail';
 import axios, {AxiosError} from 'axios';
 import Purchases from 'react-native-purchases';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Listings = () => {
   const navigation = useNavigation();
@@ -319,6 +320,13 @@ const Listings = () => {
 
   useEffect(() => {
     getLocation();
+    AsyncStorage.getItem('filter_radius').then(saved => {
+      if (saved !== null) {
+        const parsed = Number(saved);
+        setDistance(parsed);
+        setTempDistance(parsed);
+      }
+    });
   }, []);
   const onRefresh = async () => {
     setRefreshing(true);
@@ -746,13 +754,7 @@ const Listings = () => {
           <View style={styles.heartIconPlaceholder} />
         )}
 
-        {item.isSold ? (
-          <Text style={styles.soldText}>SOLD</Text>
-        ) : (
-          <Text style={styles.regNumber} numberOfLines={1}>
-            {item.registrationNumber || 'N/A'}
-          </Text>
-        )}
+        {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
 
         <Image
           source={getCarImage(item?.make)}
@@ -892,8 +894,8 @@ const Listings = () => {
   const applyFilters = () => {
     setActiveFilters([...tempActiveFilters]);
     setDistance(tempDistance);
-    
-    // Enable distance filter only if user set a distance < 100 (100 = everywhere) and has location
+    AsyncStorage.setItem('filter_radius', String(tempDistance ?? 10));
+
     if (tempDistance !== null && tempDistance < 100 && currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
       setActiveDistanceFilter(true);
     } else {
@@ -916,6 +918,7 @@ const Listings = () => {
     setActiveFilters(defaultFilters);
     setDistance(null);
     setActiveDistanceFilter(null);
+    AsyncStorage.removeItem('filter_radius');
     setIsFilterModalVisible(false);
   };
   const kilometersToMiles = km => {

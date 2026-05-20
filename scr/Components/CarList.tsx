@@ -146,13 +146,7 @@ export default function CarList({ item, onPress, removeLogo = false }: { item: a
           />
         </TouchableOpacity>
 
-        {item.isSold ? (
-          <Text style={styles.soldText}>SOLD</Text>
-        ) : (
-          <Text style={styles.regNumber} numberOfLines={1}>
-            {item.registrationNumber || 'N/A'}
-          </Text>
-        )}
+        {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
 
         {(() => {
           const imageData = getCarImageData(item?.make, item?.carImage);
