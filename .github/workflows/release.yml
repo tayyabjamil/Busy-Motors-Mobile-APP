@@ -62,12 +62,18 @@ jobs:
       - name: Write .env.staging
         env:
           ENV_STAGING: ${{ secrets.ENV_STAGING }}
-        run: echo "$ENV_STAGING" > .env.staging
+        run: |
+          printf '%s\n' "$ENV_STAGING" > .env.staging
+          grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.staging > .env.staging.tmp && mv .env.staging.tmp .env.staging
+          echo "=== .env.staging line count: $(wc -l < .env.staging) ==="
 
       - name: Write .env.production
         env:
           ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
-        run: echo "$ENV_PRODUCTION" > .env.production
+        run: |
+          printf '%s\n' "$ENV_PRODUCTION" > .env.production
+          grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.production > .env.production.tmp && mv .env.production.tmp .env.production
+          echo "=== .env.production line count: $(wc -l < .env.production) ==="
 
       - name: Install Fastlane
         run: cd ios && bundle install
