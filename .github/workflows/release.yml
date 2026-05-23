@@ -15,6 +15,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Select Xcode 26
+        run: |
+          XCODE26=$(ls /Applications/ | grep "^Xcode_26" | sort -V | tail -1)
+          if [ -n "$XCODE26" ]; then
+            sudo xcode-select -s "/Applications/$XCODE26/Contents/Developer"
+            echo "Selected: $XCODE26"
+          else
+            echo "Xcode 26 not found, available versions:"
+            ls /Applications/ | grep Xcode
+            exit 1
+          fi
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
