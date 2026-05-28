@@ -7,8 +7,6 @@ All API calls are plain Axios functions defined in `scr/redux/api.js`. There is 
 A separate Axios instance is configured in `scr/Services/apiHeader.js` and its headers are mutated dynamically after login.
 
 
-**File:** `scr/redux/api.js`
-
 ```js
 import axios from 'axios';
 import Config from 'react-native-config';
