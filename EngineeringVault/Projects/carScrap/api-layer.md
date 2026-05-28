@@ -6,7 +6,6 @@ All API calls are plain Axios functions defined in `scr/redux/api.js`. There is 
 
 A separate Axios instance is configured in `scr/Services/apiHeader.js` and its headers are mutated dynamically after login.
 
-## Base Configuration
 
 **File:** `scr/redux/api.js`
 
