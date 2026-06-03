@@ -69,12 +69,6 @@ const Listings = () => {
   );
   const hasRevenueCatSubscription = activeSubscriptions?.length > 0;
   const [activeDistanceFilter, setActiveDistanceFilter] = useState<boolean | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
-  
-  // Temporary filter states (used in modal before applying)
-  const [tempActiveFilters, setTempActiveFilters] = useState(['Scrap', 'Salvage']);
-  const [tempDistance, setTempDistance] = useState<number | null>(10);
   
   // RevenueCat products for subscription details
   const [revenueCatProducts, setRevenueCatProducts] = useState<any[]>([]);
@@ -154,61 +148,10 @@ const Listings = () => {
       }
       
       setActiveFilters(defaultFilter);
-      setTempActiveFilters(defaultFilter);
     }
   }, [subscriptionTypes.hasScrap, subscriptionTypes.hasSalvage]);
 
   // Check if user is trying to view cars outside their subscription
-  const isViewingRestrictedContent = () => {
-    if (!subscriptionTypes.hasAny || !hasRevenueCatSubscription) {
-      return false; // No subscription, no restrictions
-    }
-    
-    // If user has BOTH subscriptions, no restrictions at all
-    if (subscriptionTypes.hasBoth) {
-      return false;
-    }
-    
-    // If user has only scrap subscription but trying to view salvage (and not scrap)
-    if (subscriptionTypes.hasScrap && !subscriptionTypes.hasSalvage) {
-      return activeFilters.includes('Salvage') && !activeFilters.includes('Scrap');
-    }
-    
-    // If user has only salvage subscription but trying to view scrap (and not salvage)
-    if (subscriptionTypes.hasSalvage && !subscriptionTypes.hasScrap) {
-      return activeFilters.includes('Scrap') && !activeFilters.includes('Salvage');
-    }
-    
-    return false;
-  };
-
-  // Get restricted content type for display
-  const getRestrictedContentType = () => {
-    if (subscriptionTypes.hasScrap && !subscriptionTypes.hasSalvage) {
-      return 'Salvage';
-    }
-    if (subscriptionTypes.hasSalvage && !subscriptionTypes.hasScrap) {
-      return 'Scrap';
-    }
-    return '';
-  };
-
-  // Get user's subscription type for display
-  const getUserSubscriptionType = () => {
-    if (subscriptionTypes.hasBoth) {
-      return 'Scrap & Salvage';
-    }
-    if (subscriptionTypes.hasScrap) {
-      return 'Scrap';
-    }
-    if (subscriptionTypes.hasSalvage) {
-      return 'Salvage';
-    }
-    return '';
-  };
-
-  const restrictedContentType = getRestrictedContentType();
-  const userSubscriptionType = getUserSubscriptionType();
   const locationOptions = [
     '5 miles',
     '10 miles',
@@ -511,27 +454,7 @@ const Listings = () => {
       distanceMatch = distanceInMiles <= distance;
     }
 
-    // 3. Apply search filter (real-time local search)
-    let searchMatch = true;
-    if (searchQuery && searchQuery.trim().length > 0) {
-      const query = searchQuery.toLowerCase().trim();
-      const searchableFields = [
-        item?.make || '',
-        item?.model || '',
-        item?.registrationNumber || '',
-        item?.color || '',
-        item?.fuelType || '',
-        item?.yearOfManufacture?.toString() || '',
-        item?.postcode || '',
-      ];
-      
-      // Check if any field contains the search query
-      searchMatch = searchableFields.some(field => 
-        field.toLowerCase().includes(query)
-      );
-    }
-
-    return filterMatch && distanceMatch && searchMatch;
+    return filterMatch && distanceMatch;
   });
   const noDataFound = filteredData?.length === 0;
   const sortedData = filteredData?.sort((a, b) => {
@@ -741,7 +664,7 @@ const Listings = () => {
       }}
       style={styles.listingCard}
     >
-      {/* Top Row: Heart | Registration | Brand Logo */}
+      {/* Top Row: Heart | Tag | Brand Logo */}
       <View style={styles.cardTopRow}>
         {!item.isSold ? (
           <TouchableOpacity onPress={() => handleToggleFavorite(item, isFavorite)}>
@@ -754,7 +677,12 @@ const Listings = () => {
           <View style={styles.heartIconPlaceholder} />
         )}
 
-        {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
+        {item.isSold
+          ? <Text style={styles.soldText}>SOLD</Text>
+          : <View style={styles.cardTypeTag}>
+              <Text style={styles.cardTypeText}>{item.tag || 'Unknown'}</Text>
+            </View>
+        }
 
         <Image
           source={getCarImage(item?.make)}
@@ -768,9 +696,6 @@ const Listings = () => {
         <Text style={styles.carTitle} numberOfLines={1}>
           {item.make?.toUpperCase()} {item.model?.toUpperCase()} ({item.yearOfManufacture})
         </Text>
-        <View style={styles.scrapTag}>
-          <Text style={styles.scrapText}>{item.tag || 'Unknown'}</Text>
-        </View>
       </View>
 
       {/* Info Grid */}
@@ -807,7 +732,7 @@ const Listings = () => {
           <View style={styles.infoColumn}>
             <MaterialCommunityIcons name="cog" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
             <Text style={styles.label}>TRANSMISSION</Text>
-            <Text style={styles.value}>{item.transmissionType || item.transmission || 'N/A'}</Text>
+            <Text style={styles.value}>{(item.transmissionType || item.transmission || 'N/A').toUpperCase()}</Text>
           </View>
           <View style={styles.separator} />
           <View style={styles.infoColumn}>
@@ -827,7 +752,7 @@ const Listings = () => {
           <View style={styles.infoColumn}>
             <MaterialIcons name="location-on" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
             <Text style={styles.label}>POSTCODE</Text>
-            <Text style={styles.value}>{item.postcode?.toString().toUpperCase() || 'N/A'}</Text>
+            <Text style={styles.value}>{item.postcode ? item.postcode.toString().toUpperCase().slice(0, 3) : 'N/A'}</Text>
           </View>
         </View>
 
@@ -869,12 +794,7 @@ const Listings = () => {
       </View>
     );
   }
-  const handleSliderChange = value => {
-    setTempDistance(value);
-  };
-
   const handleSliderComplete = (value: any) => {
-    setTempDistance(value);
     setDistance(value);
     if (value >= 100) {
       setActiveDistanceFilter(null);
@@ -883,45 +803,7 @@ const Listings = () => {
     }
   };
 
-  // Open filter modal and initialize temp states with current applied values
-  const openFilterModal = () => {
-    setTempActiveFilters([...activeFilters]);
-    setTempDistance(distance);
-    setIsFilterModalVisible(true);
-  };
-
-  // Apply filters when user clicks Filter button
-  const applyFilters = () => {
-    setActiveFilters([...tempActiveFilters]);
-    setDistance(tempDistance);
-    AsyncStorage.setItem('filter_radius', String(tempDistance ?? 10));
-
-    if (tempDistance !== null && tempDistance < 100 && currentLocation?.latitude !== null && currentLocation?.longitude !== null) {
-      setActiveDistanceFilter(true);
-    } else {
-      setActiveDistanceFilter(null);
-    }
-    setIsFilterModalVisible(false);
-  };
-
-  // Reset all filters
-  const resetFilters = () => {
-    const defaultFilters = subscriptionTypes.hasBoth
-      ? ['Scrap', 'Salvage']
-      : subscriptionTypes.hasScrap
-      ? ['Scrap']
-      : subscriptionTypes.hasSalvage
-      ? ['Salvage']
-      : [];
-    setTempActiveFilters(defaultFilters);
-    setTempDistance(null);
-    setActiveFilters(defaultFilters);
-    setDistance(null);
-    setActiveDistanceFilter(null);
-    AsyncStorage.removeItem('filter_radius');
-    setIsFilterModalVisible(false);
-  };
-  const kilometersToMiles = km => {
+const kilometersToMiles = km => {
     return km * 0.621371;
   };
 
@@ -958,40 +840,47 @@ const Listings = () => {
             ))}
             {/* Reset Filter Button */}
             <TouchableOpacity style={styles.resetButton} onPress={resetFilter}>
-              <Text style={styles.resetButtonText}>Reset Filtertr</Text>
+              <Text style={styles.resetButtonText}>Reset Filter</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
 
-      {/* Filter Bottom Sheet Modal */}
-      <Modal
-        visible={isFilterModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setIsFilterModalVisible(false)}>
-        <TouchableWithoutFeedback onPress={() => setIsFilterModalVisible(false)}>
-          <View style={styles.filterModalOverlay}>
-            <View 
-              style={styles.filterModalContent}
-              onStartShouldSetResponder={() => true}
-              onMoveShouldSetResponder={() => false}>
-                {/* Header */}
-                <View style={styles.filterModalHeader}>
-                  <Text style={styles.filterModalTitle}>Filters</Text>
-                  <TouchableOpacity onPress={resetFilters}>
-                    <Text style={styles.resetButtonText}>RESET</Text>
-                  </TouchableOpacity>
-                </View>
 
-                <ScrollView
-                  style={styles.filterScrollView}
-                  showsVerticalScrollIndicator={false}
-                  nestedScrollEnabled={true}
-                  bounces={false}>
-              {/* Scrap/Salvage Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Type</Text>
+      <FlatList
+        data={isLoading ? [] : (noDataFound ? [] : sortedData)}
+        renderItem={renderItem}
+        ListHeaderComponent={
+          <>
+            <Banner navigation={navigation} />
+            <View style={styles.inlineFilterContainer}>
+              {/* Distance Section */}
+              <View style={styles.filterDistanceRow}>
+                <Text style={styles.filterSectionLabel}>Search by distance</Text>
+                <View style={styles.filterDistanceBadge}>
+                  <Text style={styles.filterDistanceBadgeText}>
+                    {(distance ?? 10) >= 100 ? 'Everywhere' : `${distance ?? 10} mi`}
+                  </Text>
+                </View>
+              </View>
+              <Slider
+                style={styles.filterSlider}
+                minimumValue={1}
+                maximumValue={100}
+                step={1}
+                value={distance || 10}
+                onSlidingComplete={handleSliderComplete}
+                minimumTrackTintColor={Colors.primary}
+                maximumTrackTintColor="#E0E0E0"
+                thumbTintColor={Colors.primary}
+              />
+
+              {/* Divider */}
+              <View style={styles.filterDivider} />
+
+              {/* Type Section */}
+              <View style={styles.filterTypeRow}>
+                <Text style={styles.filterSectionLabel}>Car Category</Text>
                 <View style={styles.filterOptionsRow}>
                   {['Scrap', 'Salvage'].map(filter => {
                     const isActive = activeFilters.includes(filter);
@@ -1007,7 +896,6 @@ const Listings = () => {
                             ? activeFilters.filter(f => f !== filter)
                             : [...activeFilters, filter];
                           setActiveFilters(newFilters);
-                          setTempActiveFilters(newFilters);
                         }}>
                         <Text
                           style={[
@@ -1021,71 +909,6 @@ const Listings = () => {
                   })}
                 </View>
               </View>
-
-              {/* Mileage/Distance Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Mileage</Text>
-                <View style={styles.filterSliderContainer}>
-                  <Text style={styles.filterSliderLabel}>
-                    {(tempDistance ?? 10) >= 100 ? 'Everywhere' : `${tempDistance ?? 10} mi`}
-                  </Text>
-                  <Slider
-                    style={styles.filterSlider}
-                    minimumValue={1}
-                    maximumValue={100}
-                    step={1}
-                    value={tempDistance || 10}
-                    onValueChange={handleSliderChange}
-                    onSlidingComplete={handleSliderComplete}
-                    minimumTrackTintColor={Colors.primary}
-                    maximumTrackTintColor="gray"
-                    thumbTintColor={Colors.primary}
-                  />
-                </View>
-              </View>
-                </ScrollView>
-
-                {/* Action Buttons */}
-                <View style={styles.filterActionButtons}>
-                  <TouchableOpacity
-                    style={styles.resetFiltersButton}
-                    onPress={resetFilters}>
-                    <Text style={styles.resetFiltersButtonText}>Reset Filters</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-
-      <FlatList
-        data={isLoading ? [] : (isViewingRestrictedContent() ? [] : (noDataFound ? [] : sortedData))}
-        renderItem={renderItem}
-        ListHeaderComponent={
-          <>
-            <Banner navigation={navigation} />
-            <View style={styles.searchContainer}>
-              <View style={styles.searchBar}>
-                <Image
-                  source={require('../../assets/search.png')}
-                  style={styles.searchIcon}
-                />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search cars..."
-                  placeholderTextColor={Colors.gray}
-                  defaultValue={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-                <TouchableOpacity
-                  style={styles.filterIconButton}
-                  onPress={openFilterModal}>
-                  <Image
-                    source={require('../../assets/Filter_icon.png')}
-                    style={styles.filterIcon}
-                  />
-                </TouchableOpacity>
-              </View>
             </View>
           </>
         }
@@ -1094,44 +917,6 @@ const Listings = () => {
             <View style={styles.loaderContainer}>
               <ActivityIndicator size="large" color={Colors.primary} />
               <Text style={styles.loaderText}>Loading cars...</Text>
-            </View>
-          ) : isViewingRestrictedContent() ? (
-            <View style={styles.restrictedContainer}>
-              <View style={styles.restrictedIconContainer}>
-                <Text style={styles.lockEmoji}>🔒</Text>
-              </View>
-              <Text style={styles.restrictedTitle}>Access Restricted</Text>
-              <Text style={styles.restrictedSubtitle}>
-                Your active subscription is{' '}
-                <Text style={styles.restrictedHighlight}>{userSubscriptionType}</Text>
-              </Text>
-              <Text style={styles.restrictedDescription}>
-                You cannot view {restrictedContentType} cars with your current plan.
-                Upgrade your subscription to access all car listings.
-              </Text>
-              <TouchableOpacity 
-                style={styles.upgradeButton}
-                onPress={() => navigation.navigate('Subscriptions')}>
-                <Text style={styles.upgradeButtonText}>View Subscriptions</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.backToMyListingsButton}
-                onPress={() => {
-                  let defaultFilter: string[] = [];
-                  if (subscriptionTypes.hasBoth) {
-                    defaultFilter = ['Scrap', 'Salvage'];
-                  } else if (subscriptionTypes.hasScrap) {
-                    defaultFilter = ['Scrap'];
-                  } else if (subscriptionTypes.hasSalvage) {
-                    defaultFilter = ['Salvage'];
-                  }
-                  setActiveFilters(defaultFilter);
-                  setTempActiveFilters(defaultFilter);
-                }}>
-                <Text style={styles.backToMyListingsText}>
-                  Back to {userSubscriptionType} Cars
-                </Text>
-              </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.emptyStateContainer}>
@@ -1170,72 +955,55 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+  inlineFilterContainer: {
+    marginTop: hp(0.5),
+    marginHorizontal: wp(1),
     backgroundColor: Colors.white,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: Colors.lightGray,
-    paddingHorizontal: wp(4),
-    height: 55,
+    borderRadius: wp(3),
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(0.8),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 1,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
       },
-      android: {
-        elevation: 2,
-      },
+      android: {elevation: 4},
     }),
   },
-  searchIcon: {
-    width: wp(5),
-    height: wp(5),
-    resizeMode: 'contain',
-    marginRight: wp(2),
-    tintColor: Colors.black,
+  filterDistanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: hp(0.5),
   },
-  searchInput: {
-    flex: 1,
-    fontSize: wp(4),
-    fontFamily: Fonts.regular,
-    color: Colors.black,
-    paddingLeft:5,
+  filterSectionLabel: {
+    fontSize: wp(3.5),
+    fontFamily: Fonts.semiBold,
+    color: '#666',
+    letterSpacing: 0.3,
   },
-  filterIconButton: {
-    paddingRight:4,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 1,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+  filterDistanceBadge: {
+    backgroundColor: Colors.primary + '18',
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(0.4),
+    borderRadius: wp(5),
   },
-  filterIcon: {
-    width: wp(5),
-    height: wp(5),
-    resizeMode: 'contain',
-    tintColor: Colors.black
+  filterDistanceBadgeText: {
+    fontSize: wp(3.2),
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+  },
+  filterDivider: {
+    height: 1,
+    backgroundColor: '#F0F0F0',
+    marginVertical: hp(1.2),
+  },
+  filterTypeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   errorContainer: {
     flex: 1,
@@ -1380,6 +1148,8 @@ const styles = StyleSheet.create({
     borderWidth: 0.2,
     marginTop: 10,
     padding: wp(4),
+    paddingVertical: hp(2.5),
+    minHeight: hp(22),
     shadowColor: Colors.black,
     shadowOpacity: 0.1,
     shadowRadius: wp(2),
@@ -1438,6 +1208,20 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 13,
     fontWeight: '500',
+  },
+  cardTypeTag: {
+    backgroundColor: '#F0F0F0',
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(0.4),
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: '#DCDCDC',
+  },
+  cardTypeText: {
+    color: Colors.darkGray,
+    fontSize: wp(3),
+    fontFamily: Fonts.semiBold,
+    fontWeight: '600',
   },
   infoBox: {
     flexDirection: 'row',
@@ -1514,12 +1298,12 @@ const styles = StyleSheet.create({
     width: wp(4),
     height: wp(4),
     resizeMode: 'contain',
-    tintColor: Colors.gray,
+    tintColor: Colors.darkGray,
   },
   footerText: {
-    fontFamily: Fonts.regular,
+    fontFamily: Fonts.medium,
     fontSize: wp(3),
-    color: Colors.gray,
+    color: Colors.darkGray,
   },
   //Slider
   sliderContainer: {
@@ -1586,38 +1370,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   // Filter Modal Styles
-  filterModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  filterModalContent: {
-    backgroundColor: Colors.white,
-    borderTopLeftRadius: wp(5),
-    borderTopRightRadius: wp(5),
-    maxHeight: hp(80),
-    paddingBottom: Platform.OS === 'ios' ? hp(4) : hp(2),
-  },
-  filterModalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: wp(5),
-    paddingTop: hp(2),
-    paddingBottom: hp(1.5),
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.lightGray,
-  },
-  filterModalTitle: {
-    fontSize: wp(7),
-    fontFamily: Fonts.bold,
-    fontWeight:'700',
-    color: Colors.black,
-  },
-  filterScrollView: {
-    maxHeight: hp(60),
-    paddingHorizontal: wp(5),
-  },
   filterSection: {
     marginTop: hp(1.5),
     marginBottom: hp(1.5),
@@ -1631,17 +1383,16 @@ const styles = StyleSheet.create({
   },
   filterOptionsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: wp(2),
   },
   filterOptionButton: {
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(1.2),
+    paddingHorizontal: wp(4),
+    paddingVertical: hp(0.7),
     borderRadius: wp(5),
-    backgroundColor: Colors.primary,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    marginBottom: hp(1),
+    backgroundColor: '#F2F2F2',
+    borderWidth: 1.5,
+    borderColor: '#E0E0E0',
   },
   brandFilterButton: {
     flexDirection: 'row',
@@ -1653,17 +1404,17 @@ const styles = StyleSheet.create({
     height: wp(6),
   },
   filterOptionButtonActive: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.primary + '15',
     borderColor: Colors.primary,
   },
   filterOptionText: {
-    fontSize: wp(3.8),
-    fontFamily: Fonts.regular,
-    color: Colors.white,
+    fontSize: wp(3.2),
+    fontFamily: Fonts.medium,
+    color: '#888',
   },
   filterOptionTextActive: {
     color: Colors.primary,
-    fontFamily: Fonts.semiBold,
+    fontFamily: Fonts.bold,
   },
   filterOptionButtonDisabled: {
     opacity: 0.3,
@@ -1671,53 +1422,10 @@ const styles = StyleSheet.create({
   filterOptionTextDisabled: {
     color: Colors.textSecondary,
   },
-  filterSliderContainer: {
-    marginTop: hp(1),
-  },
-  filterSliderLabel: {
-    fontSize: wp(4),
-    fontFamily: Fonts.semiBold,
-    color: Colors.primary,
-    textAlign: 'center',
-    marginBottom: hp(1),
-  },
   filterSlider: {
     width: '100%',
-    height: 15,
-  },
-  filterActionButtons: {
-    flexDirection: 'row',
-    marginHorizontal: wp(5),
-    marginTop: hp(2),
-    gap: wp(3),
-  },
-  resetFiltersButton: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    paddingVertical: hp(2),
-    borderRadius: wp(3),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  resetFiltersButtonText: {
-    fontSize: wp(4.5),
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-  },
-  applyFilterButton: {
-    flex: 1,
-    backgroundColor: Colors.black,
-    paddingVertical: hp(2),
-    borderRadius: wp(3),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  applyFilterButtonText: {
-    fontSize: wp(4.5),
-    fontFamily: Fonts.bold,
-    color: Colors.white,
+    height: 20,
+    marginHorizontal: -wp(1),
   },
   // Restricted Content Styles
   restrictedContainer: {

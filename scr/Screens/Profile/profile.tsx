@@ -47,7 +47,7 @@ const Profile = () => {
     message,
   } = useSelector((state: any) => state.profileUpdate);
   const dispatch = useDispatch();
-  const [showImage, setShowImage] = useState<{uri: string} | null>(null);
+  const [showImage, setShowImage] = useState<{uri: string} | string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -57,7 +57,6 @@ const Profile = () => {
   const [countryCode, setCountryCode] = useState('GB');
   const [callingCode, setCallingCode] = useState('44');
   const [visible, setVisible] = useState(false);
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   useEffect(() => {
     setErrors({});
 
@@ -185,27 +184,6 @@ const Profile = () => {
     Toast.show('You have been logged out successfully.', Toast.LONG);
   };
 
-  const deleteProfile = async () => {
-    try {
-      const response = await axios.delete(
-        `${Config.API_BASE_URL}/auth/delete-agent/${userData?.userId}`,
-      );
-      if (response.status === 200) {
-        setDeleteModalVisible(false);
-        dispatch(logout());
-        navigationRef.current?.reset({
-          index: 0,
-          routes: [{name: 'AuthStack'}],
-        });
-        Toast.show('Profile deleted successfully', Toast.LONG);
-      } else {
-        Toast.show('Failed to delete profile', Toast.LONG);
-      }
-    } catch (error) {
-      console.log('Delete error:', error);
-      Toast.show('Something went wrong while deleting profile', Toast.LONG);
-    }
-  };
   const handleImageSelection = async document => {
     setShowImage(document);
   };
@@ -228,10 +206,10 @@ const Profile = () => {
           <View style={styles.profileContainer}>
             <Image
               source={
-                showImage && showImage?.uri
-                  ? {uri: showImage?.uri}
-                  : showImage?.includes('https')
-                  ? {uri: showImage} // local image (e.g., file://...)
+                showImage && typeof showImage === 'object' && showImage.uri
+                  ? {uri: showImage.uri}
+                  : typeof showImage === 'string' && showImage.includes('https')
+                  ? {uri: showImage}
                   : require('../../assets/user(2).png')
               }
               style={styles.profileImage}
@@ -296,54 +274,7 @@ const Profile = () => {
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => {
-          if (userData?.is_guest) {
-            Toast.show(
-              'Guest accounts cannot be deleted. Please log in to delete your profile.',
-              Toast.LONG
-            );
-          } else {
-            setDeleteModalVisible(true);
-          }
-        }}
-      >
-        <Text style={styles.deleteButtonText}>Delete Profile</Text>
-      </TouchableOpacity>
     </View>
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={deleteModalVisible}
-          onRequestClose={() => setDeleteModalVisible(false)}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTopText}>Confirm Deletion</Text>
-              <Text style={styles.modalText}>
-                Are you sure you want to delete your profile?
-              </Text>
-              <View style={styles.buttonRow}>
-                <Pressable
-                  style={[styles.button, styles.cancelButton]}
-                  onPress={() => setDeleteModalVisible(false)}>
-                  <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                    No, Cancel
-                  </Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.button, styles.confirmDeleteButton]}
-                  onPress={() => {
-                    deleteProfile();
-                  }}>
-                  <Text style={styles.confirmDeleteButtonText}>
-                    Yes, Delete
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </Modal>
          <TouchableOpacity
           style={styles.logout}
           onPress={() => setModalVisible(true)}>
@@ -696,36 +627,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.semiBold,
     fontWeight:'600',
     fontSize:16
-  },
-  deleteButton: {
-    backgroundColor: Colors.white,
-    padding: wp(2),
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    borderColor:'red',
-    height: 50,
-    borderRadius: 25,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: wp(1),
-    shadowOffset: { width: 0, height: hp(0.5) },
-    elevation: 5,
-  },
-  deleteButtonText: {
-    fontSize: 14,
-    color: '#FF3B30',
-    fontFamily: Fonts.semiBold,
-  },
-
-  confirmDeleteButton: {
-    borderRadius: 5,
-    marginLeft: 5,
-  },
-  confirmDeleteButtonText: {
-    color: '#FF3B30',
-    fontFamily: Fonts.bold,
   },
   icon: {
     width: wp(4),
