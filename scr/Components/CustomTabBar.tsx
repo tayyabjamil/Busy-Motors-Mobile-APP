@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: Colors.white,
     paddingVertical: hp(1.5),
     paddingHorizontal: wp(3),
     marginHorizontal: wp(5),

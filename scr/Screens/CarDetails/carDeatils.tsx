@@ -107,8 +107,15 @@ const Details = ({ route }) => {
     state => state?.subscription?.activeSubscriptions || [],
   );
 
-  // Check if user has any active subscriptions
-  const hasActiveSubscription = activeSubscriptions.length > 0;
+  // Check if user has a subscription matching this car's type
+  const carTag = (car?.tag || '').toLowerCase(); // 'scrap' or 'salvage'
+  const hasMatchingSubscription = activeSubscriptions.some((id: string) => {
+    const idLower = id.toLowerCase();
+    if (carTag === 'scrap') return idLower.includes('scrap');
+    if (carTag === 'salvage') return idLower.includes('salvage');
+    return true; // unknown tag — allow
+  });
+  const hasActiveSubscription = activeSubscriptions.length > 0 && hasMatchingSubscription;
 
   const { userData } = useSelector(state => state.user);
   const token = useSelector(state => state.auth?.token);
