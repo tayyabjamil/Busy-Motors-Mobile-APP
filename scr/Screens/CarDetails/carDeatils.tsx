@@ -75,22 +75,17 @@ const makeToImageMap: {[key: string]: any} = {
 const getCarImageData = (make: string, carImage: string, displayImage?: string) => {
   const normalizedMake = make?.toLowerCase().trim();
 
-  // If car has a valid displayImage, use it first
-  if (displayImage && displayImage !== 'N/A') {
-    return { source: { uri: displayImage }, isLogo: false };
-  }
-
-  // If car has a valid carImage from API, use it with cover
+  // Show actual car photo if available
   if (carImage && carImage !== 'N/A') {
     return { source: { uri: carImage }, isLogo: false };
   }
 
-  // Check if we have a local brand logo for this make
+  // Fall back to brand logo
   if (normalizedMake && makeToImageMap[normalizedMake]) {
     return { source: makeToImageMap[normalizedMake], isLogo: true };
   }
 
-  // Fallback to default car image (treat as logo/contain)
+  // Final fallback to default car image
   return { source: defaultCarImage, isLogo: true };
 };
 
@@ -372,17 +367,14 @@ const Details = ({ route }) => {
 
         <View style={[styles.sidePadding]}>
           <View style={styles.detailsContainer}>
-            {/* Header: car brand logo */}
+            {/* Header: car image or brand logo */}
             {(() => {
-              const normalizedMake = car?.make?.toLowerCase().trim();
-              const logoSource = (normalizedMake && makeToImageMap[normalizedMake])
-                ? makeToImageMap[normalizedMake]
-                : defaultCarImage;
+              const { source, isLogo } = getCarImageData(car?.make, car?.carImage, car?.displayImage);
               return (
                 <Image
-                  source={logoSource}
+                  source={source}
                   style={styles.centeredImage}
-                  resizeMode="contain"
+                  resizeMode={isLogo ? 'contain' : 'cover'}
                 />
               );
             })()}
