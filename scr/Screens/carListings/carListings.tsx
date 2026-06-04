@@ -680,7 +680,7 @@ const Listings = () => {
         {item.isSold
           ? <Text style={styles.soldText}>SOLD</Text>
           : <View style={styles.cardTypeTag}>
-              <Text style={styles.cardTypeText}>{item.tag || 'Unknown'}</Text>
+              <Text style={styles.cardTypeText}>{(item.tag || 'Unknown').charAt(0).toUpperCase() + (item.tag || 'Unknown').slice(1)}</Text>
             </View>
         }
 
@@ -1219,7 +1219,7 @@ const styles = StyleSheet.create({
   },
   cardTypeText: {
     color: Colors.darkGray,
-    fontSize: wp(3),
+    fontSize: wp(4),
     fontFamily: Fonts.semiBold,
     fontWeight: '600',
   },
