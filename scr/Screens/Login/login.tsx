@@ -125,7 +125,7 @@ const Login = ({navigation}: {navigation: any}) => {
       // Dispatch loginRequest with a flag indicating this is a confirmed attempt
       dispatch(
         loginRequest({
-          email: phone,
+          identifier: phone,
           password,
           deviceId,
           token,
@@ -164,7 +164,7 @@ const Login = ({navigation}: {navigation: any}) => {
       
       dispatch(
         loginRequest({
-          email: phone,
+          identifier: phone,
           password,
           deviceId,
           token,
