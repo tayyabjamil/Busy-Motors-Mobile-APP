@@ -37,13 +37,13 @@ const Login = ({navigation}: {navigation: any}) => {
   // );
   const authState = useSelector((state: any) => state.auth);
   const {loading, loginResponse, token} = authState;
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{
-    email: string;
+    phone: string;
     password: string;
   }>({
-    email: '',
+    phone: '',
     password: '',
   });
   const [apiError, setApiError] = useState('');
@@ -66,7 +66,7 @@ const Login = ({navigation}: {navigation: any}) => {
           navigation.replace('MainStack');
         };
         setupHeaders();
-        dispatch(checkSubscriptionRequest({email: email}));
+        dispatch(checkSubscriptionRequest({email: phone}));
       } else if (loginResponse?.error) {
         setApiError(loginResponse?.error);
       }
@@ -80,7 +80,7 @@ const Login = ({navigation}: {navigation: any}) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setFormErrors({
-        email: '',
+        phone: '',
         password: '',
       });
       setApiError('');
@@ -90,13 +90,12 @@ const Login = ({navigation}: {navigation: any}) => {
   }, [navigation]);
 
   const validateForm = () => {
-    let errors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let errors: any = {};
 
-    if (!email) {
-      errors.email = 'Email is required';
-    } else if (!emailRegex.test(email)) {
-      errors.email = 'Please enter a valid email address';
+    if (!phone) {
+      errors.phone = 'Phone number is required';
+    } else if (!/^\+?[0-9]{7,15}$/.test(phone.replace(/\s/g, ''))) {
+      errors.phone = 'Please enter a valid phone number';
     }
 
     if (!password) {
@@ -126,7 +125,7 @@ const Login = ({navigation}: {navigation: any}) => {
       // Dispatch loginRequest with a flag indicating this is a confirmed attempt
       dispatch(
         loginRequest({
-          email,
+          email: phone,
           password,
           deviceId,
           token,
@@ -165,7 +164,7 @@ const Login = ({navigation}: {navigation: any}) => {
       
       dispatch(
         loginRequest({
-          email,
+          email: phone,
           password,
           deviceId,
           token,
@@ -184,28 +183,22 @@ const Login = ({navigation}: {navigation: any}) => {
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
 
         <Text style={styles.title}>Sign in to your Account</Text>
-        <Text style={styles.subtitle}>
-          Enter your email and password to log in
-        </Text>
-
-        <Text style={styles.hidingColor}>Email Address</Text>
+     
         <TextInput
           style={styles.input}
-          placeholder="Enter your email address"
-          value={email}
+          placeholder="Login with email or phone"
+          value={phone}
           onChangeText={text => {
-            setEmail(text);
+            setPhone(text);
             setApiError('');
           }}
-          keyboardType="email-address"
+          keyboardType="default"
           autoCapitalize="none"
           placeholderTextColor="#9E9E9E"
         />
-        {formErrors.email && (
-          <Text style={styles.errorText}>{formErrors.email}</Text>
+        {formErrors.phone && (
+          <Text style={styles.errorText}>{formErrors.phone}</Text>
         )}
-
-        <Text style={styles.hidingColor}>Password</Text>
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.passwordInput}
@@ -495,6 +488,13 @@ const styles = StyleSheet.create({
   okButtonText: {
     color: Colors.primary,
     fontFamily: Fonts.bold,
+  },
+  loginWithPasswordLabel: {
+    fontSize: wp(4.5),
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    marginTop: hp(2),
+    marginBottom: hp(1),
   },
 });
 
