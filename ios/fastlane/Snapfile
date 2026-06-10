@@ -1,0 +1,26 @@
+# Devices to capture screenshots on
+devices([
+  "iPhone 16 Pro Max",
+  "iPhone 16",
+  "iPhone SE (3rd generation)"
+])
+
+# Languages
+languages([
+  "en-US"
+])
+
+# The name of the scheme to use for the screenshots
+scheme("car scrap staging")
+
+# The app identifier
+app_identifier("com.carscrape.rniap")
+
+# Where to save the screenshots
+output_directory("./fastlane/screenshots")
+
+# Clear previous screenshots before taking new ones
+clear_previous_screenshots(true)
+
+# Use the most recent simulator
+override_status_bar(true)
