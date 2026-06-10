@@ -1,0 +1,59 @@
+name: Take Screenshots
+
+on:
+  workflow_dispatch: # Only runs when manually triggered
+
+jobs:
+  screenshots:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        run: |
+          XCODE26=$(ls /Applications/ | grep "^Xcode_26" | sort -V | tail -1)
+          if [ -n "$XCODE26" ]; then
+            sudo xcode-select -s "/Applications/$XCODE26/Contents/Developer"
+          else
+            echo "Xcode 26 not found"
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install JS dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+
+      - name: Install CocoaPods
+        run: cd ios && pod install
+
+      - name: Write .env.staging
+        env:
+          ENV_STAGING: ${{ secrets.ENV_STAGING }}
+        run: |
+          printf '%s\n' "$ENV_STAGING" > .env.staging
+          grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.staging > .env.staging.tmp && mv .env.staging.tmp .env.staging
+
+      - name: Install Fastlane
+        run: cd ios && bundle install
+
+      - name: Take Screenshots
+        run: cd ios && bundle exec fastlane screenshots
+
+      - name: Upload Screenshots as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ios/fastlane/screenshots/

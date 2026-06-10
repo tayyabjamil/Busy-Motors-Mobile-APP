@@ -38,6 +38,17 @@
                ReferencedContainer = "container:carScrap.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3C1C240D2FD9A042008E3251"
+               BuildableName = "carScrapUITests.xctest"
+               BlueprintName = "carScrapUITests"
+               ReferencedContainer = "container:carScrap.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
