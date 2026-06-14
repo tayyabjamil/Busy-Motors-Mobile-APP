@@ -24,8 +24,6 @@ import Toast from 'react-native-simple-toast';
 import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
-import api, {checkSubscription} from '../../redux/api';
-import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 import {getMessaging} from '@react-native-firebase/messaging';
 import axios from 'axios';
