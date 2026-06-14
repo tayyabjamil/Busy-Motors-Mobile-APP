@@ -42,6 +42,9 @@ jobs:
           ruby-version: '3.1'
           bundler-cache: true
 
+      - name: Update xcodeproj gem for Xcode 26
+        run: gem install xcodeproj --user-install
+
       - name: Install CocoaPods
         run: cd ios && pod install
 

@@ -24,8 +24,6 @@ import Toast from 'react-native-simple-toast';
 import {axiosHeader} from '../../Services/apiHeader';
 import {Fonts} from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
-import api, {checkSubscription} from '../../redux/api';
-import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
 import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
 import {getMessaging} from '@react-native-firebase/messaging';
 import axios from 'axios';
@@ -36,7 +34,7 @@ const Login = ({navigation}: {navigation: any}) => {
   //   (state: any) => state.auth,
   // );
   const authState = useSelector((state: any) => state.auth);
-  const {loading, loginResponse, token} = authState;
+  const {loading, loginResponse, token, error: authError} = authState;
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{
@@ -54,6 +52,12 @@ const Login = ({navigation}: {navigation: any}) => {
   const [rateLimitMessage, setRateLimitMessage] = useState('');
 
   useEffect(() => {
+    if (authError) {
+      setApiError(authError);
+    }
+  }, [authError]);
+
+  useEffect(() => {
     if (loginResponse) {
       setApiError('');
       if (loginResponse.requires_confirmation) {
@@ -69,6 +73,8 @@ const Login = ({navigation}: {navigation: any}) => {
         dispatch(checkSubscriptionRequest({email: phone}));
       } else if (loginResponse?.error) {
         setApiError(loginResponse?.error);
+      } else if (loginResponse?.success === false) {
+        setApiError(loginResponse?.message || 'Login failed. Please try again.');
       }
     }
   }, [loginResponse]);
@@ -93,9 +99,7 @@ const Login = ({navigation}: {navigation: any}) => {
     let errors: any = {};
 
     if (!phone) {
-      errors.phone = 'Phone number is required';
-    } else if (!/^\+?[0-9]{7,15}$/.test(phone.replace(/\s/g, ''))) {
-      errors.phone = 'Please enter a valid phone number';
+      errors.phone = 'Email or phone number is required';
     }
 
     if (!password) {
@@ -186,7 +190,7 @@ const Login = ({navigation}: {navigation: any}) => {
      
         <TextInput
           style={styles.input}
-          placeholder="Login with email or phone"
+          placeholder="Email address or phone number"
           value={phone}
           onChangeText={text => {
             setPhone(text);
