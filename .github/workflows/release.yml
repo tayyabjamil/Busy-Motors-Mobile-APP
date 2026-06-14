@@ -42,11 +42,11 @@ jobs:
           ruby-version: '3.1'
           bundler-cache: true
 
-      - name: Update xcodeproj gem for Xcode 26
-        run: gem install xcodeproj --user-install
+      - name: Install Fastlane & CocoaPods via Bundler
+        run: cd ios && bundle install
 
       - name: Install CocoaPods
-        run: cd ios && pod install
+        run: cd ios && bundle exec pod install
 
       - name: Import Distribution Certificate
         env:
@@ -89,9 +89,6 @@ jobs:
           printf '%s\n' "$ENV_PRODUCTION" > .env.production
           grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.production > .env.production.tmp && mv .env.production.tmp .env.production
           echo "=== .env.production line count: $(wc -l < .env.production) ==="
-
-      - name: Install Fastlane
-        run: cd ios && bundle install
 
       - name: Verify Secrets & Files
         continue-on-error: true
