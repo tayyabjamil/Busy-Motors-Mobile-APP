@@ -30,7 +30,7 @@ import { logout } from '../../redux/slices/authSlice';
 const defaultCarImage = require('../../assets/car2.png');
 
 // Map of make names to brand logo images
-const makeToImageMap: {[key: string]: any} = {
+const makeToImageMap: { [key: string]: any } = {
   'aston martin': require('../../assets/cars/astonmartin.png'),
   'astonmartin': require('../../assets/cars/astonmartin.png'),
   'baic': require('../../assets/cars/baic.png'),
@@ -187,7 +187,7 @@ const Details = ({ route }) => {
         {
           name: 'AuthStack',
           state: {
-            routes: [{name: 'Login'}],
+            routes: [{ name: 'Login' }],
           },
         },
       ],
@@ -342,134 +342,134 @@ const Details = ({ route }) => {
   };
 
   const infoRows = [
-    { iconLib: 'MaterialIcons',          iconName: 'warning',           label: 'Problems',     value: car?.problem,            iconColor: '#F59E0B' },
-    { iconLib: 'MaterialCommunityIcons', iconName: 'card-text-outline', label: 'Reg',          value: car?.registrationNumber, iconColor: Colors.primary },
-    { iconLib: 'MaterialCommunityIcons', iconName: 'car',               label: 'Make',         value: car?.make,               iconColor: Colors.primary },
-    { iconLib: 'MaterialCommunityIcons', iconName: 'car-side',          label: 'Model',        value: car?.model,              iconColor: Colors.primary },
-    { iconLib: 'MaterialCommunityIcons', iconName: 'cog',               label: 'Transmission', value: car?.transmissionType,   iconColor: Colors.primary },
-    { iconLib: 'MaterialCommunityIcons', iconName: 'gas-station',       label: 'Fuel Type',    value: car?.fuelType,           iconColor: Colors.primary },
-    { iconLib: 'MaterialCommunityIcons', iconName: 'palette',           label: 'Colour',       value: car?.color,              iconColor: Colors.primary },
-    { iconLib: 'MaterialIcons',          iconName: 'location-on',       label: 'Postcode',     value: car?.postcode,           iconColor: Colors.primary },
+    { iconLib: 'MaterialIcons', iconName: 'warning', label: 'Problems', value: car?.problem, iconColor: '#F59E0B' },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'card-text-outline', label: 'Reg', value: car?.registrationNumber, iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'car', label: 'Make', value: car?.make, iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'car-side', label: 'Model', value: car?.model, iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'cog', label: 'Transmission', value: car?.transmissionType, iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'gas-station', label: 'Fuel Type', value: car?.fuelType, iconColor: Colors.primary },
+    { iconLib: 'MaterialCommunityIcons', iconName: 'palette', label: 'Colour', value: car?.color, iconColor: Colors.primary },
+    { iconLib: 'MaterialIcons', iconName: 'location-on', label: 'Postcode', value: car?.postcode, iconColor: Colors.primary },
   ];
 
   return (
     <SafeAreaView style={styles.container}>
 
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}>
-                  <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Car Details'} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}>
+        <Header navigation={navigationRef} showBackButton showNotification={false} textData={'Car Details'} />
 
-      <ScrollView
-        style={[
-          styles.container,
-        ]}>
+        <ScrollView
+          style={[
+            styles.container,
+          ]}>
 
-        <View style={[styles.sidePadding]}>
-          <View style={styles.detailsContainer}>
-            {/* Header: car image or brand logo */}
-            {(() => {
-              const { source, isLogo } = getCarImageData(car?.make, car?.carImage, car?.displayImage);
-              return (
-                <Image
-                  source={source}
-                  style={styles.centeredImage}
-                  resizeMode={isLogo ? 'contain' : 'cover'}
-                />
-              );
-            })()}
-            <Text style={styles.carMakeName}>{car?.make?.toUpperCase() || ''}</Text>
+          <View style={[styles.sidePadding]}>
+            <View style={styles.detailsContainer}>
+              {/* Header: car image or brand logo */}
+              {(() => {
+                const { source, isLogo } = getCarImageData(car?.make, car?.carImage, car?.displayImage);
+                return (
+                  <Image
+                    source={source}
+                    style={styles.centeredImage}
+                    resizeMode={isLogo ? 'contain' : 'cover'}
+                  />
+                );
+              })()}
+              <Text style={styles.carMakeName}>{car?.make?.toUpperCase() || ''}</Text>
 
-            {/* Info rows with icons */}
-            {infoRows.map(({ iconLib, iconName, iconColor, label, value }, index) => {
-              let displayValue: string;
-              if (label === 'Postcode') {
-                const raw = value?.toString() || '';
-                displayValue = raw.length > 3
-                  ? raw.substring(0, 3).toUpperCase() + '...'
-                  : (raw.toUpperCase() || 'N/A');
-              } else {
-                displayValue = value?.toString().toUpperCase() || 'N/A';
-              }
+              {/* Info rows with icons */}
+              {infoRows.map(({ iconLib, iconName, iconColor, label, value }, index) => {
+                let displayValue: string;
+                if (label === 'Postcode') {
+                  const raw = value?.toString() || '';
+                  displayValue = raw.length > 3
+                    ? raw.substring(0, 3).toUpperCase() + '...'
+                    : (raw.toUpperCase() || 'N/A');
+                } else {
+                  displayValue = value?.toString().toUpperCase() || 'N/A';
+                }
 
-              const IconComponent = iconLib === 'MaterialIcons' ? MaterialIcons : MaterialCommunityIcons;
+                const IconComponent = iconLib === 'MaterialIcons' ? MaterialIcons : MaterialCommunityIcons;
 
-              const isProblems = label === 'Problems';
-
-              return (
-                <View key={index}>
-                  {index > 0 && <View style={styles.rowDivider} />}
-                  <View style={[styles.infoRow, isProblems && styles.infoRowWrap]}>
-                    <IconComponent name={iconName} size={wp(6)} color={iconColor} style={[styles.rowIcon, isProblems && styles.rowIconTop]} />
-                    <Text style={[styles.label, isProblems && styles.labelTop]}>{label}</Text>
-                    <Text style={[styles.value, isProblems && styles.valueWrap]} numberOfLines={isProblems ? undefined : 1} ellipsizeMode={isProblems ? undefined : 'tail'}>
-                      {displayValue}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
-            <View style={styles.motContainer}>
-              <Image
-                source={require('../../assets/Union.png')}
-                style={styles.motImage}
-              />
-              <View style={styles.textContainer}>
-                <View style={styles.rowText}>
-                  <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
-                  <TouchableOpacity
-                    style={styles.motHistoryButton}
-                    onPress={() => handleMotHistory()}>
-                    <Text style={styles.motHistoryText}>MOT history</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.expiry}>
-                  Expiry: {formatDate(car?.date_added)}
-                </Text>
-              </View>
-            </View>
-            {!hasActiveSubscription && <Banner navigation={navigationRef} />}
-          </View>
-
-          <View style={styles.contactContainer}>
-            <Text style={styles.contactTitle}>Contact Seller Via</Text>
-            <View style={styles.contactIcons}>
-              {[
-                ['Call', require('../../assets/apple.png'), handleCall],
-                [
-                  'WhatsApp',
-                  require('../../assets/whatsapp.png'),
-                  handleWhatsApp,
-                ],
-                ['Text', require('../../assets/messages.png'), handleTextMessage],
-              ].map(([text, icon, action], index) => {
-                const isSold = car?.isSold;
-                const opacityStyle = { opacity: isSold ? 0.3 : 1 };
+                const isProblems = label === 'Problems';
 
                 return (
                   <View key={index}>
-                    <TouchableOpacity
-                      style={[
-                        styles.contactButton,
-                        styles[`${text.toLowerCase()}Button`],
-                        opacityStyle,
-                      ]}
-                      onPress={() => {
-                        if (!isSold) {
-                          action(car?.phoneNumber);
-                        }
-                      }}
-                      activeOpacity={isSold ? 1 : 0.7}
-                      disabled={isSold}>
-                      <Image source={icon} style={[styles.icon, opacityStyle]} />
-                    </TouchableOpacity>
-                    <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
+                    {index > 0 && <View style={styles.rowDivider} />}
+                    <View style={[styles.infoRow, isProblems && styles.infoRowWrap]}>
+                      <IconComponent name={iconName} size={wp(6)} color={iconColor} style={[styles.rowIcon, isProblems && styles.rowIconTop]} />
+                      <Text style={[styles.label, isProblems && styles.labelTop]}>{label}</Text>
+                      <Text style={[styles.value, isProblems && styles.valueWrap]} numberOfLines={isProblems ? undefined : 1} ellipsizeMode={isProblems ? undefined : 'tail'}>
+                        {displayValue}
+                      </Text>
+                    </View>
                   </View>
                 );
               })}
+              <View style={styles.motContainer}>
+                <Image
+                  source={require('../../assets/Union.png')}
+                  style={styles.motImage}
+                />
+                <View style={styles.textContainer}>
+                  <View style={styles.rowText}>
+                    <Text style={styles.title}>MOT Status: {car?.motStatus}</Text>
+                    <TouchableOpacity
+                      style={styles.motHistoryButton}
+                      onPress={() => handleMotHistory()}>
+                      <Text style={styles.motHistoryText}>MOT history</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.expiry}>
+                    Expiry: {formatDate(car?.date_added)}
+                  </Text>
+                </View>
+              </View>
+              {!hasActiveSubscription && <Banner navigation={navigationRef} />}
             </View>
-          </View>
-          {/* {!car?.isSold && (
+
+            <View style={styles.contactContainer}>
+              <Text style={styles.contactTitle}>Contact Seller Via</Text>
+              <View style={styles.contactIcons}>
+                {[
+                  ['Call', require('../../assets/apple.png'), handleCall],
+                  [
+                    'WhatsApp',
+                    require('../../assets/whatsapp.png'),
+                    handleWhatsApp,
+                  ],
+                  ['Text', require('../../assets/messages.png'), handleTextMessage],
+                ].map(([text, icon, action], index) => {
+                  const isSold = car?.isSold;
+                  const opacityStyle = { opacity: isSold ? 0.3 : 1 };
+
+                  return (
+                    <View key={index}>
+                      <TouchableOpacity
+                        style={[
+                          styles.contactButton,
+                          styles[`${text.toLowerCase()}Button`],
+                          opacityStyle,
+                        ]}
+                        onPress={() => {
+                          if (!isSold) {
+                            action(car?.phoneNumber);
+                          }
+                        }}
+                        activeOpacity={isSold ? 1 : 0.7}
+                        disabled={isSold}>
+                        <Image source={icon} style={[styles.icon, opacityStyle]} />
+                      </TouchableOpacity>
+                      <Text style={[styles.contactText, opacityStyle]}>{text}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+            {/* {!car?.isSold && (
           <View style={styles.messageBox}>
             <TextInput
               placeholder="Write your message..."
@@ -512,39 +512,39 @@ const Details = ({ route }) => {
             ) : null}
           </View>
         )} */}
-        </View>
-        <Modal
-          visible={showWebView}
-          animationType="slide"
-          onRequestClose={() => setShowWebView(false)}>
-          <SafeAreaView style={styles.webViewContainer}>
-            <View
-              style={[
-                styles.webViewHeader,
-                Platform.OS === 'ios' && styles.webViewHeaderIOS,
-              ]}>
-              <TouchableOpacity
-                onPress={() => setShowWebView(false)}
+          </View>
+          <Modal
+            visible={showWebView}
+            animationType="slide"
+            onRequestClose={() => setShowWebView(false)}>
+            <SafeAreaView style={styles.webViewContainer}>
+              <View
                 style={[
-                  styles.closeButton,
-                  Platform.OS === 'ios' && styles.closeButtonIOS,
+                  styles.webViewHeader,
+                  Platform.OS === 'ios' && styles.webViewHeaderIOS,
                 ]}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-            <WebView
-              source={{ uri: webViewUrl }}
-              style={styles.webView}
-              startInLoadingState={true}
-              onError={syntheticEvent => {
-                console.error('WebView error:', syntheticEvent.nativeEvent);
-              }}
-            />
+                <TouchableOpacity
+                  onPress={() => setShowWebView(false)}
+                  style={[
+                    styles.closeButton,
+                    Platform.OS === 'ios' && styles.closeButtonIOS,
+                  ]}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+              <WebView
+                source={{ uri: webViewUrl }}
+                style={styles.webView}
+                startInLoadingState={true}
+                onError={syntheticEvent => {
+                  console.error('WebView error:', syntheticEvent.nativeEvent);
+                }}
+              />
 
-          </SafeAreaView>
-        </Modal>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            </SafeAreaView>
+          </Modal>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
 
   );

@@ -1,5 +1,5 @@
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,25 +17,25 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../../Helper/Colors';
-import {useDispatch, useSelector} from 'react-redux';
-import {hp, wp} from '../../Helper/Responsive';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { hp, wp } from '../../Helper/Responsive';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Banner from '../../Components/Banner';
-import {Fonts} from '../../Helper/Fonts';
-import {toggleFavoriteRequest} from '../../redux/slices/favouriteSlice';
-import {RequestLocationPermission} from '../../Helper/Permisions';
+import { Fonts } from '../../Helper/Fonts';
+import { toggleFavoriteRequest } from '../../redux/slices/favouriteSlice';
+import { RequestLocationPermission } from '../../Helper/Permisions';
 import Geolocation from 'react-native-geolocation-service';
 import Toast from 'react-native-simple-toast';
-import {getDistance} from 'geolib';
-import {updateViewCountRequest} from '../../redux/slices/viewCount';
+import { getDistance } from 'geolib';
+import { updateViewCountRequest } from '../../redux/slices/viewCount';
 import api from '../../redux/api';
 import Slider from '@react-native-community/slider';
-import {fetchUserRequest} from '../../redux/slices/userDetail';
-import axios, {AxiosError} from 'axios';
+import { fetchUserRequest } from '../../redux/slices/userDetail';
+import axios, { AxiosError } from 'axios';
 import Purchases from 'react-native-purchases';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -45,7 +45,7 @@ const Listings = () => {
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
   const {
-    
+
     userData,
     // error: userError,
   } = useSelector((state: any) => state.user);
@@ -53,8 +53,8 @@ const Listings = () => {
   const [carListings, setCarListings] = useState([]); // Data state
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [refreshing, setRefreshing] = useState(false);
-  const {favoriteItems} = useSelector((state: any) => state?.favourite);
-  const {hasSubscription,subscriptions} = useSelector(
+  const { favoriteItems } = useSelector((state: any) => state?.favourite);
+  const { hasSubscription, subscriptions } = useSelector(
     (state: any) => state?.subscription?.subscriptionData || {},
   );
   const [activeFilters, setActiveFilters] = useState(['Scrap', 'Salvage']);
@@ -70,7 +70,7 @@ const Listings = () => {
   );
   const hasRevenueCatSubscription = activeSubscriptions?.length > 0;
   const [activeDistanceFilter, setActiveDistanceFilter] = useState<boolean | null>(null);
-  
+
   // RevenueCat products for subscription details
   const [revenueCatProducts, setRevenueCatProducts] = useState<any[]>([]);
 
@@ -124,21 +124,21 @@ const Listings = () => {
   };
 
   const subscriptionTypes = getActiveSubscriptionTypes();
-  
+
   // For backward compatibility - get primary subscription type
-  const activeSubscriptionType = subscriptionTypes.hasBoth 
-    ? 'both' 
-    : subscriptionTypes.hasScrap 
-      ? 'scrap' 
-      : subscriptionTypes.hasSalvage 
-        ? 'salvage' 
+  const activeSubscriptionType = subscriptionTypes.hasBoth
+    ? 'both'
+    : subscriptionTypes.hasScrap
+      ? 'scrap'
+      : subscriptionTypes.hasSalvage
+        ? 'salvage'
         : null;
 
   // Set default filter based on subscription types when they change
   useEffect(() => {
     if (subscriptionTypes.hasAny) {
       let defaultFilter: string[] = [];
-      
+
       if (subscriptionTypes.hasBoth) {
         // User has both subscriptions - show both types
         defaultFilter = ['Scrap', 'Salvage'];
@@ -147,7 +147,7 @@ const Listings = () => {
       } else if (subscriptionTypes.hasSalvage) {
         defaultFilter = ['Salvage'];
       }
-      
+
       setActiveFilters(defaultFilter);
     }
   }, [subscriptionTypes.hasScrap, subscriptionTypes.hasSalvage]);
@@ -346,15 +346,15 @@ const Listings = () => {
     if (hasLocationPermission === 'granted') {
       Geolocation.getCurrentPosition(
         position => {
-          const {latitude, longitude} = position.coords;
-          setCurrentLocation({latitude, longitude});
+          const { latitude, longitude } = position.coords;
+          setCurrentLocation({ latitude, longitude });
           // Auto-enable distance filter with the default/current distance on first load
           setActiveDistanceFilter(true);
         },
         error => {
           console.log('Location error:', error);
         },
-        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
       );
     }
   };
@@ -417,8 +417,8 @@ const Listings = () => {
 
     // Calculate distance in meters using geolib
     const distanceInMeters = getDistance(
-      {latitude: lat1, longitude: lon1},
-      {latitude: lat2, longitude: lon2},
+      { latitude: lat1, longitude: lon1 },
+      { latitude: lat2, longitude: lon2 },
     );
 
     // Convert meters to miles (1 meter = 0.000621371 miles)
@@ -449,7 +449,7 @@ const Listings = () => {
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude,
         },
-        {latitude: item.latitude, longitude: item.longitude},
+        { latitude: item.latitude, longitude: item.longitude },
       );
       const distanceInMiles = distanceInMeters * 0.000621371;
       distanceMatch = distanceInMiles <= distance;
@@ -474,7 +474,7 @@ const Listings = () => {
       return;
     }
 
-    dispatch(toggleFavoriteRequest({carId: item?._id, token}));
+    dispatch(toggleFavoriteRequest({ carId: item?._id, token }));
 
     if (isFavorite) {
       Toast.show(`${item.make} removed from Favorites`);
@@ -484,23 +484,23 @@ const Listings = () => {
   };
 
   const handleCarDetailsNavigation = (car: any) => {
-    dispatch(updateViewCountRequest({carId: car._id, token}));
-    navigation.navigate('CarDeatils', {car});
+    dispatch(updateViewCountRequest({ carId: car._id, token }));
+    navigation.navigate('CarDeatils', { car });
   };
 
   // Function to get brand image icon
   const getBrandImage = (brandName: string) => {
     if (!brandName) return null;
-    
+
     // Find the brand in allAvailableBrands
     const brand = allAvailableBrands.find(
       b => b.name.toLowerCase() === brandName.toLowerCase()
     );
-    
+
     if (!brand) return null;
-    
+
     // Map brand keys to image files
-    const brandImageMap: {[key: string]: any} = {
+    const brandImageMap: { [key: string]: any } = {
       'astonmartin': require('../../assets/cars/astonmartin.png'),
       'baic': require('../../assets/cars/baic.png'),
       'bugatti': require('../../assets/cars/bugatti.png'),
@@ -534,7 +534,7 @@ const Listings = () => {
       'volvo': require('../../assets/cars/volvo.png'),
       'xpeng': require('../../assets/cars/xpeng.png'),
     };
-    
+
     return brandImageMap[brand.key] || null;
   };
 
@@ -545,9 +545,9 @@ const Listings = () => {
   const getCarImage = (make: string) => {
     // Normalize make name to match image filename format
     const normalizedMake = make?.toLowerCase().trim();
-    
+
     // Map of make names to brand logo images
-    const makeToImageMap: {[key: string]: any} = {
+    const makeToImageMap: { [key: string]: any } = {
       'aston martin': require('../../assets/cars/astonmartin.png'),
       'astonmartin': require('../../assets/cars/astonmartin.png'),
       'baic': require('../../assets/cars/baic.png'),
@@ -589,12 +589,12 @@ const Listings = () => {
     };
 
     // Return brand logo if found, otherwise default car image
-    return normalizedMake && makeToImageMap[normalizedMake] 
-      ? makeToImageMap[normalizedMake] 
+    return normalizedMake && makeToImageMap[normalizedMake]
+      ? makeToImageMap[normalizedMake]
       : defaultCarImage;
   };
 
-  const renderItem = ({item, index}) => {
+  const renderItem = ({ item, index }) => {
     const isFavorite = favoriteItems?.includes(item._id);
     const getTimeAgo = dateString => {
       const dateAdded = new Date(dateString);
@@ -622,169 +622,179 @@ const Listings = () => {
     const motDueRaw = item.motDue || item.mot_due || item.motExpiry;
     const motDueDate = motDueRaw
       ? new Date(motDueRaw).toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        }).toUpperCase()
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).toUpperCase()
       : null;
 
     return (
       <View style={styles.listingCardContainer}>
         <Pressable
-      onPress={() => {
-        // Check if car has more than 20 views and user doesn't have subscription
-        if (item?.views?.length > 20 && !isSubscriptionActive) {
-          Alert.alert(
-            'High Demand Car',
-            'This car has been visited by too many users. Subscribe to our subscription to view details and unlock all features.',
-            [
-              {
-                text: 'Subscribe Now',
-                onPress: () => navigation.navigate('Subscriptions'),
-              },
-              {
-                text: 'Cancel',
-                style: 'cancel',
-              },
-            ]
-          );
-          return;
-        }
+          onPress={() => {
+            // Check if car has more than 20 views and user doesn't have subscription
+            if (item?.views?.length > 20 && !isSubscriptionActive) {
+              Alert.alert(
+                'High Demand Car',
+                'This car has been visited by too many users. Subscribe to our subscription to view details and unlock all features.',
+                [
+                  {
+                    text: 'Subscribe Now',
+                    onPress: () => navigation.navigate('Subscriptions'),
+                  },
+                  {
+                    text: 'Cancel',
+                    style: 'cancel',
+                  },
+                ]
+              );
+              return;
+            }
 
-        // Original logic for sold cars
-        if (item.isSold) {
-          Alert.alert('Car Sold', 'This car has already been sold.', [
-            {
-              text: 'OK',
-              onPress: () => handleCarDetailsNavigation(item),
-            },
-          ]);
-        } else {
-          handleCarDetailsNavigation(item);
-        }
-      }}
-      style={styles.listingCard}
-    >
-      {/* Top Row: Heart | Tag | Brand Logo */}
-      <View style={styles.cardTopRow}>
-        {!item.isSold ? (
-          <TouchableOpacity onPress={() => handleToggleFavorite(item, isFavorite)}>
+            // Original logic for sold cars
+            if (item.isSold) {
+              Alert.alert('Car Sold', 'This car has already been sold.', [
+                {
+                  text: 'OK',
+                  onPress: () => handleCarDetailsNavigation(item),
+                },
+              ]);
+            } else {
+              handleCarDetailsNavigation(item);
+            }
+          }}
+          style={styles.listingCard}
+        >
+          {/* Top Row: Heart | Tag | Brand Logo */}
+          <View style={styles.cardTopRow}>
+            {!item.isSold ? (
+              <TouchableOpacity onPress={() => handleToggleFavorite(item, isFavorite)}>
+                <Image
+                  source={isFavorite ? require('../../assets/heart.png') : require('../../assets/simpleHeart.png')}
+                  style={styles.heartIcon}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.heartIconPlaceholder} />
+            )}
+
+            {item.isSold
+              ? <Text style={styles.soldText}>SOLD</Text>
+              : <View style={styles.cardTypeTag}>
+                <Text style={styles.cardTypeText}>{(item.tag || 'Unknown').charAt(0).toUpperCase() + (item.tag || 'Unknown').slice(1)}</Text>
+              </View>
+            }
+
             <Image
-              source={isFavorite ? require('../../assets/heart.png') : require('../../assets/simpleHeart.png')}
-              style={styles.heartIcon}
+              source={getCarImage(item?.make)}
+              resizeMode="contain"
+              style={styles.brandLogo}
             />
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.heartIconPlaceholder} />
-        )}
+          </View>
 
-        {item.isSold
-          ? <Text style={styles.soldText}>SOLD</Text>
-          : <View style={styles.cardTypeTag}>
-              <Text style={styles.cardTypeText}>{(item.tag || 'Unknown').charAt(0).toUpperCase() + (item.tag || 'Unknown').slice(1)}</Text>
+          {/* Title + Tag Row */}
+          <View style={[styles.titleTagRow, item.isSold && { opacity: 0.5 }]}>
+            <Text style={styles.carTitle} numberOfLines={1}>
+              {item.make?.toUpperCase()} {item.model?.toUpperCase()} ({item.yearOfManufacture})
+            </Text>
+          </View>
+
+          {/* Info Grid */}
+          <View style={[item.isSold && { opacity: 0.5 }]}>
+            <View style={styles.infoBox}>
+              <View style={styles.infoColumn}>
+                <MaterialCommunityIcons name="card-text-outline" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>REG</Text>
+                <Text style={styles.value}>{item.registrationNumber || 'N/A'}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.infoColumn}>
+                <MaterialIcons name="warning" size={wp(5)} color="#F59E0B" style={styles.infoIcon} />
+                <Text style={styles.label}>PROBLEMS</Text>
+                <Text style={styles.value} numberOfLines={1}>{item.problem?.toUpperCase() || 'N/A'}</Text>
+              </View>
             </View>
-        }
 
-        <Image
-          source={getCarImage(item?.make)}
-          resizeMode="contain"
-          style={styles.brandLogo}
-        />
-      </View>
+            <View style={styles.infoBox}>
+              <View style={styles.infoColumn}>
+                <MaterialCommunityIcons name="car" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>MAKE</Text>
+                <Text style={styles.value}>{item.make || 'N/A'}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.infoColumn}>
+                <MaterialCommunityIcons name="car-side" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>MODEL</Text>
+                <Text style={styles.value}>{item.model || 'N/A'}</Text>
+              </View>
+            </View>
 
-      {/* Title + Tag Row */}
-      <View style={[styles.titleTagRow, item.isSold && {opacity: 0.5}]}>
-        <Text style={styles.carTitle} numberOfLines={1}>
-          {item.make?.toUpperCase()} {item.model?.toUpperCase()} ({item.yearOfManufacture})
-        </Text>
-      </View>
+            <View style={styles.infoBox}>
+              <View style={styles.infoColumn}>
+                <MaterialCommunityIcons name="cog" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>TRANSMISSION</Text>
+                <Text style={styles.value}>{(item.transmissionType || item.transmission || 'N/A').toUpperCase()}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.infoColumn}>
+                <MaterialCommunityIcons name="gas-station" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>FUEL TYPE</Text>
+                <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
+              </View>
+            </View>
 
-      {/* Info Grid */}
-      <View style={[item.isSold && {opacity: 0.5}]}>
-        <View style={styles.infoBox}>
-          <View style={styles.infoColumn}>
-            <MaterialCommunityIcons name="card-text-outline" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-            <Text style={styles.label}>REG</Text>
-            <Text style={styles.value}>{item.registrationNumber || 'N/A'}</Text>
-          </View>
-          <View style={styles.separator} />
-          <View style={styles.infoColumn}>
-            <MaterialIcons name="warning" size={wp(5)} color="#F59E0B" style={styles.infoIcon} />
-            <Text style={styles.label}>PROBLEMS</Text>
-            <Text style={styles.value} numberOfLines={1}>{item.problem?.toUpperCase() || 'N/A'}</Text>
-          </View>
-        </View>
+            <View style={styles.infoBox}>
+              <View style={styles.infoColumn}>
+                <MaterialCommunityIcons name="palette" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>COLOUR</Text>
+                <MaterialCommunityIcons name="gas-station" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>FUEL TYPE</Text>
+                <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
+              </View>
+            </View>
 
-        <View style={styles.infoBox}>
-          <View style={styles.infoColumn}>
-            <MaterialCommunityIcons name="car" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-            <Text style={styles.label}>MAKE</Text>
-            <Text style={styles.value}>{item.make || 'N/A'}</Text>
-          </View>
-          <View style={styles.separator} />
-          <View style={styles.infoColumn}>
-            <MaterialCommunityIcons name="car-side" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-            <Text style={styles.label}>MODEL</Text>
-            <Text style={styles.value}>{item.model || 'N/A'}</Text>
-          </View>
-        </View>
+            <View style={styles.infoBox}>
+              <View style={styles.infoColumn}>
+                <MaterialCommunityIcons name="palette" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>COLOUR</Text>
+                <Text style={styles.value}>{item.color || 'N/A'}</Text>
+              </View>
+              <View style={styles.separator} />
+              <View style={styles.infoColumn}>
+                <MaterialIcons name="location-on" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>POSTCODE</Text>
+                <Text style={styles.value}>{item.postcode ? item.postcode.toString().toUpperCase().slice(0, 3) : 'N/A'}</Text>
+              </View>
+            </View>
 
-        <View style={styles.infoBox}>
-          <View style={styles.infoColumn}>
-            <MaterialCommunityIcons name="cog" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-            <Text style={styles.label}>TRANSMISSION</Text>
-            <Text style={styles.value}>{(item.transmissionType || item.transmission || 'N/A').toUpperCase()}</Text>
+            {/* MOT DUE Row */}
+            {motDueDate && (
+              <View style={styles.motDueRow}>
+                <Image source={require('../../assets/timer.png')} style={styles.motIcon} />
+                <View>
+                  <Text style={styles.motLabel}>MOT DUE</Text>
+                  <Text style={styles.motDate}>{motDueDate}</Text>
+                </View>
+              </View>
+            )}
           </View>
-          <View style={styles.separator} />
-          <View style={styles.infoColumn}>
-            <MaterialCommunityIcons name="gas-station" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-            <Text style={styles.label}>FUEL TYPE</Text>
-            <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
-          </View>
-        </View>
 
-        <View style={styles.infoBox}>
-          <View style={styles.infoColumn}>
-            <MaterialCommunityIcons name="palette" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-            <Text style={styles.label}>COLOUR</Text>
-            <Text style={styles.value}>{item.color || 'N/A'}</Text>
-          </View>
-          <View style={styles.separator} />
-          <View style={styles.infoColumn}>
-            <MaterialIcons name="location-on" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-            <Text style={styles.label}>POSTCODE</Text>
-            <Text style={styles.value}>{item.postcode ? item.postcode.toString().toUpperCase().slice(0, 3) : 'N/A'}</Text>
-          </View>
-        </View>
-
-        {/* MOT DUE Row */}
-        {motDueDate && (
-          <View style={styles.motDueRow}>
-            <Image source={require('../../assets/timer.png')} style={styles.motIcon} />
-            <View>
-              <Text style={styles.motLabel}>MOT DUE</Text>
-              <Text style={styles.motDate}>{motDueDate}</Text>
+          {/* Footer */}
+          <View style={styles.footer}>
+            <View style={styles.footerItem}>
+              <Image source={require('../../assets/pin.png')} style={[styles.footerItemIcon, item.isSold && { opacity: 0.5 }]} />
+              <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{distance}</Text>
+            </View>
+            <View style={styles.footerItem}>
+              <Image source={require('../../assets/timer.png')} style={[styles.footerItemIcon, item.isSold && { opacity: 0.5 }]} />
+              <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{timeAgo}</Text>
+            </View>
+            <View style={styles.footerItem}>
+              <Image source={require('../../assets/eye.png')} style={[styles.footerItemIcon, item.isSold && { opacity: 0.5 }]} />
+              <Text style={[styles.footerText, item.isSold && { opacity: 0.5 }]}>{item?.views?.length}</Text>
             </View>
           </View>
-        )}
-      </View>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <View style={styles.footerItem}>
-          <Image source={require('../../assets/pin.png')} style={[styles.footerItemIcon, item.isSold && {opacity: 0.5}]} />
-          <Text style={[styles.footerText, item.isSold && {opacity: 0.5}]}>{distance}</Text>
-        </View>
-        <View style={styles.footerItem}>
-          <Image source={require('../../assets/timer.png')} style={[styles.footerItemIcon, item.isSold && {opacity: 0.5}]} />
-          <Text style={[styles.footerText, item.isSold && {opacity: 0.5}]}>{timeAgo}</Text>
-        </View>
-        <View style={styles.footerItem}>
-          <Image source={require('../../assets/eye.png')} style={[styles.footerItemIcon, item.isSold && {opacity: 0.5}]} />
-          <Text style={[styles.footerText, item.isSold && {opacity: 0.5}]}>{item?.views?.length}</Text>
-        </View>
-      </View>
-    </Pressable>
+        </Pressable>
       </View>
     );
   };
@@ -804,7 +814,7 @@ const Listings = () => {
     }
   };
 
-const kilometersToMiles = km => {
+  const kilometersToMiles = km => {
     return km * 0.621371;
   };
 
@@ -922,8 +932,8 @@ const kilometersToMiles = km => {
           ) : (
             <View style={styles.emptyStateContainer}>
               <View style={styles.emptyStateIconContainer}>
-                <Image 
-                  source={require('../../assets/search.png')} 
+                <Image
+                  source={require('../../assets/search.png')}
                   style={styles.emptyStateIcon}
                 />
               </View>
@@ -934,18 +944,18 @@ const kilometersToMiles = km => {
             </View>
           )
         }
-          showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         keyExtractor={item => item?._id || Math.random().toString()}
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
-            />
-          }
-        />
+        contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.primary]}
+            tintColor={Colors.primary}
+          />
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -966,11 +976,11 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
         shadowRadius: 8,
       },
-      android: {elevation: 4},
+      android: { elevation: 4 },
     }),
   },
   filterDistanceRow: {
@@ -1154,7 +1164,7 @@ const styles = StyleSheet.create({
     shadowColor: Colors.black,
     shadowOpacity: 0.1,
     shadowRadius: wp(2),
-    shadowOffset: {width: 0, height: hp(0.5)},
+    shadowOffset: { width: 0, height: hp(0.5) },
     elevation: 3,
     borderColor: '#E8E8E8',
   },
@@ -1232,7 +1242,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
     alignItems: 'center',
   },
-  infoColumn: {flex: 1, paddingHorizontal: wp(1)},
+  infoColumn: { flex: 1, paddingHorizontal: wp(1) },
   infoIcon: {
     marginBottom: 4,
   },
@@ -1339,7 +1349,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
   },
   locationOption: {
@@ -1378,7 +1388,7 @@ const styles = StyleSheet.create({
   filterSectionTitle: {
     fontSize: wp(5),
     fontFamily: Fonts.semiBold,
-    fontWeight:'600',
+    fontWeight: '600',
     color: Colors.black,
     marginBottom: hp(1.5),
   },
