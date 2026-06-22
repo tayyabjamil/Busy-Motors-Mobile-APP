@@ -23,7 +23,7 @@ const getCarImageData = (make: string, carImage: string) => {
 
   const normalizedMake = make?.toLowerCase().trim();
 
-  const makeToImageMap: {[key: string]: any} = {
+  const makeToImageMap: { [key: string]: any } = {
     'aston martin': require('../assets/cars/astonmartin.png'),
     'astonmartin': require('../assets/cars/astonmartin.png'),
     'baic': require('../assets/cars/baic.png'),
@@ -128,8 +128,8 @@ export default function CarList({ item, onPress, removeLogo = false }: { item: a
   const motDueRaw = item.motDue || item.mot_due || item.motExpiry;
   const motDueDate = motDueRaw
     ? new Date(motDueRaw)
-        .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-        .toUpperCase()
+      .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      .toUpperCase()
     : null;
 
   return (
@@ -146,13 +146,7 @@ export default function CarList({ item, onPress, removeLogo = false }: { item: a
           />
         </TouchableOpacity>
 
-        {item.isSold ? (
-          <Text style={styles.soldText}>SOLD</Text>
-        ) : (
-          <Text style={styles.regNumber} numberOfLines={1}>
-            {item.registrationNumber || 'N/A'}
-          </Text>
-        )}
+        {item.isSold && <Text style={styles.soldText}>SOLD</Text>}
 
         {(() => {
           const imageData = getCarImageData(item?.make, item?.carImage);

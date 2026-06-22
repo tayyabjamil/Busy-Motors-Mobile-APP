@@ -15,6 +15,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Select Xcode 26
+        run: |
+          XCODE26=$(ls /Applications/ | grep "^Xcode_26" | sort -V | tail -1)
+          if [ -n "$XCODE26" ]; then
+            sudo xcode-select -s "/Applications/$XCODE26/Contents/Developer"
+            echo "Selected: $XCODE26"
+          else
+            echo "Xcode 26 not found, available versions:"
+            ls /Applications/ | grep Xcode
+            exit 1
+          fi
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -27,11 +39,14 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
-          bundler-cache: true
+          ruby-version: '3.3'
+          bundler-cache: false
+
+      - name: Install Fastlane & CocoaPods via Bundler
+        run: cd ios && bundle install
 
       - name: Install CocoaPods
-        run: cd ios && pod install
+        run: cd ios && bundle exec pod install
 
       - name: Import Distribution Certificate
         env:
@@ -62,15 +77,18 @@ jobs:
       - name: Write .env.staging
         env:
           ENV_STAGING: ${{ secrets.ENV_STAGING }}
-        run: echo "$ENV_STAGING" > .env.staging
+        run: |
+          printf '%s\n' "$ENV_STAGING" > .env.staging
+          grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.staging > .env.staging.tmp && mv .env.staging.tmp .env.staging
+          echo "=== .env.staging line count: $(wc -l < .env.staging) ==="
 
       - name: Write .env.production
         env:
           ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
-        run: echo "$ENV_PRODUCTION" > .env.production
-
-      - name: Install Fastlane
-        run: cd ios && bundle install
+        run: |
+          printf '%s\n' "$ENV_PRODUCTION" > .env.production
+          grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.production > .env.production.tmp && mv .env.production.tmp .env.production
+          echo "=== .env.production line count: $(wc -l < .env.production) ==="
 
       - name: Verify Secrets & Files
         continue-on-error: true
@@ -90,7 +108,6 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: cd ios && bundle exec fastlane staging
-        continue-on-error: true
 
       - name: Print build log on failure
         if: always()
@@ -100,7 +117,6 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: cd ios && bundle exec fastlane production
-        continue-on-error: true
 
       - name: Print production build log on failure
         if: always()

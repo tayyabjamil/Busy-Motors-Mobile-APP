@@ -73,7 +73,7 @@ const Dashboard = ({navigation}: {navigation: any}) => {
           />
 
           <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Subcriptions</Text>
+            <Text style={styles.cardTitle}>Subscriptions</Text>
             <Text style={styles.cardSubtitle}>
               Subscribe to Contact Customers
             </Text>

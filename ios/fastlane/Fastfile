@@ -2,6 +2,15 @@ default_platform(:ios)
 
 platform :ios do
 
+  lane :screenshots do
+    snapshot(
+      scheme: "car scrap staging",
+      output_directory: "./fastlane/screenshots",
+      clear_previous_screenshots: true,
+      override_status_bar: true
+    )
+  end
+
   lane :staging do
     api_key = app_store_connect_api_key(
       key_id: "YUFRC8H2Y6",
@@ -9,7 +18,14 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_API_KEY"],
       is_key_content_base64: false
     )
-    increment_build_number(xcodeproj: "carScrap.xcodeproj")
+    latest_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: "com.carscrape.rniap"
+    )
+    increment_build_number(
+      xcodeproj: "carScrap.xcodeproj",
+      build_number: latest_build + 1
+    )
     profile = get_provisioning_profile(
       api_key: api_key,
       app_identifier: "com.carscrape.rniap",
@@ -29,7 +45,8 @@ platform :ios do
       scheme: "car scrap staging",
       export_method: "app-store",
       xcargs: "ENVFILE=.env.staging",
-      buildlog_path: "~/Library/Logs/gym"
+      buildlog_path: "~/Library/Logs/gym",
+      clean: true
     )
     upload_to_testflight(
       api_key: api_key,
@@ -45,7 +62,18 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_API_KEY"],
       is_key_content_base64: false
     )
-    increment_build_number(xcodeproj: "carScrap.xcodeproj")
+    increment_version_number(
+      xcodeproj: "carScrap.xcodeproj",
+      bump_type: "patch"
+    )
+    latest_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: "com.carscrape.rniap"
+    )
+    increment_build_number(
+      xcodeproj: "carScrap.xcodeproj",
+      build_number: latest_build + 1
+    )
     profile = get_provisioning_profile(
       api_key: api_key,
       app_identifier: "com.carscrape.rniap",
@@ -64,12 +92,15 @@ platform :ios do
       workspace: "carScrap.xcworkspace",
       scheme: "carScrapProduction",
       export_method: "app-store",
-      xcargs: "ENVFILE=.env.production"
+      xcargs: "ENVFILE=.env.production",
+      clean: true
     )
-    upload_to_testflight(
+    upload_to_app_store(
       api_key: api_key,
-      distribute_external: false,
-      notify_external_testers: false
+      submit_for_review: false,
+      automatic_release: false,
+      skip_metadata: true,
+      skip_screenshots: true
     )
   end
 

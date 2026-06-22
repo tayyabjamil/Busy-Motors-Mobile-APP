@@ -260,7 +260,7 @@ const MapListings = () => {
 
               <TouchableOpacity
                 style={styles.crossContainer}
-                onPress={() => setSelectedCar(false)}>
+                onPress={() => setSelectedCar(null)}>
                 <Image
                   source={require('../../assets/cross.png')}
                   tintColor={Colors.white}
