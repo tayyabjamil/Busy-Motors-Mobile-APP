@@ -30,6 +30,7 @@ export const login = async userData => {
       '/auth/login',
       JSON.stringify({
         email: userData.email,
+        phone: userData.phone,
         password: userData.password,
         deviceId: userData.deviceId,
         fcm_token: userData?.token,
@@ -63,6 +64,7 @@ export const attemptLogin = async userData => {
       '/auth/attemptLogin',
       JSON.stringify({
         email: userData?.email,
+        phone: userData?.phone,
         password: userData?.password,
         deviceId: userData?.deviceId,
       }),

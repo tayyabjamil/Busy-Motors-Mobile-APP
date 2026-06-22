@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,30 +13,30 @@ import {
   Pressable,
   Linking,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {loginRequest} from '../../redux/slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginRequest } from '../../redux/slices/authSlice';
 import Colors from '../../Helper/Colors';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import Toast from 'react-native-simple-toast';
-import {axiosHeader} from '../../Services/apiHeader';
-import {Fonts} from '../../Helper/Fonts';
+import { axiosHeader } from '../../Services/apiHeader';
+import { Fonts } from '../../Helper/Fonts';
 import DeviceInfo from 'react-native-device-info';
-import api, {checkSubscription} from '../../redux/api';
-import {NOTIFICATION_PERMISSION} from '../../Helper/Permisions';
-import {checkSubscriptionRequest} from '../../redux/slices/subcriptionsSlice';
-import {getMessaging} from '@react-native-firebase/messaging';
+import api, { checkSubscription } from '../../redux/api';
+import { NOTIFICATION_PERMISSION } from '../../Helper/Permisions';
+import { checkSubscriptionRequest } from '../../redux/slices/subcriptionsSlice';
+import { getMessaging } from '@react-native-firebase/messaging';
 import axios from 'axios';
 
-const Login = ({navigation}: {navigation: any}) => {
+const Login = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
   // const {loading, loginResponse, token, loginSuccess} = useSelector(
   //   (state: any) => state.auth,
   // );
   const authState = useSelector((state: any) => state.auth);
-  const {loading, loginResponse, token} = authState;
+  const { loading, loginResponse, token } = authState;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{
@@ -66,7 +66,7 @@ const Login = ({navigation}: {navigation: any}) => {
           navigation.replace('MainStack');
         };
         setupHeaders();
-        dispatch(checkSubscriptionRequest({email: email}));
+        dispatch(checkSubscriptionRequest({ email: email }));
       } else if (loginResponse?.error) {
         setApiError(loginResponse?.error);
       }
@@ -92,10 +92,14 @@ const Login = ({navigation}: {navigation: any}) => {
   const validateForm = () => {
     let errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+?[\d\s\-()]{7,15}$/;
 
     if (!email) {
       errors.email = 'Email is required';
-    } else if (!emailRegex.test(email)) {
+    } else if (
+      !emailRegex.test(email.trim()) &&
+      !phoneRegex.test(email.trim().replace(/\s/g, ''))
+    ) {
       errors.email = 'Please enter a valid email address';
     }
 
@@ -113,7 +117,10 @@ const Login = ({navigation}: {navigation: any}) => {
     setShowConfirmationModal(false);
     try {
       const deviceId = await DeviceInfo.getUniqueId();
-      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const trimmed = email.trim();
+      const isEmail = emailRegex.test(trimmed);
+
       // Get FCM token safely using the notification service
       let token = null;
       try {
@@ -126,7 +133,8 @@ const Login = ({navigation}: {navigation: any}) => {
       // Dispatch loginRequest with a flag indicating this is a confirmed attempt
       dispatch(
         loginRequest({
-          email,
+          email: isEmail ? trimmed : undefined,
+          phone: !isEmail ? trimmed.replace(/\s/g, '') : undefined,
           password,
           deviceId,
           token,
@@ -137,7 +145,7 @@ const Login = ({navigation}: {navigation: any}) => {
       if (error.response?.status === 429) {
         setRateLimitMessage(
           error.response?.data?.message ||
-            'Too many requests. Please try again later.',
+          'Too many requests. Please try again later.',
         );
         setShowRateLimitModal(true);
       } else {
@@ -154,7 +162,10 @@ const Login = ({navigation}: {navigation: any}) => {
     if (validateForm()) {
       setApiError('');
       const deviceId = await DeviceInfo.getUniqueId();
-      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const trimmed = email.trim();
+      const isEmail = emailRegex.test(trimmed);
+
       // Get FCM token safely
       let token = null;
       try {
@@ -162,10 +173,11 @@ const Login = ({navigation}: {navigation: any}) => {
       } catch (tokenError) {
         console.log('FCM Token Error in handleLogin:', tokenError);
       }
-      
+
       dispatch(
         loginRequest({
-          email,
+          email: isEmail ? trimmed : undefined,
+          phone: !isEmail ? trimmed.replace(/\s/g, '') : undefined,
           password,
           deviceId,
           token,
@@ -185,13 +197,13 @@ const Login = ({navigation}: {navigation: any}) => {
 
         <Text style={styles.title}>Sign in to your Account</Text>
         <Text style={styles.subtitle}>
-          Enter your email and password to log in
+          Enter your email or phone number and password to log in
         </Text>
 
-        <Text style={styles.hidingColor}>Email Address</Text>
+        <Text style={styles.hidingColor}>Email Address or Phone Number</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter your email address"
+          placeholder="Enter your email address or phone number"
           value={email}
           onChangeText={text => {
             setEmail(text);
@@ -242,7 +254,7 @@ const Login = ({navigation}: {navigation: any}) => {
         )}
         {apiError && <Text style={styles.apiErrorText}>{apiError}</Text>}
         <TouchableOpacity onPress={() => navigation.navigate('forgotPassword')}>
-          <Text style={{marginLeft: wp(2), color: Colors.primary}}>
+          <Text style={{ marginLeft: wp(2), color: Colors.primary }}>
             Forgot Password?
           </Text>
         </TouchableOpacity>
@@ -250,7 +262,7 @@ const Login = ({navigation}: {navigation: any}) => {
           style={[styles.loginButton, loading && styles.disabledButton]}
           onPress={handleLogin}
           disabled={loading}>
-          <Text style={[styles.LoginButtonText, {color: Colors?.white}]}>
+          <Text style={[styles.LoginButtonText, { color: Colors?.white }]}>
             {loading ? 'Please wait...' : 'Log In'}
           </Text>
         </TouchableOpacity>
@@ -441,7 +453,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
