@@ -37,13 +37,13 @@ const Login = ({ navigation }: { navigation: any }) => {
   // );
   const authState = useSelector((state: any) => state.auth);
   const { loading, loginResponse, token, error: authError } = authState;
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{
-    phone: string;
+    email: string;
     password: string;
   }>({
-    phone: '',
+    email: '',
     password: '',
   });
   const [apiError, setApiError] = useState('');
@@ -72,7 +72,7 @@ const Login = ({ navigation }: { navigation: any }) => {
           navigation.replace('MainStack');
         };
         setupHeaders();
-        dispatch(checkSubscriptionRequest({ email: phone }));
+        dispatch(checkSubscriptionRequest({ email: email }));
       } else if (loginResponse?.error) {
         setApiError(loginResponse?.error);
       } else if (loginResponse?.success === false) {
@@ -88,7 +88,7 @@ const Login = ({ navigation }: { navigation: any }) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setFormErrors({
-        phone: '',
+        email: '',
         password: '',
       });
       setApiError('');
@@ -214,15 +214,15 @@ const Login = ({ navigation }: { navigation: any }) => {
           placeholder="Enter your email address or phone number"
           value={email}
           onChangeText={text => {
-            setPhone(text);
+            setEmail(text);
             setApiError('');
           }}
           keyboardType="default"
           autoCapitalize="none"
           placeholderTextColor="#9E9E9E"
         />
-        {formErrors.phone && (
-          <Text style={styles.errorText}>{formErrors.phone}</Text>
+        {formErrors.email && (
+          <Text style={styles.errorText}>{formErrors.email}</Text>
         )}
         <View style={styles.passwordContainer}>
           <TextInput

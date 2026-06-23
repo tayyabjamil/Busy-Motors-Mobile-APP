@@ -12,7 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {ScrollView} from 'react-native-gesture-handler';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../../redux/slices/authSlice';
 import Purchases from 'react-native-purchases';
@@ -193,14 +193,17 @@ const Profile = () => {
         style={[
           styles.container,
         ]}>
-          <Header navigation={navigation} showBackButton showNotification={false}textData={'User Profile'} />
+          <Header navigation={navigation} showBackButton showNotification={false}textData={'Settings'} />
           {Config.APP_ENV === 'staging' && (
             <View style={styles.stagingBanner}>
               <Text style={styles.stagingText}>STAGING</Text>
             </View>
           )}
-          <ScrollView
-      showsVerticalScrollIndicator={false}>
+          <KeyboardAwareScrollView
+            showsVerticalScrollIndicator={false}
+            enableOnAndroid
+            keyboardShouldPersistTaps="handled"
+            extraScrollHeight={20}>
         <View style={styles.sidePadding}>
         <View style={styles.profileSection}>
           <View style={styles.profileContainer}>
@@ -268,6 +271,24 @@ const Profile = () => {
   />
 </View>
       {errors?.email && <Text style={styles.errorText}>{errors?.email}</Text>}
+
+          <Text style={styles.hidingColor}>Phone Number</Text>
+        <View style={[styles.inputWrapper, errors?.phoneNumber && styles.inputError]}>
+  <Image
+    source={require('../../assets/telephone.png')}
+    style={styles.iconBack}
+    tintColor={Colors.backIconColor}
+  />
+  <TextInput
+    style={styles.inputWithIcon}
+    placeholder="Phone Number"
+    value={phoneNumber}
+    onChangeText={value => handleInputChange('phoneNumber', value)}
+    keyboardType="phone-pad"
+    placeholderTextColor={Colors.gray}
+  />
+</View>
+      {errors?.phoneNumber && <Text style={styles.errorText}>{errors?.phoneNumber}</Text>}
         </View>
         <View style={styles.buttonContainer}>
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -329,7 +350,7 @@ const Profile = () => {
         <Text style={styles.versionText}>
           Version {Config.APP_VERSION}
         </Text>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
   );
 };

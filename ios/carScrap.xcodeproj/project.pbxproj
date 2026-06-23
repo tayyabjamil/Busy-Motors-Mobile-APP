@@ -48,7 +48,17 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3C1C240F2FD9A042008E3251 /* carScrapUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = carScrapUITests; sourceTree = "<group>"; };
+		3C1C240F2FD9A042008E3251 /* carScrapUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = carScrapUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,8 +197,6 @@
 				3C1C240F2FD9A042008E3251 /* carScrapUITests */,
 			);
 			name = carScrapUITests;
-			packageProductDependencies = (
-			);
 			productName = carScrapUITests;
 			productReference = 3C1C240E2FD9A042008E3251 /* carScrapUITests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
