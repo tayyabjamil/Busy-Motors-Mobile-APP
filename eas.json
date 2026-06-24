@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 7.0.0"
+  },
+  "build": {
+    "development": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "channel": "staging"
+    },
+    "production": {
+      "channel": "production"
+    }
+  },
+  "update": {
+    "production": {
+      "channel": "production"
+    },
+    "staging": {
+      "channel": "staging"
+    }
+  }
+}

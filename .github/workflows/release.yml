@@ -2,11 +2,15 @@ name: Build & Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*-release'
+      - 'v*-ota'
 
 jobs:
+
+  # ─── Full native build → App Store ───────────────────────────────────────
   build-and-release:
+    if: endsWith(github.ref, '-release')
     runs-on: macos-latest
 
     steps:
@@ -113,7 +117,7 @@ jobs:
         if: always()
         run: cat ~/Library/Logs/gym/carScrap-car\ scrap\ staging.log 2>/dev/null || echo "No log found"
 
-      - name: Build & Upload Production to TestFlight
+      - name: Build & Upload Production to App Store
         env:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
         run: cd ios && bundle exec fastlane production
@@ -121,3 +125,36 @@ jobs:
       - name: Print production build log on failure
         if: always()
         run: cat ~/Library/Logs/gym/carScrap-carScrapProduction.log 2>/dev/null || echo "No log found"
+
+  # ─── OTA JS-only update → EAS Update ─────────────────────────────────────
+  ota-update:
+    if: endsWith(github.ref, '-ota')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install JS dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Write .env.production
+        env:
+          ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
+        run: |
+          printf '%s\n' "$ENV_PRODUCTION" > .env.production
+          grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.production > .env.production.tmp && mv .env.production.tmp .env.production
+
+      - name: Publish OTA update to production
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas update --branch production --message "OTA ${{ github.ref_name }}" --non-interactive
