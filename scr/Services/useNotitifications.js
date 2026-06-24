@@ -2,7 +2,6 @@ import {useEffect, useState} from 'react';
 import messaging, {getMessaging} from '@react-native-firebase/messaging';
 import {PermissionsAndroid, Platform, Alert} from 'react-native';
 import {Linking} from 'react-native';
-import {DeepLinkingRoute} from '../Components/DeepLinkingRoute';
 import {navigationRef} from '../navigationRef';
 import {useDispatch, useSelector} from 'react-redux';
 import Purchases from 'react-native-purchases';
