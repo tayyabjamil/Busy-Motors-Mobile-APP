@@ -16,13 +16,5 @@
     "production": {
       "channel": "production"
     }
-  },
-  "update": {
-    "production": {
-      "channel": "production"
-    },
-    "staging": {
-      "channel": "staging"
-    }
   }
 }
