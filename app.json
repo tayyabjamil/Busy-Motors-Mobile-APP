@@ -5,7 +5,10 @@
     "name": "BusyMotors",
     "slug": "busy-motors",
     "version": "1.0.0",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "ios": {
       "bundleIdentifier": "com.carscrape.rniap"
     },
@@ -16,6 +19,11 @@
     },
     "runtimeVersion": {
       "policy": "appVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "98927832-b321-4f61-b0ef-b3f5d98ee58b"
+      }
     }
   }
 }
