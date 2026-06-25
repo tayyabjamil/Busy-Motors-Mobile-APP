@@ -62,7 +62,7 @@ target 'carScrap' do
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION=1'
         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
         # Prevent fmt from using consteval (not fully supported in Xcode 26 clang)
-        config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '$(inherited) -U__cpp_consteval'
+        config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '$(inherited) -U__cpp_consteval -Wno-builtin-macro-redefined'
       end
     end
   end
