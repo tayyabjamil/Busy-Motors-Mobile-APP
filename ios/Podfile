@@ -60,6 +60,7 @@ target 'carScrap' do
 
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION=1'
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FMT_CONSTEVAL='
         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
       end
     end
