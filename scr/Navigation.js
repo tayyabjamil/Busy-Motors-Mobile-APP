@@ -18,6 +18,7 @@ import {fetchUserRequest} from './redux/slices/userDetail';
 import {setActiveSubscriptions} from './redux/slices/subcriptionsSlice';
 import Purchases from 'react-native-purchases';
 import forgotPassword from './Screens/ForgotPassword/forgotPassword';
+import ReportBug from './Screens/ReportBug/reportBug';
 import getOTP from './Screens/GetOTP/getOTP';
 import resetPassword from './Screens/ResetPassword/resetPassword';
 import quoteMessages from './Screens/QuoteMessage/quoteMessages';
@@ -46,6 +47,7 @@ const AuthStack = () => (
     <Stack.Screen name="forgotPassword" component={forgotPassword} />
     <Stack.Screen name="getOTP" component={getOTP} />
     <Stack.Screen name="resetPassword" component={resetPassword} />
+    <Stack.Screen name="ReportBug" component={ReportBug} />
   </Stack.Navigator>
 );
 

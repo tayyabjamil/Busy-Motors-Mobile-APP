@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*-release'
-      - 'v*-ota'
+      - 'v*-patch'
 
 jobs:
 
@@ -125,9 +125,9 @@ jobs:
         if: always()
         run: cat ~/Library/Logs/gym/carScrap-carScrapProduction.log 2>/dev/null || echo "No log found"
 
-  # ─── OTA JS-only update → EAS Update ─────────────────────────────────────
-  ota-update:
-    if: endsWith(github.ref, '-ota')
+  # ─── OTA JS-only patch → hot-updater + Supabase ──────────────────────────
+  ota-patch:
+    if: endsWith(github.ref, '-patch')
     runs-on: ubuntu-latest
 
     steps:
@@ -143,12 +143,6 @@ jobs:
       - name: Install JS dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      - name: Install expo and expo-updates
-        run: npm install expo expo-updates --legacy-peer-deps
-
       - name: Write .env.production
         env:
           ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
@@ -156,7 +150,10 @@ jobs:
           printf '%s\n' "$ENV_PRODUCTION" > .env.production
           grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.production > .env.production.tmp && mv .env.production.tmp .env.production
 
-      - name: Publish OTA update to production
+      - name: Deploy OTA patch
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: eas update --branch production --message "OTA ${{ github.ref_name }}" --non-interactive
+          HOT_UPDATER_SUPABASE_URL: ${{ secrets.HOT_UPDATER_SUPABASE_URL }}
+          HOT_UPDATER_SUPABASE_ANON_KEY: ${{ secrets.HOT_UPDATER_SUPABASE_ANON_KEY }}
+          HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY }}
+          ENVFILE: .env.production
+        run: npx hot-updater deploy --platform ios --channel production
