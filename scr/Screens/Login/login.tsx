@@ -204,14 +204,10 @@ const Login = ({ navigation }: { navigation: any }) => {
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
 
         <Text style={styles.title}>Sign in to your Account</Text>
-        <Text style={styles.subtitle}>
-          Enter your email or phone number and password to log in
-        </Text>
-
-        <Text style={styles.hidingColor}>Email Address or Phone Number</Text>
+      
         <TextInput
           style={styles.input}
-          placeholder="Enter your email address or phone number"
+          placeholder="Enter your email or phone number"
           value={email}
           onChangeText={text => {
             setEmail(text);
@@ -278,6 +274,12 @@ const Login = ({ navigation }: { navigation: any }) => {
           <Text style={styles.linkText}>
             Don't have an account? <Text style={styles.linkBold}>Sign Up</Text>
           </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.reportLink}
+          onPress={() => navigation.navigate('ReportBug')}>
+          <Text style={styles.reportText}>⚠ Report an Issue</Text>
         </TouchableOpacity>
 
         <Modal
@@ -520,6 +522,15 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     marginTop: hp(2),
     marginBottom: hp(1),
+  },
+  reportLink: {
+    marginTop: hp(2),
+    alignItems: 'center',
+  },
+  reportText: {
+    color: '#9E9E9E',
+    fontSize: wp(3.5),
+    fontFamily: Fonts.regular,
   },
 });
 
