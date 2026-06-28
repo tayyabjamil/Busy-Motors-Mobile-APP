@@ -23,7 +23,6 @@ import {
 import Colors from '../../Helper/Colors';
 import {wp} from '../../Helper/Responsive';
 import {Fonts} from '../../Helper/Fonts';
-import Header from '../../Components/Header';
 import { navigationRef } from '../../navigationRef';
 import Config from 'react-native-config';
 
@@ -134,7 +133,6 @@ const Register = ({navigation}: {navigation: any}) => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
-
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             {/* <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -301,6 +299,11 @@ const Register = ({navigation}: {navigation: any}) => {
                   <Text style={styles.linkBold}>Log in</Text>
                 </Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ReportProblem')}
+                style={styles.reportLink}>
+                <Text style={styles.linkBold}>Report a problem</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -408,6 +411,10 @@ const styles = StyleSheet.create({
   linkBold: {
     fontFamily: Fonts.bold,
     color: Colors.primary,
+  },
+  reportLink: {
+    marginTop: 10,
+    alignItems: 'center',
   },
   errorText: {
     color: 'red',

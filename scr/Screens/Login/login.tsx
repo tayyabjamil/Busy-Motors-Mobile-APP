@@ -279,6 +279,11 @@ const Login = ({ navigation }: { navigation: any }) => {
             Don't have an account? <Text style={styles.linkBold}>Sign Up</Text>
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.reportLink}
+          onPress={() => navigation.navigate('ReportProblem')}>
+          <Text style={styles.linkBold}>Report a problem</Text>
+        </TouchableOpacity>
 
         <Modal
           visible={showConfirmationModal}
@@ -434,6 +439,10 @@ const styles = StyleSheet.create({
   linkBold: {
     color: Colors.primary,
     fontFamily: Fonts.bold,
+  },
+  reportLink: {
+    marginTop: hp(1),
+    alignItems: 'center',
   },
   errorText: {
     color: 'red',

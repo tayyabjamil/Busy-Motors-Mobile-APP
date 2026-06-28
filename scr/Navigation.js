@@ -5,6 +5,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
 import Login from './Screens/Login/login';
 import Register from './Screens/Register/register';
+import ReportProblem from './Screens/ReportProblem/reportProblem';
 import Profile from './Screens/Profile/profile';
 import Notifications from './Screens/Notifications/notifications';
 import MapListings from './Screens/MapListings/mapListings';
@@ -43,6 +44,7 @@ const AuthStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="Login" component={Login} />
     <Stack.Screen name="Register" component={Register} />
+    <Stack.Screen name="ReportProblem" component={ReportProblem} />
     <Stack.Screen name="forgotPassword" component={forgotPassword} />
     <Stack.Screen name="getOTP" component={getOTP} />
     <Stack.Screen name="resetPassword" component={resetPassword} />

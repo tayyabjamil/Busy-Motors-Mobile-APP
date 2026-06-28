@@ -321,4 +321,23 @@ export const saveSubscriptionAPI = async (token, subscriptionData) => {
   }
 };
 
+export const reportProblemAPI = async ({name, email, text}) => {
+  console.log("Api working started")
+  try {
+    const response = await api.post('/problems', {
+      name,
+      email,
+      text,
+      status: 'open',
+    });
+    console.log("Response", response)
+    return response.data;
+
+  } catch (error) {
+    console.log('Report Problem API Error:', error.response?.data || error.message);
+    console.log('Report Problem API Error status:', error.response?.status);
+    throw new Error(error.response?.data?.message || 'Failed to submit report');
+  }
+};
+
 export default api;
