@@ -64,8 +64,8 @@ const Listings = () => {
     latitude: null,
     longitude: null,
   });
-  const [distance, setDistance] = useState<number | null>(80); // Default 80 miles on first open
-  const [sliderValue, setSliderValue] = useState<number>(80); // Live display value while dragging
+  const [distance, setDistance] = useState<number | null>(90); // Default 90 miles on first open
+  const [sliderValue, setSliderValue] = useState<number>(90); // Live display value while dragging
   const activeSubscriptions = useSelector(
     (state: any) => state?.subscription?.activeSubscriptions || [],
   );

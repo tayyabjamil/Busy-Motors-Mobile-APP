@@ -34,7 +34,7 @@ const Tab = createBottomTabNavigator();
 /* Load Images from Assets */
 const icons = {
   CarListings: require('./assets/home.png'),
-  MapListings: require('./assets/placeholder.png'),
+  MapListings: require('./assets/pin.png'),
   Dashboard: require('./assets/dashboard.png'),
   Profile: require('./assets/user.png'),
 };

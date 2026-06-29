@@ -65,6 +65,10 @@ platform :ios do
   end
 
   lane :production do
+    increment_version_number(
+      xcodeproj: "carScrap.xcodeproj",
+      bump_type: "patch"
+    )
     api_key = setup
     build_app(
       workspace: "carScrap.xcworkspace",
