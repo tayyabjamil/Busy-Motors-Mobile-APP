@@ -278,7 +278,9 @@ const Details = ({ route }) => {
       return;
     }
 
-    Linking.openURL(`https://wa.me/${phoneNumber}`);
+    const digits = phoneNumber?.toString().replace(/\D/g, '');
+    const cleaned = digits?.startsWith('0') ? '44' + digits.slice(1) : digits;
+    Linking.openURL(`https://wa.me/${cleaned}`);
   };
 
   const handleMotHistory = () => {

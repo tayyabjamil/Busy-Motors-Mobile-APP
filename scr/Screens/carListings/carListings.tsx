@@ -64,7 +64,8 @@ const Listings = () => {
     latitude: null,
     longitude: null,
   });
-  const [distance, setDistance] = useState<number | null>(10); // Default 10 miles on first open
+  const [distance, setDistance] = useState<number | null>(80); // Default 80 miles on first open
+  const [sliderValue, setSliderValue] = useState<number>(80); // Live display value while dragging
   const activeSubscriptions = useSelector(
     (state: any) => state?.subscription?.activeSubscriptions || [],
   );
@@ -268,7 +269,7 @@ const Listings = () => {
       if (saved !== null) {
         const parsed = Number(saved);
         setDistance(parsed);
-        setTempDistance(parsed);
+        setSliderValue(parsed);
       }
     });
   }, []);
@@ -737,19 +738,9 @@ const Listings = () => {
               </View>
               <View style={styles.separator} />
               <View style={styles.infoColumn}>
-                <MaterialCommunityIcons name="gas-station" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-                <Text style={styles.label}>FUEL TYPE</Text>
-                <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
-              </View>
-            </View>
-
-            <View style={styles.infoBox}>
-              <View style={styles.infoColumn}>
-                <MaterialCommunityIcons name="palette" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-                <Text style={styles.label}>COLOUR</Text>
-                <MaterialCommunityIcons name="gas-station" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-                <Text style={styles.label}>FUEL TYPE</Text>
-                <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
+                <MaterialIcons name="location-on" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>POSTCODE</Text>
+                <Text style={styles.value}>{item.postcode ? item.postcode.toString().toUpperCase().slice(0, 3) : 'N/A'}</Text>
               </View>
             </View>
 
@@ -761,9 +752,9 @@ const Listings = () => {
               </View>
               <View style={styles.separator} />
               <View style={styles.infoColumn}>
-                <MaterialIcons name="location-on" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
-                <Text style={styles.label}>POSTCODE</Text>
-                <Text style={styles.value}>{item.postcode ? item.postcode.toString().toUpperCase().slice(0, 3) : 'N/A'}</Text>
+                <MaterialCommunityIcons name="gas-station" size={wp(5)} color={Colors.primary} style={styles.infoIcon} />
+                <Text style={styles.label}>FUEL TYPE</Text>
+                <Text style={styles.value}>{item.fuelType || 'N/A'}</Text>
               </View>
             </View>
 
@@ -806,6 +797,7 @@ const Listings = () => {
     );
   }
   const handleSliderComplete = (value: any) => {
+    setSliderValue(value);
     setDistance(value);
     if (value >= 100) {
       setActiveDistanceFilter(null);
@@ -870,16 +862,17 @@ const Listings = () => {
                 <Text style={styles.filterSectionLabel}>Search by distance</Text>
                 <View style={styles.filterDistanceBadge}>
                   <Text style={styles.filterDistanceBadgeText}>
-                    {(distance ?? 10) >= 100 ? 'Everywhere' : `${distance ?? 10} mi`}
+                    {sliderValue >= 100 ? 'Everywhere' : `${sliderValue} mi`}
                   </Text>
                 </View>
               </View>
               <Slider
                 style={styles.filterSlider}
-                minimumValue={1}
+                minimumValue={0}
                 maximumValue={100}
-                step={1}
-                value={distance || 10}
+                step={5}
+                value={sliderValue}
+                onValueChange={(value) => setSliderValue(value)}
                 onSlidingComplete={handleSliderComplete}
                 minimumTrackTintColor={Colors.primary}
                 maximumTrackTintColor="#E0E0E0"
