@@ -150,10 +150,27 @@ jobs:
           printf '%s\n' "$ENV_PRODUCTION" > .env.production
           grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.production > .env.production.tmp && mv .env.production.tmp .env.production
 
+      - name: Read iOS version
+        id: ios_version
+        run: |
+          VERSION=$(grep -m1 'MARKETING_VERSION' ios/carScrap.xcodeproj/project.pbxproj | tr -d ' ;' | cut -d'=' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "iOS version: $VERSION"
+
+      - name: Check Supabase secrets
+        env:
+          HOT_UPDATER_SUPABASE_URL: ${{ secrets.HOT_UPDATER_SUPABASE_URL }}
+          HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$HOT_UPDATER_SUPABASE_URL" ]; then echo "❌ HOT_UPDATER_SUPABASE_URL secret is not set"; exit 1; fi
+          if [ -z "$HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY" ]; then echo "❌ HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY secret is not set"; exit 1; fi
+          echo "✅ Supabase secrets are set (URL: ${HOT_UPDATER_SUPABASE_URL:0:30}...)"
+
       - name: Deploy OTA patch
         env:
           HOT_UPDATER_SUPABASE_URL: ${{ secrets.HOT_UPDATER_SUPABASE_URL }}
           HOT_UPDATER_SUPABASE_ANON_KEY: ${{ secrets.HOT_UPDATER_SUPABASE_ANON_KEY }}
           HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.HOT_UPDATER_SUPABASE_SERVICE_ROLE_KEY }}
-          ENVFILE: .env.production
-        run: npx hot-updater deploy --platform ios --channel production
+        run: |
+          cp .env.production .env
+          npx hot-updater deploy --platform ios --channel production --target-app-version ${{ steps.ios_version.outputs.version }}
