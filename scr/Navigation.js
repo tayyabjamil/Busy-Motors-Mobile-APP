@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Image, View, Platform} from 'react-native';
+import {Alert, Image, View, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -17,6 +17,8 @@ import {axiosHeader} from './Services/apiHeader';
 import {fetchUserRequest} from './redux/slices/userDetail';
 import {setActiveSubscriptions} from './redux/slices/subcriptionsSlice';
 import Purchases from 'react-native-purchases';
+import DeviceInfo from 'react-native-device-info';
+import {logout} from './redux/slices/authSlice';
 import forgotPassword from './Screens/ForgotPassword/forgotPassword';
 import ReportBug from './Screens/ReportBug/reportBug';
 import getOTP from './Screens/GetOTP/getOTP';
@@ -129,36 +131,30 @@ const AppNavigation = () => {
     }
   };
 
-  // Check device ID and active devices
-  // useEffect(() => {
-  //   const checkActiveDevice = async () => {
-  //     try {
-  //       // Get current device ID based on platform
-  //       const currentDeviceId =
-  //         Platform.OS === 'android'
-  //           ? await DeviceInfo.getAndroidId()
-  //           : await DeviceInfo.getUniqueId();
-  //       if (userData?.active_devices && currentDeviceId) {
-  //         // Check if current device ID exists in active devices
-  //         const isDeviceActive =
-  //           userData.active_devices.includes(currentDeviceId);
+  // Single-device enforcement: log out if device ID no longer matches
+  useEffect(() => {
+    const checkDeviceId = async () => {
+      try {
+        const currentDeviceId = await DeviceInfo.getUniqueId();
+        const storedDeviceId = userData?.deviceId;
+        if (storedDeviceId && currentDeviceId !== storedDeviceId) {
+          console.log('Device ID mismatch — logging out');
+          Alert.alert(
+            'Logged Out',
+            'Your account has been logged in on another device.',
+            [{text: 'OK', onPress: () => dispatch(logout())}],
+            {cancelable: false},
+          );
+        }
+      } catch (error) {
+        console.error('Device check error:', error);
+      }
+    };
 
-  //         // If device is not in active devices, logout user
-  //         if (!isDeviceActive) {
-  //           console.log('Device not authorized, logging out...');
-
-  //           dispatch(logout());
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.error('Device check error:', error);
-  //     }
-  //   };
-
-  //   if (userData && token) {
-  //     checkActiveDevice();
-  //   }
-  // }, [userData, token]);
+    if (userData && token) {
+      checkDeviceId();
+    }
+  }, [userData, token]);
 
   // Set axios header and fetch user data when token is available
   useEffect(() => {
