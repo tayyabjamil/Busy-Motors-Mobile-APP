@@ -193,6 +193,16 @@ export const updateUserProfile = async (token, updatedData) => {
     ); // Throw a meaningful error
   }
 };
+export const updateLocationAPI = async (latitude, longitude) => {
+  try {
+    const response = await api.put('/auth/update-location', {latitude, longitude});
+    return response.data;
+  } catch (error) {
+    console.log('Update Location Error:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
 //Add to favourite
 export const addToSaved = async (carId, token) => {
   const deviceId = await DeviceInfo.getUniqueId();

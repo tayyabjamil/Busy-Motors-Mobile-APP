@@ -1,5 +1,6 @@
 import {takeLatest, put, call} from 'redux-saga/effects';
-import {attemptLogin, guestLoginApi, login, register} from '../api'; // Import the APIs
+import Geolocation from 'react-native-geolocation-service';
+import {attemptLogin, guestLoginApi, login, register, updateLocationAPI} from '../api'; // Import the APIs
 import {
   loginRequest,
   loginSuccess,
@@ -12,6 +13,15 @@ import {
   guestLoginFailure,
 } from '../slices/authSlice'; // Import actions from authSlice
 import {checkSubscriptionRequest} from '../slices/subcriptionsSlice';
+
+const getCurrentLocation = () =>
+  new Promise((resolve, reject) => {
+    Geolocation.getCurrentPosition(
+      position => resolve(position.coords),
+      error => reject(error),
+      {enableHighAccuracy: true, timeout: 10000, maximumAge: 60000},
+    );
+  });
 
 // Worker saga for login
 function* handleLogin(action) {
@@ -35,6 +45,15 @@ function* handleLogin(action) {
 
     yield put(loginSuccess(loginResponse));
     console.log('✅ [authSaga] loginSuccess action dispatched');
+
+    // Get location and update after successful login
+    try {
+      const coords = yield call(getCurrentLocation);
+      yield call(updateLocationAPI, coords.latitude, coords.longitude);
+      console.log('📍 [authSaga] Location updated:', coords.latitude, coords.longitude);
+    } catch (locError) {
+      console.log('📍 [authSaga] Location update skipped:', locError.message);
+    }
 
     // yield put(checkSubscriptionRequest({email: action.payload.email}));
   } catch (error) {
