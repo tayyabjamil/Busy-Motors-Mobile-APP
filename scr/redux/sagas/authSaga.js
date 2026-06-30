@@ -49,7 +49,7 @@ function* handleLogin(action) {
     // Get location and update after successful login
     try {
       const coords = yield call(getCurrentLocation);
-      yield call(updateLocationAPI, coords.latitude, coords.longitude);
+      yield call(updateLocationAPI, loginResponse.access_token, coords.latitude, coords.longitude);
       console.log('📍 [authSaga] Location updated:', coords.latitude, coords.longitude);
     } catch (locError) {
       console.log('📍 [authSaga] Location update skipped:', locError.message);

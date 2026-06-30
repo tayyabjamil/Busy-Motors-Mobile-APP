@@ -193,9 +193,13 @@ export const updateUserProfile = async (token, updatedData) => {
     ); // Throw a meaningful error
   }
 };
-export const updateLocationAPI = async (latitude, longitude) => {
+export const updateLocationAPI = async (token, latitude, longitude) => {
   try {
-    const response = await api.put('/auth/update-location', {latitude, longitude});
+    const response = await api.put(
+      '/auth/updateLocation',
+      {latitude: String(latitude), longitude: String(longitude)},
+      {headers: {Authorization: `Bearer ${token}`}},
+    );
     return response.data;
   } catch (error) {
     console.log('Update Location Error:', error.response?.data || error.message);
