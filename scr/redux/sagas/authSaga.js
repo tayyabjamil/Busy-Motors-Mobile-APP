@@ -1,5 +1,4 @@
 import {takeLatest, put, call} from 'redux-saga/effects';
-import {Alert} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {attemptLogin, guestLoginApi, login, register, updateLocationAPI} from '../api'; // Import the APIs
 import {
@@ -44,26 +43,6 @@ function* handleLogin(action) {
     // Proceed with normal login (either no confirmation needed or this is a confirmed attempt)
     const loginResponse = yield call(login, action.payload);
     console.log('✅ [authSaga] Login API response:', JSON.stringify(loginResponse, null, 2));
-
-    // Check if this device is still in active_devices returned by login
-    const activeDevices = loginResponse.active_devices;
-    const currentDeviceId = action.payload.deviceId;
-    if (
-      Array.isArray(activeDevices) &&
-      activeDevices.length > 0 &&
-      currentDeviceId &&
-      !activeDevices.includes(currentDeviceId)
-    ) {
-      console.log('🚫 [authSaga] Device not in active_devices — logging out');
-      Alert.alert(
-        'Logged Out',
-        'Your account is already logged in on another device.',
-        [{text: 'OK'}],
-        {cancelable: false},
-      );
-      yield put(loginFailure('Device not authorised'));
-      return;
-    }
 
     yield put(loginSuccess(loginResponse));
     console.log('✅ [authSaga] loginSuccess action dispatched');

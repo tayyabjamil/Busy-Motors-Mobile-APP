@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Alert, Image, View, Platform} from 'react-native';
+import {Image, View, Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {NavigationContainer} from '@react-navigation/native';
@@ -17,8 +17,6 @@ import {axiosHeader} from './Services/apiHeader';
 import {fetchUserRequest} from './redux/slices/userDetail';
 import {setActiveSubscriptions} from './redux/slices/subcriptionsSlice';
 import Purchases from 'react-native-purchases';
-import DeviceInfo from 'react-native-device-info';
-import {logout} from './redux/slices/authSlice';
 import forgotPassword from './Screens/ForgotPassword/forgotPassword';
 import ReportBug from './Screens/ReportBug/reportBug';
 import getOTP from './Screens/GetOTP/getOTP';
@@ -130,31 +128,6 @@ const AppNavigation = () => {
       console.log('❌ Error checking RevenueCat subscriptions on login:', error);
     }
   };
-
-  // Single-device enforcement: log out if current device is not in active_devices
-  useEffect(() => {
-    const checkDeviceId = async () => {
-      try {
-        const currentDeviceId = await DeviceInfo.getUniqueId();
-        const activeDevices = userData?.active_devices;
-        if (activeDevices?.length > 0 && !activeDevices.includes(currentDeviceId)) {
-          console.log('Device not in active_devices — logging out');
-          Alert.alert(
-            'Logged Out',
-            'Your account has been logged in on another device.',
-            [{text: 'OK', onPress: () => dispatch(logout())}],
-            {cancelable: false},
-          );
-        }
-      } catch (error) {
-        console.error('Device check error:', error);
-      }
-    };
-
-    if (userData && token) {
-      checkDeviceId();
-    }
-  }, [userData, token]);
 
   // Set axios header and fetch user data when token is available
   useEffect(() => {
