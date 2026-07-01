@@ -1,10 +1,9 @@
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Colors from '../Helper/Colors';
 import { hp, wp } from '../Helper/Responsive';
 import { useSelector } from 'react-redux';
 import Toast from 'react-native-simple-toast';
-import { Text } from 'react-native-gesture-handler';
 
 export default function Header({
   textData,
