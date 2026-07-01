@@ -8,8 +8,6 @@ import {
   StyleSheet,
   Pressable,
   Modal,
-  ActivityIndicator,
-  Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -24,31 +22,21 @@ import {
 import Colors from '../../Helper/Colors';
 import {hp, wp} from '../../Helper/Responsive';
 import Toast from 'react-native-simple-toast';
-import CountryPicker from 'react-native-country-picker-modal';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Header from '../../Components/Header';
 import {Fonts} from '../../Helper/Fonts';
 import {navigationRef} from '../../navigationRef';
-import axios from 'axios';
 import Config from 'react-native-config';
-import DeviceInfo from 'react-native-device-info';
 import {selectImage} from '../../Functions/MediaManager';
-import {getBundleId} from '@hot-updater/react-native';
-import OTA_CHANGELOG from '../../otaChangelog';
 
 const Profile = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const token = useSelector((state: any) => state.auth?.token);
-  const {
-    userData,
-    error: userError,
-  } = useSelector((state: any) => state.user);
-  const {
-    success: updateSuccess,
-    error: updateError,
-    message,
-  } = useSelector((state: any) => state.profileUpdate);
+  const {userData} = useSelector((state: any) => state.user);
+  const {success: updateSuccess, message} = useSelector(
+    (state: any) => state.profileUpdate,
+  );
   const dispatch = useDispatch();
   const [showImage, setShowImage] = useState<{uri: string} | string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -56,18 +44,7 @@ const Profile = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [errors, setErrors] = useState({});
-  const [countryCode, setCountryCode] = useState('GB');
-  const [callingCode, setCallingCode] = useState('44');
-  const [visible, setVisible] = useState(false);
-  const [otaActive, setOtaActive] = useState(false);
-
-  useEffect(() => {
-    const NIL_UUID = '00000000-0000-0000-0000-000000000000';
-    const bundleId = getBundleId();
-    setOtaActive(!!bundleId && bundleId !== NIL_UUID && OTA_CHANGELOG.length > 0);
-  }, []);
-
+  const [errors, setErrors] = useState<Record<string, string | null | undefined>>({});
   useEffect(() => {
     setErrors({});
 
@@ -104,7 +81,7 @@ const Profile = () => {
 
   // Validation rules
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: Record<string, string> = {};
 
     if (!firstName.trim()) {
       newErrors.firstName = 'First name is required';
@@ -133,7 +110,7 @@ const Profile = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: string, value: string) => {
     setErrors(prevErrors => ({...prevErrors, [field]: null}));
     switch (field) {
       case 'firstName':
@@ -169,7 +146,7 @@ const Profile = () => {
       formData.append('phone', phoneNumber);
 
       // Profile image ko alag file ke tarah append karo
-      if (showImage?.uri) {
+      if (typeof showImage === 'object' && showImage?.uri) {
         formData.append('profile_image', {
           uri: showImage.uri,
           name: 'profile.jpg',
@@ -195,7 +172,7 @@ const Profile = () => {
     Toast.show('You have been logged out successfully.', Toast.LONG);
   };
 
-  const handleImageSelection = async document => {
+  const handleImageSelection = async (document: {uri: string} | string) => {
     setShowImage(document);
   };
   return (
@@ -359,13 +336,8 @@ const Profile = () => {
         </Modal>
         </View>
         <Text style={styles.versionText}>
-          v{DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()}) • {Config.APP_ENV}
+          Version {Config.APP_VERSION}
         </Text>
-        {otaActive && userData?.email === 'tayyab@gmail.com' && (
-          <Text style={styles.otaChangelogText}>
-            {OTA_CHANGELOG}
-          </Text>
-        )}
         </KeyboardAwareScrollView>
       </SafeAreaView>
   );
@@ -380,14 +352,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.gray,
     paddingVertical: 12,
-  },
-  otaChangelogText: {
-    textAlign: 'center',
-    fontSize: 11,
-    color: Colors.gray,
-    paddingHorizontal: 24,
-    paddingBottom: 12,
-    fontStyle: 'italic',
   },
   stagingBanner: {
     backgroundColor: 'orange',
@@ -645,9 +609,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
+  buttonText: {
+    fontSize: 16,
+    fontFamily: Fonts.bold,
+    textAlign: 'center',
+  },
   cancelButton: {
     borderRightWidth: 1,
-    fontFamily: Fonts.regular,
     borderColor: '#D3D3D3',
   },
   cancelButtonText: {

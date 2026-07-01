@@ -30,6 +30,8 @@ import { checkSubscriptionRequest } from '../../redux/slices/subcriptionsSlice';
 import { getMessaging } from '@react-native-firebase/messaging';
 import axios from 'axios';
 
+const DEVICE_CONFLICT_MESSAGE = 'You have already installed the app on another device';
+
 const Login = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
   // const {loading, loginResponse, token, loginSuccess} = useSelector(
@@ -55,7 +57,11 @@ const Login = ({ navigation }: { navigation: any }) => {
 
   useEffect(() => {
     if (authError) {
-      setApiError(authError);
+      if (authError === DEVICE_CONFLICT_MESSAGE) {
+        Alert.alert('Access Denied', authError, [{text: 'OK'}], {cancelable: false});
+      } else {
+        setApiError(authError);
+      }
     }
   }, [authError]);
 //comment
@@ -74,7 +80,9 @@ const Login = ({ navigation }: { navigation: any }) => {
         setupHeaders();
         dispatch(checkSubscriptionRequest({ email: email }));
       } else if (loginResponse?.error) {
-        setApiError(loginResponse?.error);
+        if (loginResponse.error !== DEVICE_CONFLICT_MESSAGE) {
+          setApiError(loginResponse.error);
+        }
       } else if (loginResponse?.success === false) {
         setApiError(loginResponse?.message || 'Login failed. Please try again.');
       }

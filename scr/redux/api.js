@@ -50,7 +50,13 @@ export const login = async userData => {
   } catch (error) {
     console.log('❌ [API] Login Error:', error.response?.data || error.message);
     console.log('❌ [API] Error status:', error.response?.status);
-    if (error.response?.status === 401 || error.response?.data?.message === 'Invalid credentials') {
+    const status = error.response?.status;
+    const serverMessage = error.response?.data?.message;
+    if (status === 409) {
+      // Device conflict — pass through so saga gets the real message for the Alert
+      throw error;
+    }
+    if (status === 401 || serverMessage === 'Invalid credentials') {
       throw new Error('Invalid email or password');
     }
     throw error;
