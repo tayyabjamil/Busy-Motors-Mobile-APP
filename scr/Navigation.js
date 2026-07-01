@@ -131,14 +131,14 @@ const AppNavigation = () => {
     }
   };
 
-  // Single-device enforcement: log out if device ID no longer matches
+  // Single-device enforcement: log out if current device is not in active_devices
   useEffect(() => {
     const checkDeviceId = async () => {
       try {
         const currentDeviceId = await DeviceInfo.getUniqueId();
-        const storedDeviceId = userData?.deviceId;
-        if (storedDeviceId && currentDeviceId !== storedDeviceId) {
-          console.log('Device ID mismatch — logging out');
+        const activeDevices = userData?.active_devices;
+        if (activeDevices?.length > 0 && !activeDevices.includes(currentDeviceId)) {
+          console.log('Device not in active_devices — logging out');
           Alert.alert(
             'Logged Out',
             'Your account has been logged in on another device.',

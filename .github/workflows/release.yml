@@ -147,8 +147,12 @@ jobs:
         env:
           ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
         run: |
+          if [ -z "$ENV_PRODUCTION" ]; then echo "❌ ENV_PRODUCTION secret is not set"; exit 1; fi
           printf '%s\n' "$ENV_PRODUCTION" > .env.production
           grep -E '^(export )?[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=|^#|^[[:space:]]*$' .env.production > .env.production.tmp && mv .env.production.tmp .env.production
+          echo "✅ .env.production written ($(wc -l < .env.production) lines)"
+          echo "APP_ENV: $(grep '^APP_ENV' .env.production || echo 'NOT FOUND')"
+          echo "API_URL: $(grep '^API_URL' .env.production | cut -c1-40 || echo 'NOT FOUND')"
 
       - name: Read iOS version
         id: ios_version

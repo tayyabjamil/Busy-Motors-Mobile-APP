@@ -31,7 +31,10 @@ import {Fonts} from '../../Helper/Fonts';
 import {navigationRef} from '../../navigationRef';
 import axios from 'axios';
 import Config from 'react-native-config';
+import DeviceInfo from 'react-native-device-info';
 import {selectImage} from '../../Functions/MediaManager';
+import {getBundleId} from '@hot-updater/react-native';
+import OTA_CHANGELOG from '../../otaChangelog';
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -57,6 +60,14 @@ const Profile = () => {
   const [countryCode, setCountryCode] = useState('GB');
   const [callingCode, setCallingCode] = useState('44');
   const [visible, setVisible] = useState(false);
+  const [otaActive, setOtaActive] = useState(false);
+
+  useEffect(() => {
+    const NIL_UUID = '00000000-0000-0000-0000-000000000000';
+    const bundleId = getBundleId();
+    setOtaActive(!!bundleId && bundleId !== NIL_UUID && OTA_CHANGELOG.length > 0);
+  }, []);
+
   useEffect(() => {
     setErrors({});
 
@@ -348,8 +359,13 @@ const Profile = () => {
         </Modal>
         </View>
         <Text style={styles.versionText}>
-          Version {Config.APP_VERSION}
+          v{DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()}) • {Config.APP_ENV}
         </Text>
+        {otaActive && userData?.email === 'tayyab@gmail.com' && (
+          <Text style={styles.otaChangelogText}>
+            {OTA_CHANGELOG}
+          </Text>
+        )}
         </KeyboardAwareScrollView>
       </SafeAreaView>
   );
@@ -364,6 +380,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.gray,
     paddingVertical: 12,
+  },
+  otaChangelogText: {
+    textAlign: 'center',
+    fontSize: 11,
+    color: Colors.gray,
+    paddingHorizontal: 24,
+    paddingBottom: 12,
+    fontStyle: 'italic',
   },
   stagingBanner: {
     backgroundColor: 'orange',
